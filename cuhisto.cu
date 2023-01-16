@@ -6,8 +6,8 @@
 
 #include <noarr/structures_extended.hpp>
 #include <noarr/structures/extra/traverser.hpp>
-#include <noarr/structures/interop/cuda.hpp>
-#include <noarr/structures/interop/cuda_striped.hpp>
+#include <noarr/structures/interop/cuda_traverser.cuh>
+#include <noarr/structures/interop/cuda_striped.cuh>
 
 #define CUCH(status)  do { cudaError_t err = status; if (err != cudaSuccess) std::cerr << __FILE__ ":" << __LINE__ << ": error: " << cudaGetErrorString(err) << "\n\t" #status << std::endl, exit(err); } while (false)
 
@@ -66,7 +66,7 @@ __global__ void kernel_histo(InTrav in_trav, InStruct in_struct, ShmStruct shm_s
 	// Reduce all copies to the first one.
 	for(std::size_t dist = 1; dist < NUM_COPIES; dist *= 2) {
 		std::size_t other_copy_idx = my_copy_idx + dist;
-		if(other_copy_idx < NUM_COPIES && other_copy_idx < blockDim.x) {
+		if(other_copy_idx < NUM_COPIES && other_copy_idx < blockDim.x && (my_copy_idx & (2*dist-1)) == 0) {
 			noarr::traverser(shm_struct).order(subset).for_each([=](auto state) {
 				auto &to = shm_struct | noarr::get_at(shm_ptr, state); // my_copy_idx is used implicitly
 				auto &from = shm_struct | noarr::get_at(shm_ptr, state.template with<noarr::cuda_stripe_index>(other_copy_idx));
