@@ -132,7 +132,6 @@ int main(int argc, char **argv) {
 	}
 	std::size_t size = std::stoll(argv[2]);
 
-	//void *data = std::malloc(size);
 	void *data;
 	CUCH(cudaMallocManaged(&data, size));
 
@@ -143,7 +142,6 @@ int main(int argc, char **argv) {
 	}
 	std::fclose(file);
 
-	//std::size_t counts[NUM_VALUES] = {0};
 	std::size_t *counts;
 	CUCH(cudaMallocManaged(&counts, NUM_VALUES * sizeof(std::size_t)));
 	std::memset(counts, 0, NUM_VALUES * sizeof(std::size_t));
@@ -153,7 +151,6 @@ int main(int argc, char **argv) {
 	auto t1 = std::chrono::steady_clock::now();
 	std::fprintf(stderr, "%lu.%03u ms\n", (unsigned long) ((t1 - t0) / 1ms), (unsigned) ((t1 - t0) / 1us % 1000));
 
-	//std::free(data);
 	CUCH(cudaFree(data));
 
 	for(std::size_t v = 0; v < NUM_VALUES; v++) {
