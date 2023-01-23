@@ -18,16 +18,16 @@ __global__ void kernel_matmul(T trav, A a, B b, C c, TD td) {
 	extern __shared__ char pd[];
 	auto d = noarr::make_bag(td, pd);
 
-	trav.order(noarr::reorder<'k'>()).for_each([&](auto sa, auto sb, auto sc, auto sd) {
-		d[sd] = 0;
+	trav.order(noarr::reorder<'k'>()).for_each([&](auto ijk) {
+		d[ijk] = 0;
 	});
 
-	trav.order(noarr::reorder<'j', 'k'>()).for_each([&](auto sa, auto sb, auto sc, auto sd) {
-		d[sd] += a[sa] * b[sb];
+	trav.order(noarr::reorder<'j', 'k'>()).for_each([&](auto ijk) {
+		d[ijk] += a[ijk] * b[ijk];
 	});
 
-	trav.order(noarr::reorder<'k'>()).for_each([&](auto sa, auto sb, auto sc, auto sd) {
-		c[sc] = d[sd];
+	trav.order(noarr::reorder<'k'>()).for_each([&](auto ijk) {
+		c[ijk] = d[ijk];
 	});
 }
 

@@ -16,19 +16,19 @@ template<typename T, typename TA, typename TB, typename TC, typename TD>
 __global__ void kernel_matmul(T trav, TA ta, TB tb, TC tc, TD td, void *pa, void *pb, void *pc) {
 	extern __shared__ char pd[];
 
-	trav.order(noarr::reorder<'k'>()).for_each([=](auto sa, auto sb, auto sc, auto sd) {
-		td | noarr::get_at(pd, sd) = 0;
+	trav.order(noarr::reorder<'k'>()).for_each([=](auto ijk) {
+		td | noarr::get_at(pd, ijk) = 0;
 	});
 
-	trav.order(noarr::reorder<'j', 'k'>()).for_each([=](auto sa, auto sb, auto sc, auto sd) {
-		num_t a_elem = ta | noarr::get_at(pa, sa);
-		num_t b_elem = tb | noarr::get_at(pb, sb);
-		td | noarr::get_at(pd, sd) += a_elem * b_elem;
+	trav.order(noarr::reorder<'j', 'k'>()).for_each([=](auto ijk) {
+		num_t a_elem = ta | noarr::get_at(pa, ijk);
+		num_t b_elem = tb | noarr::get_at(pb, ijk);
+		td | noarr::get_at(pd, ijk) += a_elem * b_elem;
 	});
 
-	trav.order(noarr::reorder<'k'>()).for_each([=](auto sa, auto sb, auto sc, auto sd) {
-		num_t c_elem = td | noarr::get_at(pd, sd);
-		tc | noarr::get_at(pc, sc) = c_elem;
+	trav.order(noarr::reorder<'k'>()).for_each([=](auto ijk) {
+		num_t c_elem = td | noarr::get_at(pd, ijk);
+		tc | noarr::get_at(pc, ijk) = c_elem;
 	});
 }
 
