@@ -8,6 +8,7 @@
 #include <noarr/structures/extra/traverser.hpp>
 #include <noarr/structures/interop/cuda_traverser.cuh>
 #include <noarr/structures/interop/cuda_striped.cuh>
+#include <noarr/structures/interop/cuda_step.cuh>
 
 #define CUCH(status)  do { cudaError_t err = status; if (err != cudaSuccess) std::cerr << __FILE__ ":" << __LINE__ << ": error: " << cudaGetErrorString(err) << "\n\t" #status << std::endl, exit(err); } while (false)
 
@@ -39,12 +40,8 @@ __global__ void kernel_histo(InTrav in_trav, InStruct in_struct, ShmStruct shm_s
 	// A private copy will usually be shared by multiple threads (whenever NUM_COPIES < blockDim.x).
 	// For some actions, we would like each memory location to be assigned to only one thread.
 	// Let us split each copy further into "subsets", where each subset is owned by exactly one thread.
-	// Note that `shm_struct` uses `threadIdx%NUM_COPIES` as the index of copy.
-	// We can use the remaining bits, `threadIdx/NUM_COPIES`, as the index of subset within copy.
-	std::size_t my_copy_idx = threadIdx.x % NUM_COPIES;
-	std::size_t num_threads_in_my_copy = (blockDim.x + NUM_COPIES - my_copy_idx - 1) / NUM_COPIES;
-	std::size_t my_idx_in_my_copy = threadIdx.x / NUM_COPIES;
-	auto subset = noarr::step<'v'>(my_idx_in_my_copy, num_threads_in_my_copy);
+	std::size_t my_copy_idx = shm_struct.current_stripe_index();
+	auto subset = noarr::cuda_step(shm_struct.current_stripe_cg());
 
 	// Zero out shared memory. In this particular case, the access pattern happens
 	// to be the same as with the `for(i = threadIdx; i < ...; i += blockDim)` idiom.
@@ -76,10 +73,8 @@ __global__ void kernel_histo(InTrav in_trav, InStruct in_struct, ShmStruct shm_s
 		__syncthreads();
 	}
 
-	// Like `subset`, but now *all* threads will access the first copy
-	// (*not only* the threads whose `threadIdx.x % NUM_COPIES == 0`).
-	// Thus there will be less work for each, and each will make longer strides.
-	auto copy0_subset = noarr::step<'v'>(threadIdx.x, blockDim.x);
+	// Like `subset`, but now *all* threads will access the first copy.
+	auto copy0_subset = noarr::cuda_step_block();
 
 	// Write the first copy to the global memory.
 	noarr::traverser(shm_struct).order(copy0_subset).for_each([=](auto state) {
@@ -94,7 +89,7 @@ void histo_cuda(void *in_ptr, std::size_t size, void *out_ptr) {
 	auto out = noarr::scalar<std::size_t>() ^ noarr::array<'v', NUM_VALUES>();
 
 	//auto in_blk = in ^ noarr::into_blocks<'i', 'C', 'x', 'y'>(ELEMS_PER_BLOCK) ^ noarr::into_blocks<'y', 'D', 'y', 'z'>(BLOCK_SIZE);
-	auto in_blk = in ^ noarr::into_blocks<'i', 'C', 'y', 'z'>(BLOCK_SIZE) ^ noarr::into_blocks<'y', 'D', 'x', 'y'>(ELEMS_PER_THREAD);
+	auto in_blk = in ^ noarr::into_blocks_static<'i', 'C', 'y', 'z'>(BLOCK_SIZE) ^ noarr::into_blocks_static<'y', 'D', 'x', 'y'>(ELEMS_PER_THREAD);
 	auto out_striped = out ^ noarr::cuda_striped<NUM_COPIES>();
 
 	noarr::traverser(in_blk).order(noarr::reorder<'C', 'D'>()).for_each([=](auto cd){
