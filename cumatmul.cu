@@ -34,8 +34,8 @@ __global__ void kernel_matmul(T trav, TA ta, TB tb, TC tc, TD td, void *pa, void
 
 template<typename A, typename B, typename C>
 void matmul_cuda(A orig_ta, B orig_tb, C orig_tc, void *pa, void *pb, void *pc) {
-	auto i_blocks = noarr::into_blocks<'i', /*'r',*/ 'I', 'i'>(noarr::idx<1024>);
-	auto k_blocks = noarr::into_blocks<'k', /*'s',*/ 'K', 'k'>(noarr::idx<8>);
+	auto i_blocks = noarr::into_blocks<'i', /*'r',*/ 'I', 'i'>(noarr::lit<1024>);
+	auto k_blocks = noarr::into_blocks<'k', /*'s',*/ 'K', 'k'>(noarr::lit<8>);
 
 	auto ta = orig_ta ^ i_blocks;
 	auto tb = orig_tb ^ k_blocks;
