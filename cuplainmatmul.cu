@@ -4,8 +4,6 @@
 #include <chrono>
 #include <cstring>
 
-#include <cublas.h>
-
 #define CUCH(status)  do { cudaError_t err = status; if (err != cudaSuccess) std::cerr << __FILE__ ":" << __LINE__ << ": error: " << cudaGetErrorString(err) << "\n\t" #status << std::endl, exit(err); } while (false)
 
 using num_t = float;
@@ -40,15 +38,9 @@ __global__ void kernel_matmul(num_t* glm_a, num_t* glm_b, num_t* glm_c) {
 
 template<std::size_t ISize, std::size_t JSize, std::size_t KSize>
 void matmul_cuda(num_t* cu_a, num_t* cu_b, num_t* cu_c) {
-#if true
 	kernel_matmul<ISize, JSize, KSize><<<{ISize/I_BLOCK_SIZE, KSize/K_BLOCK_SIZE}, I_BLOCK_SIZE>>>(cu_a, cu_b, cu_c);
 	CUCH(cudaGetLastError());
 	CUCH(cudaDeviceSynchronize());
-#else
-	cublasSgemm('n', 'n', ISize, KSize, JSize, 1, cu_a, ISize, cu_b, JSize, 0, cu_c, ISize);
-	CUCH(cudaGetLastError());
-	CUCH(cudaDeviceSynchronize());
-#endif
 }
 
 using namespace std::literals::chrono_literals;
