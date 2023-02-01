@@ -8,8 +8,11 @@
 #include <noarr/structures_extended.hpp>
 #include <noarr/structures/extra/traverser.hpp>
 #include <noarr/structures/interop/traverser_iter.hpp>
-#include <noarr/structures/interop/cuda_traverser.cuh>
 #include <noarr/structures/interop/bag.hpp>
+
+#ifdef CUDA
+#include <noarr/structures/interop/cuda_traverser.cuh>
+#endif
 
 #define CUCH(status)  do { cudaError_t err = status; if (err != cudaSuccess) std::cerr << __FILE__ ":" << __LINE__ << ": error: " << cudaGetErrorString(err) << "\n\t" #status << std::endl, exit(err); } while (false)
 
@@ -61,7 +64,7 @@ int main(int argc, char **argv) {
 #ifdef CUDA
 	CUCH(cudaMallocManaged(&data, a_sz + b_sz + c_sz));
 #else
-	if (!(data = malloc(a_sz + b_sz + c_sz))) {
+	if (!(data = (char *)malloc(a_sz + b_sz + c_sz))) {
 		std::cerr << __FILE__ ":" << __LINE__ << ": error: failed to allocate memory" << std::endl;
 		exit(1);
 	}
