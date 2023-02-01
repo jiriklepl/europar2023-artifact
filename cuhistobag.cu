@@ -10,10 +10,8 @@ __global__ void kernel_histo(InTrav in_trav, In in, ShmLayout shm_layout, Out ou
 	// Let us split each copy further into "subsets", where each subset is owned by exactly one thread.
 	// Note that `shm_bag` uses `threadIdx%NUM_COPIES` as the index of copy.
 	// We can use the remaining bits, `threadIdx/NUM_COPIES`, as the index of subset within copy.
-	std::size_t my_copy_idx = threadIdx.x % NUM_COPIES;
-	std::size_t num_threads_in_my_copy = (blockDim.x + NUM_COPIES - my_copy_idx - 1) / NUM_COPIES;
-	std::size_t my_idx_in_my_copy = threadIdx.x / NUM_COPIES;
-	auto subset = noarr::step<'v'>(my_idx_in_my_copy, num_threads_in_my_copy);
+	std::size_t my_copy_idx = shm_layout.current_stripe_index();
+	auto subset = noarr::cuda_step(shm_layout.current_stripe_cg());
 
 	// Zero out shared memory. In this particular case, the access pattern happens
 	// to be the same as with the `for(i = threadIdx; i < ...; i += blockDim)` idiom.
@@ -26,35 +24,21 @@ __global__ void kernel_histo(InTrav in_trav, In in, ShmLayout shm_layout, Out ou
 	// Count the elements into the histogram copies in shared memory.
 	in_trav.for_each([&](auto state) {
 		auto value = in[state];
-		auto &bin = shm_bag[noarr::state().with<noarr::index_in<'v'>>(value)];
-		atomicAdd(&bin, 1);
+		atomicAdd(&shm_bag[noarr::idx<'v'>(value)], 1);
 	});
 
 	__syncthreads();
 
-	// Reduce all copies to the first one.
-	for(std::size_t dist = 1; dist < NUM_COPIES; dist *= 2) {
-		std::size_t other_copy_idx = my_copy_idx + dist;
-		if(other_copy_idx < NUM_COPIES && other_copy_idx < blockDim.x && (my_copy_idx & (2*dist-1)) == 0) {
-			noarr::traverser(shm_bag).order(subset).for_each([&](auto state) {
-				auto &to = shm_bag[state]; // my_copy_idx is used implicitly
-				auto &from = shm_bag[state.template with<noarr::cuda_stripe_index>(other_copy_idx)];
-				to += from;
-			});
+	// Reduce the bins in shared memory into global memory.
+	noarr::traverser(out).order(noarr::cuda_step_block()).for_each([=](auto state) {
+		std::size_t collected = 0;
+
+		for(std::size_t i = 0; i < NUM_COPIES; i++) {
+			auto shm_state = state.template with<noarr::cuda_stripe_index>((i + my_copy_idx) % NUM_COPIES);
+			collected += shm_bag[shm_state];
 		}
-		__syncthreads();
-	}
 
-	// Like `subset`, but now *all* threads will access the first copy
-	// (*not only* the threads whose `threadIdx.x % NUM_COPIES == 0`).
-	// Thus there will be less work for each, and each will make longer strides.
-	auto copy0_subset = noarr::step<'v'>(threadIdx.x, blockDim.x);
-
-	// Write the first copy to the global memory.
-	noarr::traverser(shm_bag).order(copy0_subset).for_each([&](auto state) {
-		auto &from = shm_bag[state.template with<noarr::cuda_stripe_index>(0)];
-		auto &to = out[state];
-		atomicAdd(&to, from);
+		atomicAdd(&out[state], collected);
 	});
 }
 
@@ -62,7 +46,6 @@ void histo_cuda(void *in_ptr, std::size_t size, void *out_ptr) {
 	auto in_layout = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
 	auto out_layout = noarr::scalar<std::size_t>() ^ noarr::array<'v', NUM_VALUES>();
 
-	//auto in_blk = in ^ noarr::into_blocks<'i', 'C', 'x', 'y'>(ELEMS_PER_BLOCK) ^ noarr::into_blocks<'y', 'D', 'y', 'z'>(BLOCK_SIZE);
 	auto in_blk_layout = in_layout ^ noarr::into_blocks_static<'i', 'C', 'y', 'z'>(BLOCK_SIZE) ^ noarr::into_blocks_static<'y', 'D', 'x', 'y'>(ELEMS_PER_THREAD);
 	auto shm_layout = out_layout ^ noarr::cuda_striped<NUM_COPIES>();
 
