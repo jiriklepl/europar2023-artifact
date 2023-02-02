@@ -1,5 +1,12 @@
 #include "cuhistomain.hpp"
 
+#include <noarr/structures_extended.hpp>
+#include <noarr/structures/extra/traverser.hpp>
+#include <noarr/structures/interop/bag.hpp>
+#include <noarr/structures/interop/cuda_traverser.cuh>
+#include <noarr/structures/interop/cuda_striped.cuh>
+#include <noarr/structures/interop/cuda_step.cuh>
+
 template<typename InTrav, typename InStruct, typename ShmStruct, typename OutStruct>
 __global__ void kernel_histo(InTrav in_trav, InStruct in_struct, ShmStruct shm_struct, OutStruct out_struct, void *in_ptr, void *out_ptr) {
 	extern __shared__ char shm_ptr[];

@@ -4,13 +4,6 @@
 #include <chrono>
 #include <cstring>
 
-#include <noarr/structures_extended.hpp>
-#include <noarr/structures/extra/traverser.hpp>
-#include <noarr/structures/interop/bag.hpp>
-#include <noarr/structures/interop/cuda_traverser.cuh>
-#include <noarr/structures/interop/cuda_striped.cuh>
-#include <noarr/structures/interop/cuda_step.cuh>
-
 #define CUCH(status)  do { cudaError_t err = status; if (err != cudaSuccess) std::cerr << __FILE__ ":" << __LINE__ << ": error: " << cudaGetErrorString(err) << "\n\t" #status << std::endl, exit(err); } while (false)
 
 static constexpr std::size_t NUM_VALUES = 256;
