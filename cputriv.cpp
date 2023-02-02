@@ -84,5 +84,5 @@ void matmul(A orig_ta, B orig_tb, C orig_tc, char *pa, char *pb, char *pc) {
     // modified for the experiment:
     [&]<char ...Blocks, char ...Dims>(std::integer_sequence<char, Blocks...>, std::integer_sequence<char, Dims...>){
         trav.template for_dims<Blocks..., Dims...>(kernel_matmul(ta, tb, tc, pa, pb, pc));
-    }(swap_pack<1, 1 + (BLOCK_ORDER / 3)>(swap_pack<0, BLOCK_ORDER % 3>(std::integer_sequence<char, 'I', 'J', 'K'>())), std::integer_sequence<char, 'i', 'k'>());
+    }(swap_pack<1, 1 + (BLOCK_ORDER / 3)>(swap_pack<0, BLOCK_ORDER % 3>(std::integer_sequence<char, 'I', 'J', 'K'>())), swap_pack<0, DIM_ORDER>(std::integer_sequence<char, 'i', 'k'>()));
 }
