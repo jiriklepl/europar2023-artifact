@@ -7,7 +7,10 @@
 
 #include <noarr/structures_extended.hpp>
 #include <noarr/structures/extra/traverser.hpp>
+
+#ifdef CUDA
 #include <noarr/structures/interop/cuda_traverser.cuh>
+#endif
 
 #define CUCH(status)  do { cudaError_t err = status; if (err != cudaSuccess) std::cerr << __FILE__ ":" << __LINE__ << ": error: " << cudaGetErrorString(err) << "\n\t" #status << std::endl, exit(err); } while (false)
 
@@ -84,7 +87,7 @@ int main(int argc, char **argv) {
 #ifdef CUDA
 	CUCH(cudaMallocManaged(&data, a_sz + b_sz + c_sz));
 #else
-	if (!(data = malloc(a_sz + b_sz + c_sz))) {
+	if (!(data = (num_t *)malloc(a_sz + b_sz + c_sz))) {
 		std::cerr << __FILE__ ":" << __LINE__ << ": error: failed to allocate memory" << std::endl;
 		exit(1);
 	}
@@ -97,9 +100,36 @@ int main(int argc, char **argv) {
 	}
 	std::fclose(file);
 
+
+#ifdef A_ROW
 	auto a = make_matrix<ROW_MAJOR>(data, i_size, j_size);
+#else
+#ifdef A_COL
+	auto a = make_matrix<COL_MAJOR>(data, i_size, j_size);
+#else
+#error define A_ROW or A_COL
+#endif
+#endif
+
+#ifdef B_ROW
 	auto b = make_matrix<ROW_MAJOR>(data + a_cnt, j_size, k_size);
+#else
+#ifdef B_COL
+	auto b = make_matrix<COL_MAJOR>(data + a_cnt, j_size, k_size);
+#else
+#error define B_ROW or B_COL
+#endif
+#endif
+
+#ifdef C_ROW
 	auto c = make_matrix<ROW_MAJOR>(data + a_cnt + b_cnt, i_size, k_size);
+#else
+#ifdef C_COL
+	auto c = make_matrix<COL_MAJOR>(data + a_cnt + b_cnt, i_size, k_size);
+#else
+#error define C_ROW or C_COL
+#endif
+#endif
 
 	matmul(i_size, j_size, k_size, a, b, c);
 

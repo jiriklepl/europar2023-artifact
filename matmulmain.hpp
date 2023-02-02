@@ -51,9 +51,35 @@ int main(int argc, char **argv) {
 	auto k_st = noarr::sized_vector<'k'>(size);
 #endif
 
+#ifdef A_ROW
 	auto ta = noarr::scalar<num_t>() ^ i_st ^ j_st;
+#else
+#ifdef A_COL
+	auto ta = noarr::scalar<num_t>() ^ j_st ^ i_st;
+#else
+#error define A_ROW or A_COL
+#endif
+#endif
+
+#ifdef B_ROW
 	auto tb = noarr::scalar<num_t>() ^ j_st ^ k_st;
+#else
+#ifdef B_COL
+	auto tb = noarr::scalar<num_t>() ^ k_st ^ j_st;
+#else
+#error define B_ROW or B_COL
+#endif
+#endif
+
+#ifdef C_ROW
 	auto tc = noarr::scalar<num_t>() ^ i_st ^ k_st;
+#else
+#ifdef C_COL
+	auto tc = noarr::scalar<num_t>() ^ k_st ^ i_st;
+#else
+#error define C_ROW or C_COL
+#endif
+#endif
 
 	std::size_t a_sz = ta | noarr::get_size();
 	std::size_t b_sz = tb | noarr::get_size();
@@ -69,6 +95,7 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 #endif
+
 	std::FILE *file = std::fopen(argv[1], "r");
 	if(std::fread(data, 1, a_sz + b_sz, file) != a_sz + b_sz) {
 		std::cerr << "Input error" << std::endl;
