@@ -1,4 +1,5 @@
-#include "cuhistomain.hpp"
+#define CUDA
+#include "histomain.hpp"
 
 #include <noarr/structures_extended.hpp>
 #include <noarr/structures/extra/traverser.hpp>
@@ -49,7 +50,7 @@ __global__ void kernel_histo(InTrav in_trav, In in, ShmLayout shm_layout, Out ou
 	});
 }
 
-void histo_cuda(void *in_ptr, std::size_t size, void *out_ptr) {
+void histo(void *in_ptr, std::size_t size, void *out_ptr) {
 	auto in_layout = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
 	auto out_layout = noarr::scalar<std::size_t>() ^ noarr::array<'v', NUM_VALUES>();
 

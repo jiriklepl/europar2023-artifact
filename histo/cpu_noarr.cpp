@@ -1,21 +1,35 @@
-#include <cstdlib>
-#include <iostream>
-#include <cstdio>
-#include <chrono>
+#define CPU
+#include "histomain.hpp"
 
 #include <noarr/structures_extended.hpp>
 #include <noarr/structures/extra/traverser.hpp>
 #include <noarr/structures/interop/traverser_iter.hpp>
 
+#ifndef HISTO_IMPL
+#error Add -DHISTO_IMPL=(histo_plain_loop|histo_noarr_loop|histo_trav_loop|histo_trav_foreach|histo_trav_tbbreduce) to compiler commandline
+#define HISTO_IMPL hist_undefined
+#endif
+
 #ifdef HISTO_HAVE_TBB
 #include <noarr/structures/interop/tbb.hpp>
 #endif
 
-static constexpr std::size_t NUM_VALUES = 256;
+namespace {
 
-using value_t = unsigned char;
+enum {
+	histo_plain_loop,
+	histo_noarr_loop,
+	histo_trav_loop,
+	histo_trav_foreach,
+	histo_trav_tbbreduce,
+	hist_undefined
+};
 
-void histo_plain_loop(void *in_ptr, size_t size, void *out_ptr) {
+}
+
+void histo(void *in_ptr, size_t size, void *out_ptr) {
+
+if constexpr (HISTO_IMPL == histo_plain_loop) {
 	using noarr::get_at;
 
 	auto in = (value_t*) in_ptr;
@@ -27,7 +41,7 @@ void histo_plain_loop(void *in_ptr, size_t size, void *out_ptr) {
 	}
 }
 
-void histo_noarr_loop(void *in_ptr, size_t size, void *out_ptr) {
+else if constexpr (HISTO_IMPL == histo_noarr_loop) {
 	using noarr::get_at;
 
 	auto in = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
@@ -39,7 +53,7 @@ void histo_noarr_loop(void *in_ptr, size_t size, void *out_ptr) {
 	}
 }
 
-void histo_trav_loop(void *in_ptr, size_t size, void *out_ptr) {
+else if constexpr (HISTO_IMPL == histo_trav_loop) {
 	using noarr::get_at;
 
 	auto in = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
@@ -51,7 +65,7 @@ void histo_trav_loop(void *in_ptr, size_t size, void *out_ptr) {
 	}
 }
 
-void histo_trav_foreach(void *in_ptr, size_t size, void *out_ptr) {
+else if constexpr (HISTO_IMPL == histo_trav_foreach) {
 	using noarr::get_at;
 
 	auto in = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
@@ -64,7 +78,7 @@ void histo_trav_foreach(void *in_ptr, size_t size, void *out_ptr) {
 }
 
 #ifdef HISTO_HAVE_TBB
-void histo_trav_tbbreduce(void *in_ptr, size_t size, void *out_ptr) {
+else if constexpr (HISTO_IMPL == histo_trav_tbbreduce) {
 	using noarr::get_at;
 
 	auto in = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
@@ -99,45 +113,4 @@ void histo_trav_tbbreduce(void *in_ptr, size_t size, void *out_ptr) {
 }
 #endif
 
-#ifndef HISTO_IMPL
-#error Add -DHISTO_IMPL=(histo_plain_loop|histo_noarr_loop|histo_trav_loop|histo_trav_foreach|histo_trav_tbbreduce) to compiler commandline
-#endif
-
-volatile auto histo_ptr = &HISTO_IMPL;
-
-using namespace std::literals::chrono_literals;
-
-int main(int argc, char **argv) {
-	if(argc != 3) {
-		std::cerr << "Usage: histo <filename> <size>" << std::endl;
-		std::abort();
-	}
-	std::size_t size = std::stoll(argv[2]);
-
-	void *data = std::malloc(size);
-
-	std::FILE *file = std::fopen(argv[1], "r");
-	if(std::fread(data, 1, size, file) != size) {
-		std::cerr << "Input error" << std::endl;
-		std::abort();
-	}
-	std::fclose(file);
-
-	std::size_t counts[NUM_VALUES] = {0};
-
-	auto t0 = std::chrono::steady_clock::now();
-	histo_ptr(data, size, counts);
-	auto t1 = std::chrono::steady_clock::now();
-	std::fprintf(stderr, "%lu.%03u ms\n", (unsigned long) ((t1 - t0) / 1ms), (unsigned) ((t1 - t0) / 1us % 1000));
-
-	std::free(data);
-
-	for(std::size_t v = 0; v < NUM_VALUES; v++) {
-		std::printf("%12zu * 0x%02x", counts[v], (unsigned) v);
-		if(v >= ' ' && v <= '~')
-			std::printf(" ('%c')", (char) v);
-		std::putchar('\n');
-	}
-
-	return 0;
 }

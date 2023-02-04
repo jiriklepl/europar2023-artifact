@@ -1,4 +1,5 @@
-#include "cuhistomain.hpp"
+#define CUDA
+#include "histomain.hpp"
 
 __global__ void kernel_histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 	extern __shared__ std::size_t shm_ptr[];
@@ -35,7 +36,7 @@ __global__ void kernel_histo(value_t *in_ptr, std::size_t size, std::size_t *out
 	}
 }
 
-void histo_cuda(void *in_ptr, std::size_t size, void *out_ptr) {
+void histo(void *in_ptr, std::size_t size, void *out_ptr) {
     auto blocks = (size - 1) / ELEMS_PER_BLOCK + 1;
     auto shm_size = NUM_VALUES * NUM_COPIES * sizeof(std::size_t);
 
