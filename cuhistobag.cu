@@ -53,14 +53,14 @@ void histo_cuda(void *in_ptr, std::size_t size, void *out_ptr) {
 	auto in_layout = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
 	auto out_layout = noarr::scalar<std::size_t>() ^ noarr::array<'v', NUM_VALUES>();
 
-	auto in_blk_layout = in_layout ^ noarr::into_blocks_static<'i', 'C', 'y', 'z'>(BLOCK_SIZE) ^ noarr::into_blocks_static<'y', 'D', 'x', 'y'>(ELEMS_PER_THREAD);
+	auto in_blk_layout = in_layout ^ noarr::into_blocks_static<'i', 'C', 'y', 'z'>(noarr::lit<BLOCK_SIZE>) ^ noarr::into_blocks_static<'y', 'D', 'x', 'y'>(noarr::lit<ELEMS_PER_THREAD>);
 	auto shm_layout = out_layout ^ noarr::cuda_striped<NUM_COPIES>();
 
 	auto in = noarr::make_bag(in_blk_layout, (char *)in_ptr);
 	auto out = noarr::make_bag(out_layout, (char *)out_ptr);
 
-	noarr::traverser(in).order(noarr::reorder<'C', 'D'>()).for_each([=](auto cd){
-		auto ct = noarr::cuda_traverser(in).order(noarr::fix(cd)).template threads<'x', 'z'>();
+	noarr::traverser(in).template for_dims<'C', 'D'>([=](auto cd){
+		auto ct = noarr::cuda_threads<'x', 'z'>(cd);
 #ifdef NOARR_CUDA_HISTO_DEBUG
 		std::cerr
 			<< (noarr::get_index<'C'>(cd) ? "border" : "body")

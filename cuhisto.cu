@@ -52,11 +52,11 @@ void histo_cuda(void *in_ptr, std::size_t size, void *out_ptr) {
 	auto in = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
 	auto out = noarr::scalar<std::size_t>() ^ noarr::array<'v', NUM_VALUES>();
 
-	auto in_blk = in ^ noarr::into_blocks_static<'i', 'C', 'y', 'z'>(BLOCK_SIZE) ^ noarr::into_blocks_static<'y', 'D', 'x', 'y'>(ELEMS_PER_THREAD);
+	auto in_blk = in ^ noarr::into_blocks_static<'i', 'C', 'y', 'z'>(noarr::lit<BLOCK_SIZE>) ^ noarr::into_blocks_static<'y', 'D', 'x', 'y'>(noarr::lit<ELEMS_PER_THREAD>);
 	auto out_striped = out ^ noarr::cuda_striped<NUM_COPIES>();
 
-	noarr::traverser(in_blk).order(noarr::reorder<'C', 'D'>()).for_each([=](auto cd){
-		auto ct = noarr::cuda_traverser(in_blk).order(noarr::fix(cd)).template threads<'x', 'z'>();
+	noarr::traverser(in_blk).template for_dims<'C', 'D'>([=](auto cd){
+		auto ct = noarr::cuda_threads<'x', 'z'>(cd);
 #ifdef NOARR_CUDA_HISTO_DEBUG
 		std::cerr
 			<< (noarr::get_index<'C'>(cd) ? "border" : "body")

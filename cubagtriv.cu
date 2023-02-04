@@ -7,14 +7,14 @@
 
 template<typename T, typename A, typename B, typename C>
 __global__ void kernel_matmul(T trav, A a, B b, C c) {
-	trav.for_dims<'r', 's'>([=](auto inner) {
+	trav.template for_dims<'r', 's'>([=](auto trav) {
     	num_t result = 0;
 
-        inner.for_each([&](auto j) {
+        trav.for_each([&](auto j) {
             result += a[j] * b[j];
         });
 
-        c[inner.state()] = result;
+        c[trav.state()] = result;
     });
 }
 
@@ -24,9 +24,13 @@ void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc) {
 	auto b = noarr::make_bag(tb, pb);
 	auto c = noarr::make_bag(tc, pc);
 
-	auto trav = noarr::cuda_traverser(a, b, c)
-		.order(noarr::into_blocks_dynamic<'i', 'I', 'i', 'r'>(BLOCK_SIZE) ^ noarr::into_blocks_dynamic<'k', 'K', 'k', 's'>(BLOCK_SIZE))
-		.template threads<'I', 'i', 'K', 'k'>();
+#ifdef DYNAMIC_BLOCKS
+	auto into_blocks = noarr::into_blocks_dynamic<'i', 'I', 'i', 'r'>(noarr::lit<BLOCK_SIZE>) ^ noarr::into_blocks_dynamic<'k', 'K', 'k', 's'>(noarr::lit<BLOCK_SIZE>);
+#else
+	auto into_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<BLOCK_SIZE>) ^ noarr::into_blocks<'k', 'K', 'k'>(noarr::lit<BLOCK_SIZE>) ^ noarr::bcast<'r'>(noarr::lit<1>) ^ noarr::bcast<'s'>(noarr::lit<1>);
+#endif
+
+	auto trav = noarr::cuda_threads<'I', 'i', 'K', 'k'>(noarr::traverser(a, b, c).order(into_blocks));
 
 	kernel_matmul<<<trav.grid_dim(), trav.block_dim()>>>(trav.inner(), a, b, c);
 

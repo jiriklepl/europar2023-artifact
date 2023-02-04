@@ -24,20 +24,22 @@ void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc) {
 	static constexpr auto I_BLOCK_SIZE = 32;
 	static constexpr auto K_BLOCK_SIZE = 32;
 
+	auto into_blocks = noarr::into_blocks_dynamic<'i', 'I', 'i', 'r'>(I_BLOCK_SIZE) ^ noarr::into_blocks_dynamic<'k', 'K', 'k', 's'>(K_BLOCK_SIZE);
+
 	{
-		auto trav = noarr::cuda_traverser(c)
-			.order(noarr::into_blocks_dynamic<'i', 'I', 'i', 'r'>(I_BLOCK_SIZE) ^ noarr::into_blocks_dynamic<'k', 'K', 'k', 's'>(K_BLOCK_SIZE))
-			.template threads<'I', 'i', 'K', 'k'>();
+		auto trav = noarr::cuda_threads<'I', 'i', 'K', 'k'>(
+			noarr::traverser(c).order(into_blocks)
+			);
 
 		kernel_bzero<<<trav.grid_dim(), trav.block_dim()>>>(trav.inner(), c);
 		CUCH(cudaGetLastError());
 	}
 
 	{
-		auto trav = noarr::cuda_traverser(a, b, c)
-			.order(noarr::hoist<'i'>() ^ noarr::hoist<'k'>())
-			.order(noarr::into_blocks_dynamic<'i', 'I', 'i', 'r'>(I_BLOCK_SIZE) ^ noarr::into_blocks_dynamic<'k', 'K', 'k', 's'>(K_BLOCK_SIZE))
-			.template threads<'I', 'i', 'K', 'k'>();
+		auto trav = noarr::cuda_threads<'I', 'i', 'K', 'k'>(
+			noarr::traverser(a, b, c).order(noarr::hoist<'i'>() ^ noarr::hoist<'k'>())
+				.order(into_blocks)
+			);
 
 		kernel_matmul<<<trav.grid_dim(), trav.block_dim()>>>(trav.inner(), a, b, c);
 		CUCH(cudaGetLastError());
