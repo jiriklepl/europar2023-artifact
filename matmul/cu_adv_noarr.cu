@@ -25,23 +25,21 @@ __global__ void kernel_matmul(T trav, TA ta, TB tb, TC tc, TD td, void *pa, void
 
 template<typename A, typename B, typename C>
 void matmul(A orig_ta, B orig_tb, C orig_tc, char *pa, char *pb, char *pc) {
-	auto i_blocks = noarr::into_blocks<'i', /*'r',*/ 'I', 'i'>(noarr::lit<1024>);
-	auto k_blocks = noarr::into_blocks<'k', /*'s',*/ 'K', 'k'>(noarr::lit<8>);
+	auto i_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<1024>);
+	auto k_blocks = noarr::into_blocks<'k', 'K', 'k'>(noarr::lit<8>);
 
 	auto ta = orig_ta ^ i_blocks;
 	auto tb = orig_tb ^ k_blocks;
 	auto tc = orig_tc ^ i_blocks ^ k_blocks;
 
-	noarr::traverser(ta, tb, tc).template for_dims</*'s', 'r'*/>([=](auto trav) {
-		auto td = noarr::scalar<num_t>()
-			^ noarr::sized_vector<'i'>(tc | noarr::get_length<'i'>(trav.state()))
-			^ noarr::sized_vector<'k'>(tc | noarr::get_length<'k'>(trav.state()));
+	auto trav = noarr::traverser(ta, tb, tc).order(noarr::bcast<'1'>(1));
+	auto td = noarr::scalar<num_t>()
+		^ noarr::sized_vector<'i'>(tc | noarr::get_length<'i'>())
+		^ noarr::sized_vector<'k'>(tc | noarr::get_length<'k'>());
 
-		auto cutrav = noarr::cuda_threads<'I', 'i', 'K', '1'>(trav.order(noarr::bcast<'1'>(1)));
-		kernel_matmul<<<cutrav.grid_dim(), cutrav.block_dim(), td | noarr::get_size()>>>(cutrav.inner(), ta, tb, tc, td, pa, pb, pc);
+	auto cutrav = noarr::cuda_threads<'I', 'i', 'K', '1'>(trav);
+	kernel_matmul<<<cutrav.grid_dim(), cutrav.block_dim(), td | noarr::get_size()>>>(cutrav.inner(), ta, tb, tc, td, pa, pb, pc);
 
-		CUCH(cudaGetLastError());
-	});
-
+	CUCH(cudaGetLastError());
 	CUCH(cudaDeviceSynchronize());
 }
