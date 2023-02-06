@@ -1,5 +1,5 @@
 #define CUDA
-#include "matmulmain.hpp"
+#include "noarrmain.hpp"
 
 template<typename T, typename C>
 __global__ void kernel_bzero(T trav, C c) {

@@ -1,5 +1,5 @@
 #define CUDA
-#include "matmulmain.hpp"
+#include "noarrmain.hpp"
 
 template<typename T, typename TA, typename TB, typename TC, typename TD>
 __global__ void kernel_matmul(T trav, TA ta, TB tb, TC tc, TD td, void *pa, void *pb, void *pc) {

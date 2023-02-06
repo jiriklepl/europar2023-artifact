@@ -1,5 +1,5 @@
 #define CPU
-#include "matmulmain.hpp"
+#include "noarrmain.hpp"
 
 template<typename C>
 constexpr auto kernel_reset(C c) {
