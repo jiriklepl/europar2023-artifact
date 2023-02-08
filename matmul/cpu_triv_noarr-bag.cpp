@@ -1,13 +1,6 @@
 #define CPU
 #include "noarrmain.hpp"
 
-template<typename C>
-constexpr auto kernel_reset(C c) {
-    return [=](auto state) {
-	    c[state] = 0;
-    };
-}
-
 template<typename A, typename B, typename C>
 constexpr auto kernel_matmul(A a, B b, C c) {
     return [=](auto trav) {
@@ -47,17 +40,17 @@ constexpr auto swap_pack(std::integer_sequence<C, Idxs...>) {
 template<typename A, typename B, typename C>
 void matmul(A orig_ta, B orig_tb, C orig_tc, char *pa, char *pb, char *pc) {
 #ifdef BLOCK_I
-	auto i_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<16>);
+	auto i_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<BLOCK_SIZE>);
 #else
     auto i_blocks = noarr::bcast<'I'>(1);
 #endif
 #ifdef BLOCK_J
-	auto j_blocks = noarr::into_blocks<'j', 'J', 'j'>(noarr::lit<16>);
+	auto j_blocks = noarr::into_blocks<'j', 'J', 'j'>(noarr::lit<BLOCK_SIZE>);
 #else
     auto j_blocks = noarr::bcast<'J'>(1);
 #endif
 #ifdef BLOCK_K
-	auto k_blocks = noarr::into_blocks<'k', 'K', 'k'>(noarr::lit<16>);
+	auto k_blocks = noarr::into_blocks<'k', 'K', 'k'>(noarr::lit<BLOCK_SIZE>);
 #else
     auto k_blocks = noarr::bcast<'K'>(1);
 #endif
@@ -65,7 +58,9 @@ void matmul(A orig_ta, B orig_tb, C orig_tc, char *pa, char *pb, char *pc) {
 	auto b = noarr::make_bag(orig_tb ^ j_blocks ^ k_blocks, pb);
 	auto c = noarr::make_bag(orig_tc ^ i_blocks ^ k_blocks, pc);
 
-    noarr::traverser(c).for_each(kernel_reset(c));
+    noarr::traverser(c).for_each([=](auto state) {
+	    c[state] = 0;
+    });
 
 #ifndef BLOCK_ORDER
 #error BLOCK_ORDER has to satisfy: 0 <= BLOCK_ORDER < 6
