@@ -1,7 +1,7 @@
 #define CPU
 #include "noarrmain.hpp"
 
-template<typename TA, typename TB, typename TC>
+template<class TA, class TB, class TC>
 constexpr auto kernel_matmul(TA ta, TB tb, TC tc, void *pa, void *pb, void *pc) {
     return [=](auto trav) {
         num_t result = tc | noarr::get_at(pc, trav.state());
@@ -39,7 +39,7 @@ constexpr auto swap_pack(std::integer_sequence<C, Idxs...>) {
     }, std::make_index_sequence<sizeof...(Idxs)>());
 }
 
-template<typename A, typename B, typename C>
+template<class A, class B, class C>
 void matmul(A orig_ta, B orig_tb, C orig_tc, char *pa, char *pb, char *pc) {
 #ifdef BLOCK_I
 	auto i_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<BLOCK_SIZE>);

@@ -5,7 +5,7 @@
 #error define appropriate BLOCK_SIZE
 #endif
 
-template<typename T, typename TA, typename TB, typename TC>
+template<class T, class TA, class TB, class TC>
 __global__ void kernel_matmul(T trav, TA ta, TB tb, TC tc, void *pa, void *pb, void *pc) {
 	trav.template for_dims<'r', 's'>([=](auto trav) {
 		num_t result = 0;
@@ -20,7 +20,7 @@ __global__ void kernel_matmul(T trav, TA ta, TB tb, TC tc, void *pa, void *pb, v
 	});
 }
 
-template<typename A, typename B, typename C>
+template<class A, class B, class C>
 void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc) {
 #ifdef DYNAMIC_BLOCKS
 	auto into_blocks = noarr::into_blocks_dynamic<'i', 'I', 'i', 'r'>(noarr::lit<BLOCK_SIZE>) ^ noarr::into_blocks_dynamic<'k', 'K', 'k', 's'>(noarr::lit<BLOCK_SIZE>);

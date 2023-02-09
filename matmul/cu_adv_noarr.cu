@@ -1,7 +1,7 @@
 #define CUDA
 #include "noarrmain.hpp"
 
-template<typename T, typename TA, typename TB, typename TC, typename TD>
+template<class T, class TA, class TB, class TC, class TD>
 __global__ void kernel_matmul(T trav, TA ta, TB tb, TC tc, TD td, void *pa, void *pb, void *pc) {
 	extern __shared__ char pd[];
 
@@ -23,7 +23,7 @@ __global__ void kernel_matmul(T trav, TA ta, TB tb, TC tc, TD td, void *pa, void
 	});
 }
 
-template<typename A, typename B, typename C>
+template<class A, class B, class C>
 void matmul(A orig_ta, B orig_tb, C orig_tc, char *pa, char *pb, char *pc) {
 	auto i_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<1024>);
 	auto k_blocks = noarr::into_blocks<'k', 'K', 'k'>(noarr::lit<8>);

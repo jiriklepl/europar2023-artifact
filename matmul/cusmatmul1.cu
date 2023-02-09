@@ -1,21 +1,21 @@
 #define CUDA
 #include "noarrmain.hpp"
 
-template<typename T, typename C>
+template<class T, class C>
 __global__ void kernel_bzero(T trav, C c) {
 	trav.for_each([&](auto state) {
 		c[state] = 0;
 	});
 }
 
-template<typename T, typename A, typename B, typename C>
+template<class T, class A, class B, class C>
 __global__ void kernel_matmul(T trav, A a, B b, C c) {
 	trav.for_each([&](auto state) {
 		c[state] += a[state] * b[state];
 	});
 }
 
-template<typename A, typename B, typename C>
+template<class A, class B, class C>
 void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc) {
 	auto a = noarr::make_bag(ta, pa);
 	auto b = noarr::make_bag(tb, pb);

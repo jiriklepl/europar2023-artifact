@@ -1,7 +1,7 @@
 #define CPU
 #include "noarrmain.hpp"
 
-template<typename A, typename B, typename C>
+template<class A, class B, class C>
 void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc) {
     noarr::traverser(tc).for_each([=](auto state) {
 	    tc | noarr::get_at(pc, state) = 0;
