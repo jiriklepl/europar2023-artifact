@@ -19,7 +19,7 @@
 
 using num_t = float;
 
-template<typename A, typename B, typename C>
+template<class A, class B, class C>
 void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc);
 
 using namespace std::literals::chrono_literals;

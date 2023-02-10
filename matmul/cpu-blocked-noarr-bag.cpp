@@ -2,10 +2,10 @@
 #include "noarrmain.hpp"
 
 template<class A, class B, class C>
-void matmul(A orig_ta, B orig_tb, C orig_tc, char *pa, char *pb, char *pc) {
-	auto a = noarr::make_bag(orig_ta, pa);
-	auto b = noarr::make_bag(orig_tb, pb);
-	auto c = noarr::make_bag(orig_tc, pc);
+void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc) {
+	auto a = noarr::make_bag(ta, pa);
+	auto b = noarr::make_bag(tb, pb);
+	auto c = noarr::make_bag(tc, pc);
 
     auto into_blocks = noarr::strip_mine<'k', 'K', 'k'>(noarr::lit<16>)
         ^ noarr::strip_mine<'j', 'J', 'j'>(noarr::lit<16>);

@@ -28,8 +28,8 @@ void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc) {
 	auto into_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<BLOCK_SIZE>) ^ noarr::into_blocks<'k', 'K', 'k'>(noarr::lit<BLOCK_SIZE>) ^ noarr::bcast<'r'>(noarr::lit<1>) ^ noarr::bcast<'s'>(noarr::lit<1>);
 #endif
 
-	auto trav = noarr::cuda_threads<'I', 'i', 'K', 'k'>(noarr::traverser(ta, tb, tc).order(into_blocks));
-	kernel_matmul<<<trav.grid_dim(), trav.block_dim()>>>(trav.inner(), ta, tb, tc, pa, pb, pc);
+	auto cutrav = noarr::cuda_threads<'I', 'i', 'K', 'k'>(noarr::traverser(ta, tb, tc).order(into_blocks));
+	kernel_matmul<<<cutrav.grid_dim(), cutrav.block_dim()>>>(cutrav.inner(), ta, tb, tc, pa, pb, pc);
 
 	CUCH(cudaGetLastError());
 	CUCH(cudaDeviceSynchronize());

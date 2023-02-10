@@ -38,7 +38,7 @@ constexpr auto swap_pack(std::integer_sequence<C, Idxs...>) {
 }
 
 template<class A, class B, class C>
-void matmul(A orig_ta, B orig_tb, C orig_tc, char *pa, char *pb, char *pc) {
+void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc) {
 #ifdef BLOCK_I
 	auto i_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<BLOCK_SIZE>);
 #else
@@ -54,9 +54,9 @@ void matmul(A orig_ta, B orig_tb, C orig_tc, char *pa, char *pb, char *pc) {
 #else
     auto k_blocks = noarr::bcast<'K'>(1);
 #endif
-	auto a = noarr::make_bag(orig_ta ^ i_blocks ^ j_blocks, pa);
-	auto b = noarr::make_bag(orig_tb ^ j_blocks ^ k_blocks, pb);
-	auto c = noarr::make_bag(orig_tc ^ i_blocks ^ k_blocks, pc);
+	auto a = noarr::make_bag(ta ^ i_blocks ^ j_blocks, pa);
+	auto b = noarr::make_bag(tb ^ j_blocks ^ k_blocks, pb);
+	auto c = noarr::make_bag(tc ^ i_blocks ^ k_blocks, pc);
 
     noarr::traverser(c).for_each([=](auto state) {
 	    c[state] = 0;

@@ -22,13 +22,13 @@ __global__ void kernel_matmul(T trav, A a, B b, C c, TD td) {
 }
 
 template<class A, class B, class C>
-void matmul(A orig_ta, B orig_tb, C orig_tc, char *pa, char *pb, char *pc) {
+void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc) {
 	auto i_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<1024>);
 	auto k_blocks = noarr::into_blocks<'k', 'K', 'k'>(noarr::lit<8>);
 
-	auto a = noarr::make_bag(orig_ta ^ i_blocks, pa);
-	auto b = noarr::make_bag(orig_tb ^ k_blocks, pb);
-	auto c = noarr::make_bag(orig_tc ^ i_blocks ^ k_blocks, pc);
+	auto a = noarr::make_bag(ta ^ i_blocks, pa);
+	auto b = noarr::make_bag(tb ^ k_blocks, pb);
+	auto c = noarr::make_bag(tc ^ i_blocks ^ k_blocks, pc);
 
 	auto trav = noarr::traverser(a, b, c).order(noarr::bcast<'1'>(1));
 	auto td = noarr::scalar<num_t>()

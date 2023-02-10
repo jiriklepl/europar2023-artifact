@@ -8,8 +8,8 @@
 #include <noarr/structures/interop/cuda_striped.cuh>
 #include <noarr/structures/interop/cuda_step.cuh>
 
-template<typename InTrav, typename In, typename ShmLayout, typename Out>
-__global__ void kernel_histo(InTrav in_trav, In in, ShmLayout shm_struct, Out out) {
+template<class InTrav, class In, class ShmStruct, class Out>
+__global__ void kernel_histo(InTrav in_trav, In in, ShmStruct shm_struct, Out out) {
 	extern __shared__ char shm_ptr[];
 	auto shm_bag = make_bag(shm_struct, shm_ptr);
 
@@ -51,14 +51,16 @@ __global__ void kernel_histo(InTrav in_trav, In in, ShmLayout shm_struct, Out ou
 }
 
 void histo(void *in_ptr, std::size_t size, void *out_ptr) {
-	auto in_layout = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
-	auto out_layout = noarr::scalar<std::size_t>() ^ noarr::array<'v', NUM_VALUES>();
+	auto in_struct = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
+	auto out_struct = noarr::scalar<std::size_t>() ^ noarr::array<'v', NUM_VALUES>();
 
-	auto in_blk_layout = in_layout ^ noarr::into_blocks_static<'i', 'C', 'y', 'z'>(noarr::lit<BLOCK_SIZE>) ^ noarr::into_blocks_static<'y', 'D', 'x', 'y'>(noarr::lit<ELEMS_PER_THREAD>);
-	auto shm_struct = out_layout ^ noarr::cuda_striped<NUM_COPIES>();
+	auto in_blk_struct = in_struct
+		^ noarr::into_blocks_static<'i', 'C', 'y', 'z'>(noarr::lit<BLOCK_SIZE>)
+		^ noarr::into_blocks_static<'y', 'D', 'x', 'y'>(noarr::lit<ELEMS_PER_THREAD>);
+	auto shm_struct = out_struct ^ noarr::cuda_striped<NUM_COPIES>();
 
-	auto in = noarr::make_bag(in_blk_layout, (char *)in_ptr);
-	auto out = noarr::make_bag(out_layout, (char *)out_ptr);
+	auto in = noarr::make_bag(in_blk_struct, (char *)in_ptr);
+	auto out = noarr::make_bag(out_struct, (char *)out_ptr);
 
 	noarr::traverser(in).template for_dims<'C', 'D'>([=](auto cd){
 		auto ct = noarr::cuda_threads<'x', 'z'>(cd);
@@ -74,7 +76,7 @@ void histo(void *in_ptr, std::size_t size, void *out_ptr) {
 		std::cerr << (ct?"if(true)\t":"if(false)\t") << "kernel_histo<<<" << ct.grid_dim().x << ", " << ct.block_dim().x << ", " << (out_striped|noarr::get_size()) << ">>>(...);" <<  << std::endl;
 #endif
 		if(!ct) return;
-		kernel_histo<<<ct.grid_dim(), ct.block_dim(),shm_struct|noarr::get_size()>>>(ct.inner(), in, shm_struct, out);
+		kernel_histo<<<ct.grid_dim(), ct.block_dim(), shm_struct | noarr::get_size()>>>(ct.inner(), in, shm_struct, out);
 		CUCH(cudaGetLastError());
 #ifdef NOARR_CUDA_HISTO_DEBUG
 		CUCH(cudaDeviceSynchronize());
