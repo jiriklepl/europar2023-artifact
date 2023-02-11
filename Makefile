@@ -183,10 +183,15 @@ ${BUILD_DIR}/matmul/matrices_8192: matmul/gen-matrices.py
 	@mkdir -p ${BUILD_DIR}/matmul
 	matmul/gen-matrices.py ${BUILD_DIR}/matmul/matrices_8192 8192
 
+${BUILD_DIR}/histo/text: histo/gen-text.sh
+	@mkdir -p ${BUILD_DIR}/histo
+	histo/gen-text.sh ${BUILD_DIR}/histo/text 2G
+
 generate: ${BUILD_DIR}/matmul/matrices_1024 \
 	${BUILD_DIR}/matmul/matrices_2048 \
 	${BUILD_DIR}/matmul/matrices_4096 \
-	${BUILD_DIR}/matmul/matrices_8192
+	${BUILD_DIR}/matmul/matrices_8192 \
+	${BUILD_DIR}/histo/text
 
 validate:
 
