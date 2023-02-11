@@ -2,24 +2,24 @@
 #include "policymain.hpp"
 
 #ifdef BLOCK_I
-#define I_LOOP for(std::size_t I = 0; I < i_size / I_BLOCK_SIZE; I++)
-#define I_STEP I_BLOCK_SIZE
+#define I_LOOP for(std::size_t I = 0; I < i_size / BLOCK_SIZE; I++)
+#define I_STEP BLOCK_SIZE
 #else
 #define I_LOOP for(std::size_t I = 0; I < i_size; I++)
 #define I_STEP 1
 #endif
 
 #ifdef BLOCK_J
-#define J_LOOP for(std::size_t J = 0; J < j_size / J_BLOCK_SIZE; J++)
-#define J_STEP J_BLOCK_SIZE
+#define J_LOOP for(std::size_t J = 0; J < j_size / BLOCK_SIZE; J++)
+#define J_STEP BLOCK_SIZE
 #else
 #define J_LOOP for(std::size_t J = 0; J < j_size; J++)
 #define J_STEP 1
 #endif
 
 #ifdef BLOCK_K
-#define K_LOOP for(std::size_t K = 0; K < k_size / K_BLOCK_SIZE; K++)
-#define K_STEP K_BLOCK_SIZE
+#define K_LOOP for(std::size_t K = 0; K < k_size / BLOCK_SIZE; K++)
+#define K_STEP BLOCK_SIZE
 #else
 #define K_LOOP for(std::size_t K = 0; K < k_size; K++)
 #define K_STEP 1
@@ -47,9 +47,6 @@ constexpr auto kernel_matmul(A a, B b, C c) {
 
 template<class ISize, class JSize, class KSize, class A, class B, class C>
 void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
-	static constexpr std::size_t I_BLOCK_SIZE = 16;
-	static constexpr std::size_t J_BLOCK_SIZE = 16;
-	static constexpr std::size_t K_BLOCK_SIZE = 16;
     auto reset = kernel_reset(c);
     auto body = kernel_matmul<J_STEP>(a, b, c);
 
@@ -84,6 +81,7 @@ void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
 #elif DIM_ORDER == 1
         for(std::size_t k = 0; k < K_STEP; k++)
             for(std::size_t i = 0; i < I_STEP; i++)
+#else
 #error DIM_ORDER has to satisfy: 0 <= DIM_ORDER < 2
 #endif
 
