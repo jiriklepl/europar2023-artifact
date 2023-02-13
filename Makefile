@@ -9,7 +9,7 @@ INCLUDE_OPTION := -I noarr-structures/include
 CXX_OPTIONS := ${INCLUDE_OPTION} -std=c++20 -Ofast -Wall -DNDEBUG -march=native -mtune=native
 CUDA_OPTIONS := ${INCLUDE_OPTION} -std=c++17 -O3 -DNDEBUG --use_fast_math --expt-relaxed-constexpr
 
-.PHONY: all clean matmul histo kmeans generate validate measure
+.PHONY: all clean matmul histo kmeans generate generate-small
 
 all: matmul histo kmeans
 
@@ -167,6 +167,22 @@ ${BUILD_DIR}/histo/nvcc/cu-plain: histo/cu-plain.cu
 	@mkdir -p ${BUILD_DIR}/histo/nvcc
 	${NVCC} -o ${BUILD_DIR}/histo/nvcc/cu-plain ${CUDA_OPTIONS} histo/cu-plain.cu
 
+${BUILD_DIR}/matmul/matrices_64: matmul/gen-matrices.py
+	@mkdir -p ${BUILD_DIR}/matmul
+	matmul/gen-matrices.py ${BUILD_DIR}/matmul/matrices_64 64
+
+${BUILD_DIR}/matmul/matrices_128: matmul/gen-matrices.py
+	@mkdir -p ${BUILD_DIR}/matmul
+	matmul/gen-matrices.py ${BUILD_DIR}/matmul/matrices_128 128
+
+${BUILD_DIR}/matmul/matrices_256: matmul/gen-matrices.py
+	@mkdir -p ${BUILD_DIR}/matmul
+	matmul/gen-matrices.py ${BUILD_DIR}/matmul/matrices_256 256
+
+${BUILD_DIR}/matmul/matrices_512: matmul/gen-matrices.py
+	@mkdir -p ${BUILD_DIR}/matmul
+	matmul/gen-matrices.py ${BUILD_DIR}/matmul/matrices_512 512
+
 ${BUILD_DIR}/matmul/matrices_1024: matmul/gen-matrices.py
 	@mkdir -p ${BUILD_DIR}/matmul
 	matmul/gen-matrices.py ${BUILD_DIR}/matmul/matrices_1024 1024
@@ -193,6 +209,10 @@ generate: ${BUILD_DIR}/matmul/matrices_1024 \
 	${BUILD_DIR}/matmul/matrices_8192 \
 	${BUILD_DIR}/histo/text
 
-validate:
+generate-small: ${BUILD_DIR}/matmul/matrices_64 \
+	${BUILD_DIR}/matmul/matrices_128 \
+	${BUILD_DIR}/matmul/matrices_256 \
+	${BUILD_DIR}/matmul/matrices_512 \
+	${BUILD_DIR}/matmul/matrices_1024 \
 
 kmeans: noarr-structures 
