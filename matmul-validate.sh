@@ -17,5 +17,5 @@ while read -r input size; do
 
     rm "$OUTPUT2"
 done <<EOF
-build/matmul/matrices_1024 1024
+build/matmul/matrices_64 64
 EOF

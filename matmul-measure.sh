@@ -14,8 +14,9 @@ while read -r input size; do
         done
     done
 done <<EOF
+build/matmul/matrices_64 64
+build/matmul/matrices_128 128
+build/matmul/matrices_256 256
+build/matmul/matrices_512 512
 build/matmul/matrices_1024 1024
-build/matmul/matrices_2048 2048
-build/matmul/matrices_4096 4096
-build/matmul/matrices_8192 8192
 EOF
