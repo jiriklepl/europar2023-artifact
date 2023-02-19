@@ -30,7 +30,7 @@ struct matrix {
 		if constexpr (Layout == ROW_MAJOR)
 			return data[major * step + minor];
 		else
-			return data[major * step + minor];
+			return data[minor * step + major];
 	}
 
 	Scalar *data;

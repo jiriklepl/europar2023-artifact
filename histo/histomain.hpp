@@ -16,14 +16,12 @@ static constexpr std::size_t ELEMS_PER_BLOCK = BLOCK_SIZE * ELEMS_PER_THREAD;
 
 static constexpr std::size_t NUM_COPIES = 4;
 
-// TODO fix this somehow
 namespace {
-	// For some reason, "unsigned long long" is different from "unsigned long", although both have the same size.
 	// Only "unsigned long long" is supported by `atomicAdd`.
-	// Unfortunately, "size_t" is defined as "unsigned long", and is thus not supported.
-	__device__ std::size_t atomicAdd(std::size_t *ptr, std::size_t val) {
-		// This pointer cast is probably UB.
-		::atomicAdd((unsigned long long *)ptr, val);
+	template<typename T>
+	__device__ auto atomicAdd(T *ptr, unsigned long long int val)
+		-> std::enable_if_t<(sizeof(T) == sizeof(unsigned long long int)), decltype(atomicAdd((unsigned long long int *)ptr, val))> {
+		::atomicAdd((unsigned long long int *)ptr, val);
 	}
 }
 
