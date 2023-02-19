@@ -83,37 +83,30 @@ if constexpr (HISTO_IMPL == histo_trav_tbbreduce) {
 	using noarr::idx;
 
 	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), (char *)in_ptr);
-	auto out_layout = noarr::scalar<size_t>() ^ noarr::array<'v', 256>();
+	auto out = noarr::make_bag(noarr::scalar<size_t>() ^ noarr::array<'v', 256>(), (char *)out_ptr);
 
-	noarr::tbb_reduce(
+	noarr::tbb_reduce_bag(
 		// Input traverser.
 		noarr::traverser(in),
 
 		// Neutralizing function, OutElem := 0
-		[out_layout](auto out_state, void *out_left) {
-			auto out = noarr::make_bag(out_layout, (char *)out_left);
-			out[out_state] = 0;
+		[](auto out_state, auto &out_left) {
+			out_left[out_state] = 0;
 		},
 
 		// Accumulation function, Out += InElem
-		[in, in_ptr, out_layout](auto in_state, void *out_left) {
-			auto out = noarr::make_bag(out_layout, (char *)out_left);
+		[in](auto in_state, auto &out_left) {
 			value_t value = in[in_state];
-			out[idx<'v'>(value)] += 1;
+			out_left[idx<'v'>(value)] += 1;
 		},
 
 		// Joining function, OutElem += OutElem
-		[out_layout](auto out_state, void *out_left, const void *out_right) {
-			auto left_bag = noarr::make_bag(out_layout, (char *)out_left);
-			auto right_bag = noarr::make_bag(out_layout, (char *)out_right);
-			left_bag[out_state] += right_bag[out_state];
+		[](auto out_state, auto &out_left, const auto &out_right) {
+			out_left[out_state] += out_right[out_state];
 		},
 
-		// Output type.
-		out_layout,
-
-		// Output pointer.
-		out_ptr
+		// Output bag.
+		out
 	);
 }
 #endif

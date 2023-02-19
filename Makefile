@@ -85,23 +85,23 @@ ${BUILD_DIR}/matmul/clang/cpu-poly-policy: matmul/cpu-poly-policy.cpp
 
 ${BUILD_DIR}/matmul/gcc/cpu-poly-noarr2: matmul/cpu-poly-noarr.cpp
 	@mkdir -p ${BUILD_DIR}/matmul/gcc
-	${GCC} -o ${BUILD_DIR}/matmul/gcc/cpu-poly-noarr2 ${CXX_OPTIONS} matmul/cpu-poly-noarr.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=32 -DBLOCK_ORDER=5 -DDIM_ORDER=1
+	${GCC} -o ${BUILD_DIR}/matmul/gcc/cpu-poly-noarr2 ${CXX_OPTIONS} matmul/cpu-poly-noarr.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=1 -DDIM_ORDER=1
 ${BUILD_DIR}/matmul/gcc/cpu-poly-noarr-bag2: matmul/cpu-poly-noarr-bag.cpp
 	@mkdir -p ${BUILD_DIR}/matmul/gcc
-	${GCC} -o ${BUILD_DIR}/matmul/gcc/cpu-poly-noarr-bag2 ${CXX_OPTIONS} matmul/cpu-poly-noarr-bag.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=32 -DBLOCK_ORDER=5 -DDIM_ORDER=1
+	${GCC} -o ${BUILD_DIR}/matmul/gcc/cpu-poly-noarr-bag2 ${CXX_OPTIONS} matmul/cpu-poly-noarr-bag.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=1 -DDIM_ORDER=1
 ${BUILD_DIR}/matmul/gcc/cpu-poly-policy2: matmul/cpu-poly-policy.cpp
 	@mkdir -p ${BUILD_DIR}/matmul/gcc
-	${GCC} -o ${BUILD_DIR}/matmul/gcc/cpu-poly-policy2 ${CXX_OPTIONS} matmul/cpu-poly-policy.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=32 -DBLOCK_ORDER=5 -DDIM_ORDER=1
+	${GCC} -o ${BUILD_DIR}/matmul/gcc/cpu-poly-policy2 ${CXX_OPTIONS} matmul/cpu-poly-policy.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=1 -DDIM_ORDER=1
 
 ${BUILD_DIR}/matmul/clang/cpu-poly-noarr2: matmul/cpu-poly-noarr.cpp
 	@mkdir -p ${BUILD_DIR}/matmul/clang
-	${CLANG} -o ${BUILD_DIR}/matmul/clang/cpu-poly-noarr2 ${CXX_OPTIONS} matmul/cpu-poly-noarr.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=32 -DBLOCK_ORDER=5 -DDIM_ORDER=1
+	${CLANG} -o ${BUILD_DIR}/matmul/clang/cpu-poly-noarr2 ${CXX_OPTIONS} matmul/cpu-poly-noarr.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=1 -DDIM_ORDER=1
 ${BUILD_DIR}/matmul/clang/cpu-poly-noarr-bag2: matmul/cpu-poly-noarr-bag.cpp
 	@mkdir -p ${BUILD_DIR}/matmul/clang
-	${CLANG} -o ${BUILD_DIR}/matmul/clang/cpu-poly-noarr-bag2 ${CXX_OPTIONS} matmul/cpu-poly-noarr-bag.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=32 -DBLOCK_ORDER=5 -DDIM_ORDER=1
+	${CLANG} -o ${BUILD_DIR}/matmul/clang/cpu-poly-noarr-bag2 ${CXX_OPTIONS} matmul/cpu-poly-noarr-bag.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=1 -DDIM_ORDER=1
 ${BUILD_DIR}/matmul/clang/cpu-poly-policy2: matmul/cpu-poly-policy.cpp
 	@mkdir -p ${BUILD_DIR}/matmul/clang
-	${CLANG} -o ${BUILD_DIR}/matmul/clang/cpu-poly-policy2 ${CXX_OPTIONS} matmul/cpu-poly-policy.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=32 -DBLOCK_ORDER=5 -DDIM_ORDER=1
+	${CLANG} -o ${BUILD_DIR}/matmul/clang/cpu-poly-policy2 ${CXX_OPTIONS} matmul/cpu-poly-policy.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=1 -DDIM_ORDER=1
 
 ${BUILD_DIR}/matmul/nvcc/cu-basic-noarr: matmul/cu-basic-noarr.cu
 	@mkdir -p ${BUILD_DIR}/matmul/nvcc
@@ -127,45 +127,45 @@ ${BUILD_DIR}/matmul/nvcc/cu-adv-plain: matmul/cu-adv-plain.cu
 	${NVCC} -o ${BUILD_DIR}/matmul/nvcc/cu-adv-plain ${CUDA_OPTIONS} matmul/cu-adv-plain.cu -DA_ROW -DB_ROW -DC_ROW
 
 histo: noarr-structures \
-	${BUILD_DIR}/histo/gcc/cpu-noarr \
-	${BUILD_DIR}/histo/gcc/cpu-noarr-bag \
-	${BUILD_DIR}/histo/gcc/cpu-plain \
-	${BUILD_DIR}/histo/clang/cpu-noarr \
-	${BUILD_DIR}/histo/clang/cpu-noarr-bag \
-	${BUILD_DIR}/histo/clang/cpu-plain \
-	${BUILD_DIR}/histo/nvcc/cu-noarr \
-	${BUILD_DIR}/histo/nvcc/cu-noarr-bag \
-	${BUILD_DIR}/histo/nvcc/cu-plain
+	${BUILD_DIR}/histo/gcc/cpu-all-noarr \
+	${BUILD_DIR}/histo/gcc/cpu-all-noarr-bag \
+	${BUILD_DIR}/histo/gcc/cpu-all-plain \
+	${BUILD_DIR}/histo/clang/cpu-all-noarr \
+	${BUILD_DIR}/histo/clang/cpu-all-noarr-bag \
+	${BUILD_DIR}/histo/clang/cpu-all-plain \
+	${BUILD_DIR}/histo/nvcc/cu-priv-noarr \
+	${BUILD_DIR}/histo/nvcc/cu-priv-noarr-bag \
+	${BUILD_DIR}/histo/nvcc/cu-priv-plain
 
-${BUILD_DIR}/histo/gcc/cpu-noarr: histo/cpu-noarr.cpp
+${BUILD_DIR}/histo/gcc/cpu-all-noarr: histo/cpu-all-noarr.cpp
 	@mkdir -p ${BUILD_DIR}/histo/gcc
-	${GCC} -o ${BUILD_DIR}/histo/gcc/cpu-noarr ${CXX_OPTIONS} histo/cpu-noarr.cpp -DHISTO_IMPL=histo_trav_foreach
-${BUILD_DIR}/histo/gcc/cpu-noarr-bag: histo/cpu-noarr-bag.cpp
+	${GCC} -o ${BUILD_DIR}/histo/gcc/cpu-all-noarr ${CXX_OPTIONS} histo/cpu-all-noarr.cpp -DHISTO_IMPL=histo_trav_foreach
+${BUILD_DIR}/histo/gcc/cpu-all-noarr-bag: histo/cpu-all-noarr-bag.cpp
 	@mkdir -p ${BUILD_DIR}/histo/gcc
-	${GCC} -o ${BUILD_DIR}/histo/gcc/cpu-noarr-bag ${CXX_OPTIONS} histo/cpu-noarr-bag.cpp -DHISTO_IMPL=histo_trav_foreach
-${BUILD_DIR}/histo/gcc/cpu-plain: histo/cpu-noarr.cpp
+	${GCC} -o ${BUILD_DIR}/histo/gcc/cpu-all-noarr-bag ${CXX_OPTIONS} histo/cpu-all-noarr-bag.cpp -DHISTO_IMPL=histo_trav_foreach
+${BUILD_DIR}/histo/gcc/cpu-all-plain: histo/cpu-all-noarr.cpp
 	@mkdir -p ${BUILD_DIR}/histo/gcc
-	${GCC} -o ${BUILD_DIR}/histo/gcc/cpu-plain ${CXX_OPTIONS} histo/cpu-noarr.cpp -DHISTO_IMPL=histo_plain_loop
+	${GCC} -o ${BUILD_DIR}/histo/gcc/cpu-all-plain ${CXX_OPTIONS} histo/cpu-all-noarr.cpp -DHISTO_IMPL=histo_plain_loop
 
-${BUILD_DIR}/histo/clang/cpu-noarr: histo/cpu-noarr.cpp
+${BUILD_DIR}/histo/clang/cpu-all-noarr: histo/cpu-all-noarr.cpp
 	@mkdir -p ${BUILD_DIR}/histo/clang
-	${CLANG} -o ${BUILD_DIR}/histo/clang/cpu-noarr ${CXX_OPTIONS} histo/cpu-noarr.cpp -DHISTO_IMPL=histo_trav_foreach
-${BUILD_DIR}/histo/clang/cpu-noarr-bag: histo/cpu-noarr-bag.cpp
+	${CLANG} -o ${BUILD_DIR}/histo/clang/cpu-all-noarr ${CXX_OPTIONS} histo/cpu-all-noarr.cpp -DHISTO_IMPL=histo_trav_foreach
+${BUILD_DIR}/histo/clang/cpu-all-noarr-bag: histo/cpu-all-noarr-bag.cpp
 	@mkdir -p ${BUILD_DIR}/histo/clang
-	${CLANG} -o ${BUILD_DIR}/histo/clang/cpu-noarr-bag ${CXX_OPTIONS} histo/cpu-noarr-bag.cpp -DHISTO_IMPL=histo_trav_foreach
-${BUILD_DIR}/histo/clang/cpu-plain: histo/cpu-noarr.cpp
+	${CLANG} -o ${BUILD_DIR}/histo/clang/cpu-all-noarr-bag ${CXX_OPTIONS} histo/cpu-all-noarr-bag.cpp -DHISTO_IMPL=histo_trav_foreach
+${BUILD_DIR}/histo/clang/cpu-all-plain: histo/cpu-all-noarr.cpp
 	@mkdir -p ${BUILD_DIR}/histo/clang
-	${CLANG} -o ${BUILD_DIR}/histo/clang/cpu-plain ${CXX_OPTIONS} histo/cpu-noarr.cpp -DHISTO_IMPL=histo_plain_loop
+	${CLANG} -o ${BUILD_DIR}/histo/clang/cpu-all-plain ${CXX_OPTIONS} histo/cpu-all-noarr.cpp -DHISTO_IMPL=histo_plain_loop
 
-${BUILD_DIR}/histo/nvcc/cu-noarr: histo/cu-noarr.cu
+${BUILD_DIR}/histo/nvcc/cu-priv-noarr: histo/cu-priv-noarr.cu
 	@mkdir -p ${BUILD_DIR}/histo/nvcc
-	${NVCC} -o ${BUILD_DIR}/histo/nvcc/cu-noarr ${CUDA_OPTIONS} histo/cu-noarr.cu
-${BUILD_DIR}/histo/nvcc/cu-noarr-bag: histo/cu-noarr-bag.cu
+	${NVCC} -o ${BUILD_DIR}/histo/nvcc/cu-priv-noarr ${CUDA_OPTIONS} histo/cu-priv-noarr.cu
+${BUILD_DIR}/histo/nvcc/cu-priv-noarr-bag: histo/cu-priv-noarr-bag.cu
 	@mkdir -p ${BUILD_DIR}/histo/nvcc
-	${NVCC} -o ${BUILD_DIR}/histo/nvcc/cu-noarr-bag ${CUDA_OPTIONS} histo/cu-noarr-bag.cu
-${BUILD_DIR}/histo/nvcc/cu-plain: histo/cu-plain.cu
+	${NVCC} -o ${BUILD_DIR}/histo/nvcc/cu-priv-noarr-bag ${CUDA_OPTIONS} histo/cu-priv-noarr-bag.cu
+${BUILD_DIR}/histo/nvcc/cu-priv-plain: histo/cu-priv-plain.cu
 	@mkdir -p ${BUILD_DIR}/histo/nvcc
-	${NVCC} -o ${BUILD_DIR}/histo/nvcc/cu-plain ${CUDA_OPTIONS} histo/cu-plain.cu
+	${NVCC} -o ${BUILD_DIR}/histo/nvcc/cu-priv-plain ${CUDA_OPTIONS} histo/cu-priv-plain.cu
 
 ${BUILD_DIR}/matmul/matrices_64: matmul/gen-matrices.py
 	@mkdir -p ${BUILD_DIR}/matmul
