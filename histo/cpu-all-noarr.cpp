@@ -27,15 +27,15 @@ enum {
 
 }
 
-void histo(void *in_ptr, size_t size, void *out_ptr) {
+void histo(void *in_ptr, std::size_t size, void *out_ptr) {
 
 if constexpr (HISTO_IMPL == histo_plain_loop) {
 	using noarr::get_at;
 
 	auto in = (value_t*) in_ptr;
-	auto out = (size_t*) out_ptr;
+	auto out = (std::size_t*) out_ptr;
 
-	for(size_t i = 0; i < size; i++) {
+	for(std::size_t i = 0; i < size; i++) {
 		value_t value = in[i];
 		out[value] += 1;
 	}
@@ -45,9 +45,9 @@ else if constexpr (HISTO_IMPL == histo_noarr_loop) {
 	using noarr::get_at;
 
 	auto in = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
-	auto out = noarr::scalar<size_t>() ^ noarr::array<'v', 256>();
+	auto out = noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>();
 
-	for(size_t i = 0; i < size; i++) {
+	for(std::size_t i = 0; i < size; i++) {
 		value_t value = in | get_at<'i'>(in_ptr, i);
 		out | get_at<'v'>(out_ptr, value) += 1;
 	}
@@ -57,7 +57,7 @@ else if constexpr (HISTO_IMPL == histo_trav_loop) {
 	using noarr::get_at;
 
 	auto in = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
-	auto out = noarr::scalar<size_t>() ^ noarr::array<'v', 256>();
+	auto out = noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>();
 
 	for(auto elem : noarr::traverser(in)) {
 		value_t value = in | get_at(in_ptr, elem.state());
@@ -69,7 +69,7 @@ else if constexpr (HISTO_IMPL == histo_trav_foreach) {
 	using noarr::get_at;
 
 	auto in = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
-	auto out = noarr::scalar<size_t>() ^ noarr::array<'v', 256>();
+	auto out = noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>();
 
 	noarr::traverser(in).for_each([in, in_ptr, out, out_ptr](auto in_state) {
 		value_t value = in | get_at(in_ptr, in_state);
@@ -82,7 +82,7 @@ else if constexpr (HISTO_IMPL == histo_trav_tbbreduce) {
 	using noarr::get_at;
 
 	auto in = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
-	auto out = noarr::scalar<size_t>() ^ noarr::array<'v', 256>();
+	auto out = noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>();
 
 	noarr::tbb_reduce(
 		// Input traverser.

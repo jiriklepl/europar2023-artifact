@@ -1,29 +1,6 @@
 #define CPU
+#define POLY
 #include "policymain.hpp"
-
-#ifdef BLOCK_I
-#define I_LOOP for(std::size_t I = 0; I < i_size / BLOCK_SIZE; I++)
-#define I_STEP BLOCK_SIZE
-#else
-#define I_LOOP for(std::size_t I = 0; I < i_size; I++)
-#define I_STEP 1
-#endif
-
-#ifdef BLOCK_J
-#define J_LOOP for(std::size_t J = 0; J < j_size / BLOCK_SIZE; J++)
-#define J_STEP BLOCK_SIZE
-#else
-#define J_LOOP for(std::size_t J = 0; J < j_size; J++)
-#define J_STEP 1
-#endif
-
-#ifdef BLOCK_K
-#define K_LOOP for(std::size_t K = 0; K < k_size / BLOCK_SIZE; K++)
-#define K_STEP BLOCK_SIZE
-#else
-#define K_LOOP for(std::size_t K = 0; K < k_size; K++)
-#define K_STEP 1
-#endif
 
 template<class C>
 constexpr auto kernel_reset(C c) {
@@ -32,13 +9,13 @@ constexpr auto kernel_reset(C c) {
     };
 }
 
-template<std::size_t JStep, class A, class B, class C>
-constexpr auto kernel_matmul(A a, B b, C c) {
-    return[=](auto i, auto J, auto k) {
+template<class JStep, class A, class B, class C>
+constexpr auto kernel_matmul(JStep j_step, A a, B b, C c) {
+    return [=](auto i, auto J, auto k) {
         num_t result = c(k, i);
 
-        for (std::size_t j = J; j < J + JStep; j++) {
-            result += a(j, i) * b(k, j);
+        for (std::size_t j = 0; j < j_step; j++) {
+            result += a(J + j, i) * b(k, J + j);
         }
 
         c(k, i) = result;
@@ -47,12 +24,37 @@ constexpr auto kernel_matmul(A a, B b, C c) {
 
 template<class ISize, class JSize, class KSize, class A, class B, class C>
 void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
-    auto reset = kernel_reset(c);
-    auto body = kernel_matmul<J_STEP>(a, b, c);
+#ifdef BLOCK_I
+#define I_LOOP for(std::size_t I = 0; I < i_size / std::integral_constant<std::size_t, BLOCK_SIZE>(); I++)
+#define I_STEP std::integral_constant<std::size_t, BLOCK_SIZE>()
+#else
+#define I_LOOP if constexpr(const std::size_t I = 0; true)
+#define I_STEP i_size
+#endif
 
-    for(std::size_t i = 0; i < i_size; i++)
-        for(std::size_t k = 0; k < k_size; k++)
-            reset(i, k);
+#ifdef BLOCK_J
+#define J_LOOP for(std::size_t J = 0; J < j_size / std::integral_constant<std::size_t, BLOCK_SIZE>(); J++)
+#define J_STEP std::integral_constant<std::size_t, BLOCK_SIZE>()
+#else
+#define J_LOOP if constexpr(const std::size_t J = 0; true)
+#define J_STEP j_size
+#endif
+
+#ifdef BLOCK_K
+#define K_LOOP for(std::size_t K = 0; K < k_size / std::integral_constant<std::size_t, BLOCK_SIZE>(); K++)
+#define K_STEP std::integral_constant<std::size_t, BLOCK_SIZE>()
+#else
+#define K_LOOP if constexpr(const std::size_t K = 0; true)
+#define K_STEP k_size
+#endif
+    auto reset = kernel_reset(c);
+    auto body = kernel_matmul(J_STEP, a, b, c);
+
+    I_LOOP 
+        for(std::size_t i = 0; i < I_STEP; i++)
+            K_LOOP
+                for(std::size_t k = 0; k < K_STEP; k++)
+                    reset(I * I_STEP + i, K * K_STEP + k);
 
 
 #ifndef BLOCK_ORDER

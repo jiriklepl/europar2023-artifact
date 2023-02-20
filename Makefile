@@ -65,43 +65,43 @@ ${BUILD_DIR}/matmul/clang/cpu-triv-policy: matmul/cpu-triv-policy.cpp matmul/pol
 
 ${BUILD_DIR}/matmul/gcc/cpu-poly-noarr: matmul/cpu-poly-noarr.cpp matmul/noarrmain.hpp
 	@mkdir -p ${BUILD_DIR}/matmul/gcc
-	${GCC} -o ${BUILD_DIR}/matmul/gcc/cpu-poly-noarr ${CXX_OPTIONS} matmul/cpu-poly-noarr.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=0 -DDIM_ORDER=1
+	${GCC} -o ${BUILD_DIR}/matmul/gcc/cpu-poly-noarr ${CXX_OPTIONS} matmul/cpu-poly-noarr.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_I -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=0 -DDIM_ORDER=1
 ${BUILD_DIR}/matmul/gcc/cpu-poly-noarr-bag: matmul/cpu-poly-noarr-bag.cpp matmul/noarrmain.hpp
 	@mkdir -p ${BUILD_DIR}/matmul/gcc
-	${GCC} -o ${BUILD_DIR}/matmul/gcc/cpu-poly-noarr-bag ${CXX_OPTIONS} matmul/cpu-poly-noarr-bag.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=0 -DDIM_ORDER=1
+	${GCC} -o ${BUILD_DIR}/matmul/gcc/cpu-poly-noarr-bag ${CXX_OPTIONS} matmul/cpu-poly-noarr-bag.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_I -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=0 -DDIM_ORDER=1
 ${BUILD_DIR}/matmul/gcc/cpu-poly-policy: matmul/cpu-poly-policy.cpp matmul/policymain.hpp
 	@mkdir -p ${BUILD_DIR}/matmul/gcc
-	${GCC} -o ${BUILD_DIR}/matmul/gcc/cpu-poly-policy ${CXX_OPTIONS} matmul/cpu-poly-policy.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=0 -DDIM_ORDER=1
+	${GCC} -o ${BUILD_DIR}/matmul/gcc/cpu-poly-policy ${CXX_OPTIONS} matmul/cpu-poly-policy.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_I -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=0 -DDIM_ORDER=1
 
 ${BUILD_DIR}/matmul/clang/cpu-poly-noarr: matmul/cpu-poly-noarr.cpp matmul/noarrmain.hpp
 	@mkdir -p ${BUILD_DIR}/matmul/clang
-	${CLANG} -o ${BUILD_DIR}/matmul/clang/cpu-poly-noarr ${CXX_OPTIONS} matmul/cpu-poly-noarr.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=0 -DDIM_ORDER=1
+	${CLANG} -o ${BUILD_DIR}/matmul/clang/cpu-poly-noarr ${CXX_OPTIONS} matmul/cpu-poly-noarr.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_I -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=0 -DDIM_ORDER=1
 ${BUILD_DIR}/matmul/clang/cpu-poly-noarr-bag: matmul/cpu-poly-noarr-bag.cpp matmul/noarrmain.hpp
 	@mkdir -p ${BUILD_DIR}/matmul/clang
-	${CLANG} -o ${BUILD_DIR}/matmul/clang/cpu-poly-noarr-bag ${CXX_OPTIONS} matmul/cpu-poly-noarr-bag.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=0 -DDIM_ORDER=1
+	${CLANG} -o ${BUILD_DIR}/matmul/clang/cpu-poly-noarr-bag ${CXX_OPTIONS} matmul/cpu-poly-noarr-bag.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_I -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=0 -DDIM_ORDER=1
 ${BUILD_DIR}/matmul/clang/cpu-poly-policy: matmul/cpu-poly-policy.cpp matmul/policymain.hpp
 	@mkdir -p ${BUILD_DIR}/matmul/clang
-	${CLANG} -o ${BUILD_DIR}/matmul/clang/cpu-poly-policy ${CXX_OPTIONS} matmul/cpu-poly-policy.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=0 -DDIM_ORDER=1
+	${CLANG} -o ${BUILD_DIR}/matmul/clang/cpu-poly-policy ${CXX_OPTIONS} matmul/cpu-poly-policy.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_I -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=0 -DDIM_ORDER=1
 
 ${BUILD_DIR}/matmul/gcc/cpu-poly-noarr2: matmul/cpu-poly-noarr.cpp matmul/noarrmain.hpp
 	@mkdir -p ${BUILD_DIR}/matmul/gcc
-	${GCC} -o ${BUILD_DIR}/matmul/gcc/cpu-poly-noarr2 ${CXX_OPTIONS} matmul/cpu-poly-noarr.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=1 -DDIM_ORDER=1
+	${GCC} -o ${BUILD_DIR}/matmul/gcc/cpu-poly-noarr2 ${CXX_OPTIONS} matmul/cpu-poly-noarr.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_I -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=1 -DDIM_ORDER=1
 ${BUILD_DIR}/matmul/gcc/cpu-poly-noarr-bag2: matmul/cpu-poly-noarr-bag.cpp matmul/noarrmain.hpp
 	@mkdir -p ${BUILD_DIR}/matmul/gcc
-	${GCC} -o ${BUILD_DIR}/matmul/gcc/cpu-poly-noarr-bag2 ${CXX_OPTIONS} matmul/cpu-poly-noarr-bag.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=1 -DDIM_ORDER=1
+	${GCC} -o ${BUILD_DIR}/matmul/gcc/cpu-poly-noarr-bag2 ${CXX_OPTIONS} matmul/cpu-poly-noarr-bag.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_I -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=1 -DDIM_ORDER=1
 ${BUILD_DIR}/matmul/gcc/cpu-poly-policy2: matmul/cpu-poly-policy.cpp matmul/policymain.hpp
 	@mkdir -p ${BUILD_DIR}/matmul/gcc
-	${GCC} -o ${BUILD_DIR}/matmul/gcc/cpu-poly-policy2 ${CXX_OPTIONS} matmul/cpu-poly-policy.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=1 -DDIM_ORDER=1
+	${GCC} -o ${BUILD_DIR}/matmul/gcc/cpu-poly-policy2 ${CXX_OPTIONS} matmul/cpu-poly-policy.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_I -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=1 -DDIM_ORDER=1
 
 ${BUILD_DIR}/matmul/clang/cpu-poly-noarr2: matmul/cpu-poly-noarr.cpp matmul/noarrmain.hpp
 	@mkdir -p ${BUILD_DIR}/matmul/clang
-	${CLANG} -o ${BUILD_DIR}/matmul/clang/cpu-poly-noarr2 ${CXX_OPTIONS} matmul/cpu-poly-noarr.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=1 -DDIM_ORDER=1
+	${CLANG} -o ${BUILD_DIR}/matmul/clang/cpu-poly-noarr2 ${CXX_OPTIONS} matmul/cpu-poly-noarr.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_I -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=1 -DDIM_ORDER=1
 ${BUILD_DIR}/matmul/clang/cpu-poly-noarr-bag2: matmul/cpu-poly-noarr-bag.cpp matmul/noarrmain.hpp
 	@mkdir -p ${BUILD_DIR}/matmul/clang
-	${CLANG} -o ${BUILD_DIR}/matmul/clang/cpu-poly-noarr-bag2 ${CXX_OPTIONS} matmul/cpu-poly-noarr-bag.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=1 -DDIM_ORDER=1
+	${CLANG} -o ${BUILD_DIR}/matmul/clang/cpu-poly-noarr-bag2 ${CXX_OPTIONS} matmul/cpu-poly-noarr-bag.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_I -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=1 -DDIM_ORDER=1
 ${BUILD_DIR}/matmul/clang/cpu-poly-policy2: matmul/cpu-poly-policy.cpp matmul/policymain.hpp
 	@mkdir -p ${BUILD_DIR}/matmul/clang
-	${CLANG} -o ${BUILD_DIR}/matmul/clang/cpu-poly-policy2 ${CXX_OPTIONS} matmul/cpu-poly-policy.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=1 -DDIM_ORDER=1
+	${CLANG} -o ${BUILD_DIR}/matmul/clang/cpu-poly-policy2 ${CXX_OPTIONS} matmul/cpu-poly-policy.cpp -DA_ROW -DB_ROW -DC_ROW -DBLOCK_I -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=1 -DDIM_ORDER=1
 
 ${BUILD_DIR}/matmul/nvcc/cu-basic-noarr: matmul/cu-basic-noarr.cu matmul/noarrmain.hpp
 	@mkdir -p ${BUILD_DIR}/matmul/nvcc

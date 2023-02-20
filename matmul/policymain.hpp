@@ -5,12 +5,7 @@
 #include <cstring>
 #include <sstream>
 
-#include <noarr/structures_extended.hpp>
-#include <noarr/structures/extra/traverser.hpp>
-
 #ifdef CUDA
-#include <noarr/structures/interop/cuda_traverser.cuh>
-
 #define CUCH(status)  do { cudaError_t err = status; if (err != cudaSuccess) std::cerr << __FILE__ ":" << __LINE__ << ": error: " << cudaGetErrorString(err) << "\n\t" #status << std::endl, exit(err); } while (false)
 #endif
 
@@ -21,9 +16,9 @@ enum layout { ROW_MAJOR, COL_MAJOR };
 
 template<class Scalar, class Step, layout Layout>
 struct matrix {
-	constexpr matrix(Scalar *data, Step row_count, Step col_count) noexcept
-		: data(data), step((Layout == ROW_MAJOR) ? row_count : col_count) {
-	}
+	constexpr matrix(Scalar *data, Step step) noexcept
+		: data(data), step(step)
+	{ }
 
 	template<class Major, class Minor>
 	constexpr Scalar &operator() (Major major, Minor minor) const noexcept {
@@ -37,9 +32,12 @@ struct matrix {
 	Step step;
 };
 
-template<auto Layout, class Scalar, class Step>
-constexpr auto make_matrix(Scalar *data, Step row_count, Step col_count) noexcept {
-	return matrix<Scalar, Step, Layout>(data, row_count, col_count);
+template<layout Layout, class Scalar, class RowCount, class ColCount>
+constexpr auto make_matrix(Scalar *data, RowCount row_count, ColCount col_count) noexcept {
+	if constexpr (Layout == ROW_MAJOR)
+		return matrix<Scalar, RowCount, Layout>(data, row_count);
+	else
+		return matrix<Scalar, ColCount, Layout>(data, col_count);
 }
 
 using namespace std::literals::chrono_literals;
@@ -63,7 +61,7 @@ int main(int argc, char **argv) {
 		std::abort();
 	}
 
-	uint size;
+	std::size_t size;
 
 	{
 		std::istringstream size_stream(argv[2]);
@@ -75,13 +73,39 @@ int main(int argc, char **argv) {
 	auto k_size = size;
 #endif
 
-	std::size_t a_cnt = i_size * j_size;
-	std::size_t b_cnt = j_size * k_size;
-	std::size_t c_cnt = i_size * k_size;
+#ifdef A_ROW
+	#define A_LAYOUT ROW_MAJOR
+#else
+#ifdef A_COL
+	#define A_LAYOUT COL_MAJOR
+#else
+#error define A_ROW or A_COL
+#endif
+#endif
 
-	std::size_t a_sz = a_cnt * sizeof(num_t);
-	std::size_t b_sz = b_cnt * sizeof(num_t);
-	std::size_t c_sz = c_cnt * sizeof(num_t);
+#ifdef B_ROW
+	#define B_LAYOUT ROW_MAJOR
+#else
+#ifdef B_COL
+	#define B_LAYOUT COL_MAJOR
+#else
+#error define B_ROW or B_COL
+#endif
+#endif
+
+#ifdef C_ROW
+	#define C_LAYOUT ROW_MAJOR
+#else
+#ifdef C_COL
+	#define C_LAYOUT COL_MAJOR
+#else
+#error define C_ROW or C_COL
+#endif
+#endif
+
+	std::size_t a_sz = i_size * j_size * sizeof(num_t);
+	std::size_t b_sz = j_size * k_size * sizeof(num_t);
+	std::size_t c_sz = i_size * k_size * sizeof(num_t);
 
 	num_t *data;
 
@@ -101,45 +125,18 @@ int main(int argc, char **argv) {
 	}
 	std::fclose(file);
 
+	auto a = make_matrix<A_LAYOUT>(data, i_size, j_size);
+	auto b = make_matrix<B_LAYOUT>((num_t *)((char *)data + a_sz), j_size, k_size);
+	auto c = make_matrix<C_LAYOUT>((num_t *)((char *)data + a_sz + b_sz), i_size, k_size);
 
-#ifdef A_ROW
-	auto a = make_matrix<ROW_MAJOR>(data, i_size, j_size);
-#else
-#ifdef A_COL
-	auto a = make_matrix<COL_MAJOR>(data, i_size, j_size);
-#else
-#error define A_ROW or A_COL
-#endif
-#endif
-
-#ifdef B_ROW
-	auto b = make_matrix<ROW_MAJOR>(data + a_cnt, j_size, k_size);
-#else
-#ifdef B_COL
-	auto b = make_matrix<COL_MAJOR>(data + a_cnt, j_size, k_size);
-#else
-#error define B_ROW or B_COL
-#endif
-#endif
-
-#ifdef C_ROW
-	auto c = make_matrix<ROW_MAJOR>(data + a_cnt + b_cnt, i_size, k_size);
-#else
-#ifdef C_COL
-	auto c = make_matrix<COL_MAJOR>(data + a_cnt + b_cnt, i_size, k_size);
-#else
-#error define C_ROW or C_COL
-#endif
-#endif
-
-	matmul(i_size, j_size, k_size, a, b, c);
+	// matmul(i_size, j_size, k_size, a, b, c);
 
 	auto t0 = std::chrono::steady_clock::now();
 	matmul(i_size, j_size, k_size, a, b, c);
 	auto t1 = std::chrono::steady_clock::now();
 	std::fprintf(stderr, "%lu.%03u ms\n", (unsigned long) ((t1 - t0) / 1ms), (unsigned) ((t1 - t0) / 1us % 1000));
 
-	std::fwrite(data + a_cnt + b_cnt, 1, c_sz, stdout);
+	std::fwrite((char *)data + a_sz + b_sz, 1, c_sz, stdout);
 
 #ifdef CUDA
 	CUCH(cudaFree(data));

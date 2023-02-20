@@ -1,4 +1,5 @@
 #define CPU
+#define POLY
 #include "noarrmain.hpp"
 
 template<class TC>
@@ -23,45 +24,22 @@ constexpr auto kernel_matmul(TA ta, TB tb, TC tc, void *pa, void *pb, void *pc) 
     };
 }
 
-template<class F, std::size_t ...Idxs>
-constexpr auto transform_pack(F f, std::index_sequence<Idxs...>) {
-    return std::integer_sequence<
-        typename decltype(f(std::integral_constant<std::size_t, 0>()))::value_type,
-        decltype(f(std::integral_constant<std::size_t, Idxs>()))::value...>();
-}
-
-template<std::size_t I, std::size_t J, class C, C ...Idxs>
-constexpr auto swap_pack(std::integer_sequence<C, Idxs...>) {
-    constexpr std::size_t l = std::min(I, J);
-    constexpr std::size_t h = std::max(I, J);
-    constexpr C idxs[] = {Idxs...};
-
-    return transform_pack([&]<std::size_t X>(std::integral_constant<std::size_t, X>) {
-        if constexpr(X != l && X != h)
-            return std::integral_constant<C, idxs[X]>();
-        else if constexpr(X == l)
-            return std::integral_constant<C, idxs[h]>();
-        else
-            return std::integral_constant<C, idxs[l]>();
-    }, std::make_index_sequence<sizeof...(Idxs)>());
-}
-
 template<class A, class B, class C>
 void matmul(A orig_ta, B orig_tb, C orig_tc, char *pa, char *pb, char *pc) {
 #ifdef BLOCK_I
 	auto i_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<BLOCK_SIZE>);
 #else
-    auto i_blocks = noarr::bcast<'I'>(1);
+    auto i_blocks = noarr::bcast<'I'>(noarr::lit<1>);
 #endif
 #ifdef BLOCK_J
 	auto j_blocks = noarr::into_blocks<'j', 'J', 'j'>(noarr::lit<BLOCK_SIZE>);
 #else
-    auto j_blocks = noarr::bcast<'J'>(1);
+    auto j_blocks = noarr::bcast<'J'>(noarr::lit<1>);
 #endif
 #ifdef BLOCK_K
 	auto k_blocks = noarr::into_blocks<'k', 'K', 'k'>(noarr::lit<BLOCK_SIZE>);
 #else
-    auto k_blocks = noarr::bcast<'K'>(1);
+    auto k_blocks = noarr::bcast<'K'>(noarr::lit<1>);
 #endif
 
 	auto ta = orig_ta ^ i_blocks ^ j_blocks;

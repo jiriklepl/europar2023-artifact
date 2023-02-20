@@ -21,19 +21,19 @@ __global__ void kernel_matmul(ISize i_size, JSize j_size, KSize k_size, num_t* g
 	auto K = blockIdx.y * K_BLOCK_SIZE;
 	auto i = threadIdx.x;
 
-	for(size_t k = 0; k < K_BLOCK_SIZE; k++) {
+	for(std::size_t k = 0; k < K_BLOCK_SIZE; k++) {
 		shm_c[k*I_BLOCK_SIZE + i] = 0;
 	}
 
-	for(size_t j = 0; j < j_size; j++) {
-		for(size_t k = 0; k < K_BLOCK_SIZE; k++) {
+	for(std::size_t j = 0; j < j_size; j++) {
+		for(std::size_t k = 0; k < K_BLOCK_SIZE; k++) {
 			num_t local_a = glm_a[j*i_size + (I+i)];
 			num_t local_b = glm_b[(K+k)*j_size + j];
 			shm_c[k*I_BLOCK_SIZE + i] += local_a * local_b;
 		}
 	}
 
-	for(size_t k = 0; k < K_BLOCK_SIZE; k++) {
+	for(std::size_t k = 0; k < K_BLOCK_SIZE; k++) {
 		glm_c[(K+k)*i_size + (I+i)] = shm_c[k*I_BLOCK_SIZE + i];
 	}
 }

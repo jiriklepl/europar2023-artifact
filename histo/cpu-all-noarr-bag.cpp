@@ -28,15 +28,15 @@ enum {
 
 }
 
-void histo(void *in_ptr, size_t size, void *out_ptr) {
+void histo(void *in_ptr, std::size_t size, void *out_ptr) {
 
 if constexpr (HISTO_IMPL == histo_plain_loop) {
 	using noarr::get_at;
 
 	auto in = (value_t*) in_ptr;
-	auto out = (size_t*) out_ptr;
+	auto out = (std::size_t*) out_ptr;
 
-	for(size_t i = 0; i < size; i++) {
+	for(std::size_t i = 0; i < size; i++) {
 		value_t value = in[i];
 		out[value] += 1;
 	}
@@ -46,9 +46,9 @@ if constexpr (HISTO_IMPL == histo_noarr_loop) {
 	using noarr::idx;
 
 	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), (char *)in_ptr);
-	auto out = noarr::make_bag(noarr::scalar<size_t>() ^ noarr::array<'v', 256>(), (char *)out_ptr);
+	auto out = noarr::make_bag(noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>(), (char *)out_ptr);
 
-	for(size_t i = 0; i < size; i++) {
+	for(std::size_t i = 0; i < size; i++) {
 		value_t value = in[idx<'i'>(i)];
 		out[idx<'v'>(value)] += 1;
 	}
@@ -58,7 +58,7 @@ if constexpr (HISTO_IMPL == histo_trav_loop) {
 	using noarr::idx;
 
 	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), (char *)in_ptr);
-	auto out = noarr::make_bag(noarr::scalar<size_t>() ^ noarr::array<'v', 256>(), (char *)out_ptr);
+	auto out = noarr::make_bag(noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>(), (char *)out_ptr);
 
 	for(auto elem : noarr::traverser(in)) {
 		value_t value = in[elem.state()];
@@ -70,7 +70,7 @@ if constexpr (HISTO_IMPL == histo_trav_foreach) {
 	using noarr::idx;
 
 	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), (char *)in_ptr);
-	auto out = noarr::make_bag(noarr::scalar<size_t>() ^ noarr::array<'v', 256>(), (char *)out_ptr);
+	auto out = noarr::make_bag(noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>(), (char *)out_ptr);
 
 	noarr::traverser(in).for_each([in, out](auto in_state) {
 		value_t value = in[in_state];
@@ -83,7 +83,7 @@ if constexpr (HISTO_IMPL == histo_trav_tbbreduce) {
 	using noarr::idx;
 
 	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), (char *)in_ptr);
-	auto out = noarr::make_bag(noarr::scalar<size_t>() ^ noarr::array<'v', 256>(), (char *)out_ptr);
+	auto out = noarr::make_bag(noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>(), (char *)out_ptr);
 
 	noarr::tbb_reduce_bag(
 		// Input traverser.
