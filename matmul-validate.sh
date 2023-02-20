@@ -4,7 +4,7 @@ OUTPUT="/tmp/matmul-$(uuidgen)"
 OUTPUT2="/tmp/matmul-$(uuidgen)"
 
 while read -r input size; do
-    find build/matmul -mindepth 2 | while read -r file; do
+    find build/matmul -mindepth 2 | shuf | while read -r file; do
         echo "$file" "$input" "$size"
         "$file" "$input" "$size" > "$OUTPUT"
 

@@ -7,7 +7,7 @@ mkdir -p out
 
 while read -r input size; do
     for _ in $(seq "$REPS"); do
-        find build/matmul -mindepth 2 | while read -r file; do
+        find build/matmul -mindepth 2 | shuf | while read -r file; do
             printf "%s" "$file,$input,$size,$(uname -n),$(date)," >> "$OUTPUT"
 
             "$file" "$input" "$size" > /dev/null 2>> "$OUTPUT"
