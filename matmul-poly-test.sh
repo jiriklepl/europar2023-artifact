@@ -15,7 +15,6 @@ while read -r compiler; do
 				output="tests/matmul/$compiler/cpu-poly_${block_order}_${dim_order}-$version"
 				source="matmul/cpu-poly-$version.cpp"
 
-
 				call="$compiler -o $output \
 $CXX_OPTIONS \
 -DDEBUG -DLOGGING \
