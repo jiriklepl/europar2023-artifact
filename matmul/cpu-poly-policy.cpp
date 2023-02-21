@@ -5,6 +5,8 @@
 template<class C>
 constexpr auto kernel_reset(C c) {
 	return [=](auto i, auto k) {
+		LOG("push 0");
+		LOG("store c at i=" << i << " k=" << k);
 		c(k, i) = 0;
 	};
 }
@@ -12,12 +14,18 @@ constexpr auto kernel_reset(C c) {
 template<class JStep, class A, class B, class C>
 constexpr auto kernel_matmul(JStep j_step, A a, B b, C c) {
 	return [=](auto i, auto J, auto k) {
+		LOG("load c at i=" << i << " k=" << k);
 		num_t result = c(k, i);
 
 		for (std::size_t j = 0; j < j_step; j++) {
+			LOG("load a at i=" << i << " j=" << J + j);
+			LOG("load b at j=" << J + j << " k=" << k);
+			LOG("multiply");
+			LOG("add");
 			result += a(J + j, i) * b(k, J + j);
 		}
 
+		LOG("store c at i=" << i << " k=" << k);
 		c(k, i) = result;
 	};
 }
@@ -50,13 +58,14 @@ void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
 	auto reset = kernel_reset(c);
 	auto body = kernel_matmul(J_STEP, a, b, c);
 
-	I_LOOP
-		for(std::size_t i = 0; i < I_STEP; i++)
-			K_LOOP
-				for(std::size_t k = 0; k < K_STEP; k++)
+	LOG("# reset c");
+	K_LOOP
+		for(std::size_t k = 0; k < K_STEP; k++)
+			I_LOOP
+				for(std::size_t i = 0; i < I_STEP; i++)
 					reset(I * I_STEP + i, K * K_STEP + k);
 
-
+	LOG("# multiply a and b, add the result to c");
 #ifndef BLOCK_ORDER
 #error BLOCK_ORDER has to satisfy: 0 <= BLOCK_ORDER < 6
 #elif BLOCK_ORDER == 0
@@ -87,5 +96,5 @@ void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
 #error DIM_ORDER has to satisfy: 0 <= DIM_ORDER < 2
 #endif
 
-				body(K * K_STEP + k, J * J_STEP, I * I_STEP + i);
+				body(I * I_STEP + i, J * J_STEP, K * K_STEP + k);
 }

@@ -9,6 +9,12 @@
 #define CUCH(status)  do { cudaError_t err = status; if (err != cudaSuccess) std::cerr << __FILE__ ":" << __LINE__ << ": error: " << cudaGetErrorString(err) << "\n\t" #status << std::endl, exit(err); } while (false)
 #endif
 
+#ifdef LOGGING
+	#define LOG(log) \
+		(std::cerr << log << std::endl)
+#else
+	#define LOG(log) ((void)0)
+#endif
 
 using num_t = float;
 
