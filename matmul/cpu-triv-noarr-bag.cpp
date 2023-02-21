@@ -7,11 +7,11 @@ void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc) {
 	auto b = noarr::make_bag(tb, pb);
 	auto c = noarr::make_bag(tc, pc);
 
-    noarr::traverser(c).for_each([=](auto state) {
-	    c[state] = 0;
-    });
+	noarr::traverser(c).for_each([=](auto state) {
+		c[state] = 0;
+	});
 
-    noarr::traverser(a, b, c).for_each([=](auto state) {
-        c[state] += a[state] * b[state];
-    });
+	noarr::traverser(a, b, c).for_each([=](auto state) {
+		c[state] += a[state] * b[state];
+	});
 }

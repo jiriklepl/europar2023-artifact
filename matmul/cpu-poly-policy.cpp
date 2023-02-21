@@ -4,22 +4,22 @@
 
 template<class C>
 constexpr auto kernel_reset(C c) {
-    return [=](auto i, auto k) {
-        c(k, i) = 0;
-    };
+	return [=](auto i, auto k) {
+		c(k, i) = 0;
+	};
 }
 
 template<class JStep, class A, class B, class C>
 constexpr auto kernel_matmul(JStep j_step, A a, B b, C c) {
-    return [=](auto i, auto J, auto k) {
-        num_t result = c(k, i);
+	return [=](auto i, auto J, auto k) {
+		num_t result = c(k, i);
 
-        for (std::size_t j = 0; j < j_step; j++) {
-            result += a(J + j, i) * b(k, J + j);
-        }
+		for (std::size_t j = 0; j < j_step; j++) {
+			result += a(J + j, i) * b(k, J + j);
+		}
 
-        c(k, i) = result;
-    };
+		c(k, i) = result;
+	};
 }
 
 template<class ISize, class JSize, class KSize, class A, class B, class C>
@@ -47,30 +47,30 @@ void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
 #define K_LOOP if constexpr(const std::size_t K = 0; true)
 #define K_STEP k_size
 #endif
-    auto reset = kernel_reset(c);
-    auto body = kernel_matmul(J_STEP, a, b, c);
+	auto reset = kernel_reset(c);
+	auto body = kernel_matmul(J_STEP, a, b, c);
 
-    I_LOOP 
-        for(std::size_t i = 0; i < I_STEP; i++)
-            K_LOOP
-                for(std::size_t k = 0; k < K_STEP; k++)
-                    reset(I * I_STEP + i, K * K_STEP + k);
+	I_LOOP
+		for(std::size_t i = 0; i < I_STEP; i++)
+			K_LOOP
+				for(std::size_t k = 0; k < K_STEP; k++)
+					reset(I * I_STEP + i, K * K_STEP + k);
 
 
 #ifndef BLOCK_ORDER
 #error BLOCK_ORDER has to satisfy: 0 <= BLOCK_ORDER < 6
 #elif BLOCK_ORDER == 0
-    I_LOOP J_LOOP K_LOOP
+	I_LOOP J_LOOP K_LOOP
 #elif BLOCK_ORDER == 1
-    J_LOOP I_LOOP K_LOOP
+	J_LOOP I_LOOP K_LOOP
 #elif BLOCK_ORDER == 2
-    K_LOOP J_LOOP I_LOOP
+	K_LOOP J_LOOP I_LOOP
 #elif BLOCK_ORDER == 3
-    I_LOOP K_LOOP J_LOOP
+	I_LOOP K_LOOP J_LOOP
 #elif BLOCK_ORDER == 4
-    J_LOOP K_LOOP I_LOOP
+	J_LOOP K_LOOP I_LOOP
 #elif BLOCK_ORDER == 5
-    K_LOOP I_LOOP J_LOOP
+	K_LOOP I_LOOP J_LOOP
 #else
 #error BLOCK_ORDER has to satisfy: 0 <= BLOCK_ORDER < 6
 #endif
@@ -78,14 +78,14 @@ void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
 #ifndef DIM_ORDER
 #error DIM_ORDER has to satisfy: 0 <= DIM_ORDER < 2
 #elif DIM_ORDER == 0
-        for(std::size_t i = 0; i < I_STEP; i++)
-            for(std::size_t k = 0; k < K_STEP; k++)
+		for(std::size_t i = 0; i < I_STEP; i++)
+			for(std::size_t k = 0; k < K_STEP; k++)
 #elif DIM_ORDER == 1
-        for(std::size_t k = 0; k < K_STEP; k++)
-            for(std::size_t i = 0; i < I_STEP; i++)
+		for(std::size_t k = 0; k < K_STEP; k++)
+			for(std::size_t i = 0; i < I_STEP; i++)
 #else
 #error DIM_ORDER has to satisfy: 0 <= DIM_ORDER < 2
 #endif
 
-                body(K * K_STEP + k, J * J_STEP, I * I_STEP + i);
+				body(K * K_STEP + k, J * J_STEP, I * I_STEP + i);
 }
