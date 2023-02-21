@@ -5,7 +5,7 @@ OUTPUT2="/tmp/histo-$(uuidgen)"
 
 while read -r input size; do
     find build/histo -mindepth 2 | shuf | while read -r file; do
-        echo "$file" "$input" "$size"
+        echo "$(date +%H:%M:%S:)" "$file" "$input" "$size" 1>&2
         "$file" "$input" "$size" > "$OUTPUT"
 
         if [ -f "$OUTPUT2" ]; then
