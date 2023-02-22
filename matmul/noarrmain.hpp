@@ -50,8 +50,6 @@ constexpr auto swap_pack(std::integer_sequence<C, Idxs...>) {
 }
 #endif
 
-using namespace std::literals::chrono_literals;
-
 template<class A, class B, class C>
 void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc);
 
@@ -137,10 +135,12 @@ int main(int argc, char **argv) {
 
 	// matmul(ta, tb, tc, data, data + a_sz, data + a_sz + b_sz);
 
-	auto t0 = std::chrono::steady_clock::now();
+	auto start = std::chrono::high_resolution_clock::now();
 	matmul(ta, tb, tc, data, data + a_sz, data + a_sz + b_sz);
-	auto t1 = std::chrono::steady_clock::now();
-	std::fprintf(stderr, "%lu.%03u ms\n", (unsigned long) ((t1 - t0) / 1ms), (unsigned) ((t1 - t0) / 1us % 1000));
+	auto end = std::chrono::high_resolution_clock::now();
+
+	auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+	std::cerr << duration.count() << std::endl;
 
 	std::fwrite(data + a_sz + b_sz, 1, c_sz, stdout);
 

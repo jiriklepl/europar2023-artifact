@@ -93,12 +93,14 @@ int main(int argc, char **argv) {
 	}
 	std::fclose(file);
 
-	matmul_cuda(ISize, JSize, KSize, data, data + a_cnt, data + a_cnt + b_cnt);
+	// matmul_cuda(ISize, JSize, KSize, data, data + a_cnt, data + a_cnt + b_cnt);
 
-	auto t0 = std::chrono::steady_clock::now();
+	auto start = std::chrono::high_resolution_clock::now();
 	matmul_cuda(ISize, JSize, KSize, data, data + a_cnt, data + a_cnt + b_cnt);
-	auto t1 = std::chrono::steady_clock::now();
-	std::fprintf(stderr, "%lu.%03u ms\n", (unsigned long) ((t1 - t0) / 1ms), (unsigned) ((t1 - t0) / 1us % 1000));
+	auto end = std::chrono::high_resolution_clock::now();
+
+	auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+	std::cerr << duration.count() << std::endl;
 
 	std::fwrite(data + a_cnt + b_cnt, 1, c_sz, stdout);
 

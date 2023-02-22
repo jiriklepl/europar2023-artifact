@@ -46,8 +46,6 @@ constexpr auto make_matrix(Scalar *data, RowCount row_count, ColCount col_count)
 		return matrix<Scalar, ColCount, Layout>(data, col_count);
 }
 
-using namespace std::literals::chrono_literals;
-
 template<class ISize, class JSize, class KSize, class A, class B, class C>
 void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c);
 
@@ -137,10 +135,12 @@ int main(int argc, char **argv) {
 
 	// matmul(i_size, j_size, k_size, a, b, c);
 
-	auto t0 = std::chrono::steady_clock::now();
+	auto start = std::chrono::high_resolution_clock::now();
 	matmul(i_size, j_size, k_size, a, b, c);
-	auto t1 = std::chrono::steady_clock::now();
-	std::fprintf(stderr, "%lu.%03u ms\n", (unsigned long) ((t1 - t0) / 1ms), (unsigned) ((t1 - t0) / 1us % 1000));
+	auto end = std::chrono::high_resolution_clock::now();
+
+	auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+	std::cerr << duration.count() << std::endl;
 
 	std::fwrite((char *)data + a_sz + b_sz, 1, c_sz, stdout);
 
