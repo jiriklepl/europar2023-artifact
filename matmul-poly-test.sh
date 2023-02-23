@@ -23,7 +23,7 @@ $source \
 -DBLOCK_I -DBLOCK_J -DBLOCK_K \
 -DBLOCK_SIZE=16 -DBLOCK_ORDER=$block_order -DDIM_ORDER=$dim_order"
 				if [ "$source" -nt "$output" ]; then
-					echo "$call"
+					echo "$call" 1>&2
 					$call
 				fi
 			done

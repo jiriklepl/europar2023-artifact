@@ -19,7 +19,7 @@ $CXX_OPTIONS \
 $source \
 -DA_ROW -DB_ROW -DC_ROW"
         if [ "$source" -nt "$output" ]; then
-            echo "$call"
+            echo "$call" 1>&2
             $call
         fi
 	done <<EOF
