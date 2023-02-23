@@ -12,7 +12,7 @@ while read -r input size; do
 
 	if [ -f "$input" ]; then
 		for _ in $(seq "$REPS"); do
-			find build/matmul -mindepth 2 | shuf | while read -r file; do
+			find build/matmul -type f -mindepth 2 | shuf | while read -r file; do
 				printf "%s" "$file,$input,$size,$(uname -n),$(date)," >> "$OUTPUT"
 
 				"$file" "$input" "$size" > /dev/null 2>> "$OUTPUT"
