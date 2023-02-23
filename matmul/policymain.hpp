@@ -10,40 +10,43 @@
 #endif
 
 #ifdef LOGGING
-	#define LOG(log) \
-		(std::cerr << log << std::endl)
+#define LOG(log) \
+	(std::cerr << log << std::endl)
 #else
-	#define LOG(log) ((void)0)
+#define LOG(log) ((void)0)
 #endif
 
 using num_t = float;
 
 enum layout { ROW_MAJOR, COL_MAJOR };
 
-template<class Scalar, class Step, layout Layout>
-struct matrix {
-	constexpr matrix(Scalar *data, Step step) noexcept
+template<class Pointer, class Step, layout Layout>
+struct matrix_impl {
+	constexpr matrix_impl(Pointer data, Step step) noexcept
 		: data(data), step(step)
 	{ }
 
 	template<class Major, class Minor>
-	constexpr Scalar &operator() (Major major, Minor minor) const noexcept {
+	constexpr decltype(auto) operator() (Major major, Minor minor) const noexcept {
 		if constexpr (Layout == ROW_MAJOR)
 			return data[major * step + minor];
 		else
 			return data[minor * step + major];
 	}
 
-	Scalar *data;
+	Pointer data;
 	Step step;
 };
 
-template<layout Layout, class Scalar, class RowCount, class ColCount>
-constexpr auto make_matrix(Scalar *data, RowCount row_count, ColCount col_count) noexcept {
+template<class Pointer, class Step, layout Layout>
+using matrix = const matrix_impl<Pointer, Step, Layout>;
+
+template<layout Layout, class Pointer, class RowCount, class ColCount>
+constexpr auto make_matrix(Pointer data, RowCount row_count, ColCount col_count) noexcept {
 	if constexpr (Layout == ROW_MAJOR)
-		return matrix<Scalar, RowCount, Layout>(data, row_count);
+		return matrix<Pointer, RowCount, Layout>(data, row_count);
 	else
-		return matrix<Scalar, ColCount, Layout>(data, col_count);
+		return matrix<Pointer, ColCount, Layout>(data, col_count);
 }
 
 template<class ISize, class JSize, class KSize, class A, class B, class C>
@@ -78,30 +81,30 @@ int main(int argc, char **argv) {
 #endif
 
 #ifdef A_ROW
-	#define A_LAYOUT ROW_MAJOR
+#define A_LAYOUT ROW_MAJOR
 #else
 #ifdef A_COL
-	#define A_LAYOUT COL_MAJOR
+#define A_LAYOUT COL_MAJOR
 #else
 #error define A_ROW or A_COL
 #endif
 #endif
 
 #ifdef B_ROW
-	#define B_LAYOUT ROW_MAJOR
+#define B_LAYOUT ROW_MAJOR
 #else
 #ifdef B_COL
-	#define B_LAYOUT COL_MAJOR
+#define B_LAYOUT COL_MAJOR
 #else
 #error define B_ROW or B_COL
 #endif
 #endif
 
 #ifdef C_ROW
-	#define C_LAYOUT ROW_MAJOR
+#define C_LAYOUT ROW_MAJOR
 #else
 #ifdef C_COL
-	#define C_LAYOUT COL_MAJOR
+#define C_LAYOUT COL_MAJOR
 #else
 #error define C_ROW or C_COL
 #endif
@@ -129,8 +132,8 @@ int main(int argc, char **argv) {
 	}
 	std::fclose(file);
 
-	auto a = make_matrix<A_LAYOUT>(data, i_size, j_size);
-	auto b = make_matrix<B_LAYOUT>((num_t *)((char *)data + a_sz), j_size, k_size);
+	auto a = make_matrix<A_LAYOUT>((const num_t *)data, i_size, j_size);
+	auto b = make_matrix<B_LAYOUT>((const num_t *)((char *)data + a_sz), j_size, k_size);
 	auto c = make_matrix<C_LAYOUT>((num_t *)((char *)data + a_sz + b_sz), i_size, k_size);
 
 	// matmul(i_size, j_size, k_size, a, b, c);

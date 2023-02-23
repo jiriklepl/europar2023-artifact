@@ -17,10 +17,10 @@
 #endif
 
 #ifdef LOGGING
-	#define LOG(log) \
-		(std::cerr << log << std::endl)
+#define LOG(log) \
+	(std::cerr << log << std::endl)
 #else
-	#define LOG(log) ((void)0)
+#define LOG(log) ((void)0)
 #endif
 
 using num_t = float;
