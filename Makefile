@@ -127,35 +127,61 @@ ${BUILD_DIR}/matmul/nvcc/cu-adv-plain: matmul/cu-adv-plain.cu
 	${NVCC} -o ${BUILD_DIR}/matmul/nvcc/cu-adv-plain ${CUDA_OPTIONS} matmul/cu-adv-plain.cu -DA_ROW -DB_ROW -DC_ROW
 
 histo: noarr-structures \
-	${BUILD_DIR}/histo/g++/cpu-all-noarr \
-	${BUILD_DIR}/histo/g++/cpu-all-noarr-bag \
-	${BUILD_DIR}/histo/g++/cpu-all-plain \
-	${BUILD_DIR}/histo/clang++/cpu-all-noarr \
-	${BUILD_DIR}/histo/clang++/cpu-all-noarr-bag \
-	${BUILD_DIR}/histo/clang++/cpu-all-plain \
+	${BUILD_DIR}/histo/g++/cpu-serial-noarr \
+	${BUILD_DIR}/histo/g++/cpu-serial-noarr-bag \
+	${BUILD_DIR}/histo/g++/cpu-serial-plain \
+	${BUILD_DIR}/histo/clang++/cpu-serial-noarr \
+	${BUILD_DIR}/histo/clang++/cpu-serial-noarr-bag \
+	${BUILD_DIR}/histo/clang++/cpu-serial-plain \
+	${BUILD_DIR}/histo/g++/cpu-tbb-noarr \
+	${BUILD_DIR}/histo/g++/cpu-tbb-noarr-bag \
+	${BUILD_DIR}/histo/g++/cpu-tbb-plain \
+	${BUILD_DIR}/histo/clang++/cpu-tbb-noarr \
+	${BUILD_DIR}/histo/clang++/cpu-tbb-noarr-bag \
+	${BUILD_DIR}/histo/clang++/cpu-tbb-plain \
 	${BUILD_DIR}/histo/nvcc/cu-priv-noarr \
 	${BUILD_DIR}/histo/nvcc/cu-priv-noarr-bag \
 	${BUILD_DIR}/histo/nvcc/cu-priv-plain
 
-${BUILD_DIR}/histo/g++/cpu-all-noarr: histo/cpu-all-noarr.cpp histo/histomain.hpp
+${BUILD_DIR}/histo/g++/cpu-serial-noarr: histo/cpu-all-noarr.cpp histo/histomain.hpp
 	@mkdir -p ${BUILD_DIR}/histo/g++
-	${GCC} -o ${BUILD_DIR}/histo/g++/cpu-all-noarr ${CXX_OPTIONS} histo/cpu-all-noarr.cpp -DHISTO_IMPL=histo_trav_foreach
-${BUILD_DIR}/histo/g++/cpu-all-noarr-bag: histo/cpu-all-noarr-bag.cpp histo/histomain.hpp
+	${GCC} -o ${BUILD_DIR}/histo/g++/cpu-serial-noarr ${CXX_OPTIONS} histo/cpu-all-noarr.cpp -DHISTO_IMPL=histo_trav_foreach
+${BUILD_DIR}/histo/g++/cpu-serial-noarr-bag: histo/cpu-all-noarr-bag.cpp histo/histomain.hpp
 	@mkdir -p ${BUILD_DIR}/histo/g++
-	${GCC} -o ${BUILD_DIR}/histo/g++/cpu-all-noarr-bag ${CXX_OPTIONS} histo/cpu-all-noarr-bag.cpp -DHISTO_IMPL=histo_trav_foreach
-${BUILD_DIR}/histo/g++/cpu-all-plain: histo/cpu-all-noarr.cpp histo/histomain.hpp
+	${GCC} -o ${BUILD_DIR}/histo/g++/cpu-serial-noarr-bag ${CXX_OPTIONS} histo/cpu-all-noarr-bag.cpp -DHISTO_IMPL=histo_trav_foreach
+${BUILD_DIR}/histo/g++/cpu-serial-plain: histo/cpu-all-noarr.cpp histo/histomain.hpp
 	@mkdir -p ${BUILD_DIR}/histo/g++
-	${GCC} -o ${BUILD_DIR}/histo/g++/cpu-all-plain ${CXX_OPTIONS} histo/cpu-all-noarr.cpp -DHISTO_IMPL=histo_plain_loop
+	${GCC} -o ${BUILD_DIR}/histo/g++/cpu-serial-plain ${CXX_OPTIONS} histo/cpu-all-noarr.cpp -DHISTO_IMPL=histo_plain_loop
 
-${BUILD_DIR}/histo/clang++/cpu-all-noarr: histo/cpu-all-noarr.cpp histo/histomain.hpp
+${BUILD_DIR}/histo/clang++/cpu-serial-noarr: histo/cpu-all-noarr.cpp histo/histomain.hpp
 	@mkdir -p ${BUILD_DIR}/histo/clang++
-	${CLANG} -o ${BUILD_DIR}/histo/clang++/cpu-all-noarr ${CXX_OPTIONS} histo/cpu-all-noarr.cpp -DHISTO_IMPL=histo_trav_foreach
-${BUILD_DIR}/histo/clang++/cpu-all-noarr-bag: histo/cpu-all-noarr-bag.cpp histo/histomain.hpp
+	${CLANG} -o ${BUILD_DIR}/histo/clang++/cpu-serial-noarr ${CXX_OPTIONS} histo/cpu-all-noarr.cpp -DHISTO_IMPL=histo_trav_foreach
+${BUILD_DIR}/histo/clang++/cpu-serial-noarr-bag: histo/cpu-all-noarr-bag.cpp histo/histomain.hpp
 	@mkdir -p ${BUILD_DIR}/histo/clang++
-	${CLANG} -o ${BUILD_DIR}/histo/clang++/cpu-all-noarr-bag ${CXX_OPTIONS} histo/cpu-all-noarr-bag.cpp -DHISTO_IMPL=histo_trav_foreach
-${BUILD_DIR}/histo/clang++/cpu-all-plain: histo/cpu-all-noarr.cpp histo/histomain.hpp
+	${CLANG} -o ${BUILD_DIR}/histo/clang++/cpu-serial-noarr-bag ${CXX_OPTIONS} histo/cpu-all-noarr-bag.cpp -DHISTO_IMPL=histo_trav_foreach
+${BUILD_DIR}/histo/clang++/cpu-serial-plain: histo/cpu-all-noarr.cpp histo/histomain.hpp
 	@mkdir -p ${BUILD_DIR}/histo/clang++
-	${CLANG} -o ${BUILD_DIR}/histo/clang++/cpu-all-plain ${CXX_OPTIONS} histo/cpu-all-noarr.cpp -DHISTO_IMPL=histo_plain_loop
+	${CLANG} -o ${BUILD_DIR}/histo/clang++/cpu-serial-plain ${CXX_OPTIONS} histo/cpu-all-noarr.cpp -DHISTO_IMPL=histo_plain_loop
+
+${BUILD_DIR}/histo/g++/cpu-tbb-noarr: histo/cpu-all-noarr.cpp histo/histomain.hpp
+	@mkdir -p ${BUILD_DIR}/histo/g++
+	${GCC} -o ${BUILD_DIR}/histo/g++/cpu-tbb-noarr ${CXX_OPTIONS} histo/cpu-all-noarr.cpp -DHISTO_HAVE_TBB -DHISTO_IMPL=histo_trav_tbbreduce -ltbb
+${BUILD_DIR}/histo/g++/cpu-tbb-noarr-bag: histo/cpu-all-noarr-bag.cpp histo/histomain.hpp
+	@mkdir -p ${BUILD_DIR}/histo/g++
+	${GCC} -o ${BUILD_DIR}/histo/g++/cpu-tbb-noarr-bag ${CXX_OPTIONS} histo/cpu-all-noarr-bag.cpp -DHISTO_HAVE_TBB -DHISTO_IMPL=histo_trav_tbbreduce -ltbb
+${BUILD_DIR}/histo/g++/cpu-tbb-plain: histo/cpu-all-noarr.cpp histo/histomain.hpp
+	@mkdir -p ${BUILD_DIR}/histo/g++
+	${GCC} -o ${BUILD_DIR}/histo/g++/cpu-tbb-plain ${CXX_OPTIONS} histo/cpu-all-noarr.cpp -DHISTO_HAVE_TBB -DHISTO_IMPL=histo_plain_tbbreduce -ltbb
+
+${BUILD_DIR}/histo/clang++/cpu-tbb-noarr: histo/cpu-all-noarr.cpp histo/histomain.hpp
+	@mkdir -p ${BUILD_DIR}/histo/clang++
+	${CLANG} -o ${BUILD_DIR}/histo/clang++/cpu-tbb-noarr ${CXX_OPTIONS} histo/cpu-all-noarr.cpp -DHISTO_HAVE_TBB -DHISTO_IMPL=histo_trav_tbbreduce -ltbb
+${BUILD_DIR}/histo/clang++/cpu-tbb-noarr-bag: histo/cpu-all-noarr-bag.cpp histo/histomain.hpp
+	@mkdir -p ${BUILD_DIR}/histo/clang++
+	${CLANG} -o ${BUILD_DIR}/histo/clang++/cpu-tbb-noarr-bag ${CXX_OPTIONS} histo/cpu-all-noarr-bag.cpp -DHISTO_HAVE_TBB -DHISTO_IMPL=histo_trav_tbbreduce -ltbb
+${BUILD_DIR}/histo/clang++/cpu-tbb-plain: histo/cpu-all-noarr.cpp histo/histomain.hpp
+	@mkdir -p ${BUILD_DIR}/histo/clang++
+	${CLANG} -o ${BUILD_DIR}/histo/clang++/cpu-tbb-plain ${CXX_OPTIONS} histo/cpu-all-noarr.cpp -DHISTO_HAVE_TBB -DHISTO_IMPL=histo_plain_tbbreduce -ltbb
 
 ${BUILD_DIR}/histo/nvcc/cu-priv-noarr: histo/cu-priv-noarr.cu histo/histomain.hpp
 	@mkdir -p ${BUILD_DIR}/histo/nvcc
