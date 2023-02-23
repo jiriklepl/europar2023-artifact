@@ -51,7 +51,7 @@ while read -r input size; do
 	if [ -f "$input" ]; then
 		for block_order in $(seq 0 5); do
 			for dim_order in $(seq 0 1); do
-				find tests/matmul -name "*cpu-poly_${block_order}_${dim_order}-*" -mindepth 2 | shuf | while read -r file; do
+				find tests/matmul -type f -name "*cpu-poly_${block_order}_${dim_order}-*" -mindepth 2 | shuf | while read -r file; do
 					echo "$(date +%H:%M:%S:)" "$file" "$input" "$size" 1>&2
 					"$file" "$input" "$size" > "$OUTPUT" 2> "$LOG"
 

@@ -43,7 +43,7 @@ while read -r input size; do
 	echo "$(date +%H:%M:%S:) running tests on '$input' (size: $size):" 1>&2
 
     if [ -f "$input" ]; then
-        find tests/matmul -name "*cpu-triv-*" -mindepth 2 | shuf | while read -r file; do
+        find tests/matmul -type f -name "*cpu-triv-*" -mindepth 2 | shuf | while read -r file; do
             echo "$(date +%H:%M:%S:)" "$file" "$input" "$size" 1>&2
             "$file" "$input" "$size" > "$OUTPUT" 2> "$LOG"
 

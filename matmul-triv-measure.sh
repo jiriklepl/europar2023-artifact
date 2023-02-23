@@ -45,7 +45,7 @@ while read -r input size; do
 	echo "$(date +%H:%M:%S:) running validation on '$input' (size: $size):" 1>&2
 
     if [ -f "$input" ]; then
-        find build/matmul -name "*cpu-triv-*" -mindepth 2 | shuf | while read -r file; do
+        find build/matmul -type f -name "*cpu-triv-*" -mindepth 2 | shuf | while read -r file; do
             echo "$(date +%H:%M:%S:)" "$file" "$input" "$size" 1>&2
             "$file" "$input" "$size" > "$OUTPUT"
 
@@ -80,7 +80,7 @@ while read -r input size; do
 
 	if [ -f "$input" ]; then
 		for _ in $(seq "$REPS"); do
-			find build/matmul -name "*cpu-triv-*" -mindepth 2 | shuf | while read -r file; do
+			find build/matmul -type f -name "*cpu-triv-*" -mindepth 2 | shuf | while read -r file; do
 				printf "%s" "$file,$input,$size,$(uname -n),$(date)," >> "$OUTPUT"
 				"$file" "$input" "$size" > /dev/null 2>> "$OUTPUT" || exit 1
 			done || exit 1
