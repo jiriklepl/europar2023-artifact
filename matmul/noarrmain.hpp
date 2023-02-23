@@ -16,13 +16,42 @@
 #define CUCH(status)  do { cudaError_t err = status; if (err != cudaSuccess) std::cerr << __FILE__ ":" << __LINE__ << ": error: " << cudaGetErrorString(err) << "\n\t" #status << std::endl, exit(err); } while (false)
 #endif
 
+#ifdef LOGGING
+#define LOG(log) \
+	(std::cerr << log << std::endl)
+#else
+#define LOG(log) ((void)0)
+#endif
 
 using num_t = float;
 
+#ifdef POLY
+template<class F, std::size_t ...Idxs>
+constexpr auto transform_pack(F f, std::index_sequence<Idxs...>) {
+	return std::integer_sequence<
+		typename decltype(f(std::integral_constant<std::size_t, 0>()))::value_type,
+		decltype(f(std::integral_constant<std::size_t, Idxs>()))::value...>();
+}
+
+template<std::size_t I, std::size_t J, class C, C ...Idxs>
+constexpr auto swap_pack(std::integer_sequence<C, Idxs...>) {
+	constexpr std::size_t l = std::min(I, J);
+	constexpr std::size_t h = std::max(I, J);
+	constexpr C idxs[] = {Idxs...};
+
+	return transform_pack([&]<std::size_t X>(std::integral_constant<std::size_t, X>) {
+		if constexpr(X != l && X != h)
+			return std::integral_constant<C, idxs[X]>();
+		else if constexpr(X == l)
+			return std::integral_constant<C, idxs[h]>();
+		else
+			return std::integral_constant<C, idxs[l]>();
+	}, std::make_index_sequence<sizeof...(Idxs)>());
+}
+#endif
+
 template<class A, class B, class C>
 void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc);
-
-using namespace std::literals::chrono_literals;
 
 int main(int argc, char **argv) {
 #ifdef MATRIX_SIZE
@@ -104,12 +133,14 @@ int main(int argc, char **argv) {
 	}
 	std::fclose(file);
 
-	matmul(ta, tb, tc, data, data + a_sz, data + a_sz + b_sz);
+	// matmul(ta, tb, tc, data, data + a_sz, data + a_sz + b_sz);
 
-	auto t0 = std::chrono::steady_clock::now();
+	auto start = std::chrono::high_resolution_clock::now();
 	matmul(ta, tb, tc, data, data + a_sz, data + a_sz + b_sz);
-	auto t1 = std::chrono::steady_clock::now();
-	std::fprintf(stderr, "%lu.%03u ms\n", (unsigned long) ((t1 - t0) / 1ms), (unsigned) ((t1 - t0) / 1us % 1000));
+	auto end = std::chrono::high_resolution_clock::now();
+
+	auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+	std::cerr << duration.count() << std::endl;
 
 	std::fwrite(data + a_sz + b_sz, 1, c_sz, stdout);
 

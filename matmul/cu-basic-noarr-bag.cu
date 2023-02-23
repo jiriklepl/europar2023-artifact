@@ -8,14 +8,14 @@
 template<class T, class A, class B, class C>
 __global__ void kernel_matmul(T trav, A a, B b, C c) {
 	trav.template for_dims<'r', 's'>([=](auto trav) {
-    	num_t result = 0;
+		num_t result = 0;
 
-        trav.for_each([&](auto j) {
-            result += a[j] * b[j];
-        });
+		trav.for_each([&](auto j) {
+			result += a[j] * b[j];
+		});
 
-        c[trav.state()] = result;
-    });
+		c[trav.state()] = result;
+	});
 }
 
 template<class A, class B, class C>
