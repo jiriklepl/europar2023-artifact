@@ -19,7 +19,7 @@ $CXX_OPTIONS \
 $source \
 -DA_ROW -DB_ROW -DC_ROW"
         if [ "$source" -nt "$output" ]; then
-            echo "$call"
+            echo "$call" 1>&2
             $call
         fi
 	done <<EOF
@@ -43,7 +43,7 @@ while read -r input size; do
 	echo "$(date +%H:%M:%S:) running tests on '$input' (size: $size):" 1>&2
 
     if [ -f "$input" ]; then
-        find tests/matmul -name "*cpu-triv-*" -mindepth 2 | shuf | while read -r file; do
+        find tests/matmul -type f -name "*cpu-triv-*" -mindepth 2 | shuf | while read -r file; do
             echo "$(date +%H:%M:%S:)" "$file" "$input" "$size" 1>&2
             "$file" "$input" "$size" > "$OUTPUT" 2> "$LOG"
 

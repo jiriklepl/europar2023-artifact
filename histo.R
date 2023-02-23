@@ -17,8 +17,8 @@ data <- do.call("rbind", data)
 data <- data %>%
     mutate(
         time = as.numeric(time) / 1e9,
-        kind = str_match(str_match(bin, "[^/]*/[^/]*$"), "[^-]*-[^-]*"),
-        subkind = str_remove(str_match(bin, "[^/]*/[^/]*$"), "^[^-]*-[^-]*-"))
+        kind = str_match(str_match(bin, "[^/]*/[^/]*/[^/]*$"), "^[^/]*/[^/]*"),
+        subkind = str_match(bin, "[^/]*$"))
 
 machines <- unique(data$machine)
 
