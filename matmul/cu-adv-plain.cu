@@ -21,19 +21,19 @@ __global__ void kernel_matmul(ISize i_size, JSize j_size, KSize k_size, num_t* g
 	auto K = blockIdx.y * K_BLOCK_SIZE;
 	auto i = threadIdx.x;
 
-	for(size_t k = 0; k < K_BLOCK_SIZE; k++) {
+	for(std::size_t k = 0; k < K_BLOCK_SIZE; k++) {
 		shm_c[k*I_BLOCK_SIZE + i] = 0;
 	}
 
-	for(size_t j = 0; j < j_size; j++) {
-		for(size_t k = 0; k < K_BLOCK_SIZE; k++) {
+	for(std::size_t j = 0; j < j_size; j++) {
+		for(std::size_t k = 0; k < K_BLOCK_SIZE; k++) {
 			num_t local_a = glm_a[j*i_size + (I+i)];
 			num_t local_b = glm_b[(K+k)*j_size + j];
 			shm_c[k*I_BLOCK_SIZE + i] += local_a * local_b;
 		}
 	}
 
-	for(size_t k = 0; k < K_BLOCK_SIZE; k++) {
+	for(std::size_t k = 0; k < K_BLOCK_SIZE; k++) {
 		glm_c[(K+k)*i_size + (I+i)] = shm_c[k*I_BLOCK_SIZE + i];
 	}
 }
@@ -93,12 +93,14 @@ int main(int argc, char **argv) {
 	}
 	std::fclose(file);
 
-	matmul_cuda(ISize, JSize, KSize, data, data + a_cnt, data + a_cnt + b_cnt);
+	// matmul_cuda(ISize, JSize, KSize, data, data + a_cnt, data + a_cnt + b_cnt);
 
-	auto t0 = std::chrono::steady_clock::now();
+	auto start = std::chrono::high_resolution_clock::now();
 	matmul_cuda(ISize, JSize, KSize, data, data + a_cnt, data + a_cnt + b_cnt);
-	auto t1 = std::chrono::steady_clock::now();
-	std::fprintf(stderr, "%lu.%03u ms\n", (unsigned long) ((t1 - t0) / 1ms), (unsigned) ((t1 - t0) / 1us % 1000));
+	auto end = std::chrono::high_resolution_clock::now();
+
+	auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+	std::cerr << duration.count() << std::endl;
 
 	std::fwrite(data + a_cnt + b_cnt, 1, c_sz, stdout);
 

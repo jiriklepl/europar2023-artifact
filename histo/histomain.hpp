@@ -29,8 +29,6 @@ namespace {
 
 extern void histo(void *in_ptr, std::size_t size, void *out_ptr);
 
-using namespace std::literals::chrono_literals;
-
 int main(int argc, char **argv) {
 	if(argc != 3) {
 		std::cerr << "Usage: histo <filename> <size>" << std::endl;
@@ -64,10 +62,12 @@ int main(int argc, char **argv) {
 
 	std::memset(counts, 0, NUM_VALUES * sizeof(std::size_t));
 
-	auto t0 = std::chrono::steady_clock::now();
+	auto start = std::chrono::high_resolution_clock::now();
 	histo(data, size, counts);
-	auto t1 = std::chrono::steady_clock::now();
-	std::fprintf(stderr, "%lu.%03u ms\n", (unsigned long) ((t1 - t0) / 1ms), (unsigned) ((t1 - t0) / 1us % 1000));
+	auto end = std::chrono::high_resolution_clock::now();
+
+	auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+	std::cerr << duration.count() << std::endl;
 
 #ifdef CUDA
 	CUCH(cudaFree(data));
