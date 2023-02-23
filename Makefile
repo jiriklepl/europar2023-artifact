@@ -97,9 +97,6 @@ histo: noarr-structures \
 	${BUILD_DIR}/histo/g++/cpu-tbb/noarr \
 	${BUILD_DIR}/histo/g++/cpu-tbb/noarr-bag \
 	${BUILD_DIR}/histo/g++/cpu-tbb/plain \
-	${BUILD_DIR}/histo/clang++/cpu-tbb/noarr \
-	${BUILD_DIR}/histo/clang++/cpu-tbb/noarr-bag \
-	${BUILD_DIR}/histo/clang++/cpu-tbb/plain \
 	${BUILD_DIR}/histo/nvcc/cu-priv/noarr \
 	${BUILD_DIR}/histo/nvcc/cu-priv/noarr-bag \
 	${BUILD_DIR}/histo/nvcc/cu-priv/plain
@@ -132,10 +129,6 @@ ${BUILD_DIR}/histo/clang++/cpu-foreach/%: histo/cpu-all-%.cpp histo/histomain.hp
 ${BUILD_DIR}/histo/g++/cpu-tbb/%: histo/cpu-all-%.cpp histo/histomain.hpp
 	@mkdir -p $(@D)
 	${GCC} -o $@ ${CXX_OPTIONS} $< -DHISTO_HAVE_TBB -DHISTO_IMPL=histo_tbbreduce -ltbb
-
-${BUILD_DIR}/histo/clang++/cpu-tbb/%: histo/cpu-all-%.cpp histo/histomain.hpp
-	@mkdir -p $(@D)
-	${CLANG} -o $@ ${CXX_OPTIONS} $< -DHISTO_HAVE_TBB -DHISTO_IMPL=histo_tbbreduce -ltbb
 
 ${BUILD_DIR}/histo/nvcc/cu-priv/%: histo/cu-priv-%.cu histo/histomain.hpp
 	@mkdir -p $(@D)
