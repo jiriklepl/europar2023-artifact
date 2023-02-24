@@ -18,8 +18,6 @@
 #include <noarr/structures/interop/tbb.hpp>
 #endif
 
-namespace {
-
 enum {
 	histo_loop,
 	histo_range,
@@ -27,8 +25,6 @@ enum {
 	histo_tbbreduce,
 	histo_undefined
 };
-
-}
 
 void histo(void *in_ptr, std::size_t size, void *out_ptr) {
 
