@@ -102,7 +102,10 @@ histo: noarr-structures \
 	${BUILD_DIR}/histo/clang++/cpu-tbb/plain \
 	${BUILD_DIR}/histo/nvcc/cu-priv/noarr \
 	${BUILD_DIR}/histo/nvcc/cu-priv/noarr-bag \
-	${BUILD_DIR}/histo/nvcc/cu-priv/plain
+	${BUILD_DIR}/histo/nvcc/cu-priv/plain \
+	${BUILD_DIR}/histo/nvcc/cu-triv/noarr \
+	${BUILD_DIR}/histo/nvcc/cu-triv/noarr-bag \
+	${BUILD_DIR}/histo/nvcc/cu-triv/plain
 
 
 ${BUILD_DIR}/histo/g++/cpu-loop/%: histo/cpu-all-%.cpp histo/histomain.hpp
@@ -138,6 +141,10 @@ ${BUILD_DIR}/histo/clang++/cpu-tbb/%: histo/cpu-all-%.cpp histo/histomain.hpp
 	${CLANG} -o $@ ${CXX_OPTIONS} $< -DHISTO_HAVE_TBB -DHISTO_IMPL=histo_tbbreduce -ltbb
 
 ${BUILD_DIR}/histo/nvcc/cu-priv/%: histo/cu-priv-%.cu histo/histomain.hpp
+	@mkdir -p $(@D)
+	${NVCC} -o $@ ${CUDA_OPTIONS} $<
+
+${BUILD_DIR}/histo/nvcc/cu-triv/%: histo/cu-triv-%.cu histo/histomain.hpp
 	@mkdir -p $(@D)
 	${NVCC} -o $@ ${CUDA_OPTIONS} $<
 
