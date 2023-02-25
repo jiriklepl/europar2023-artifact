@@ -18,7 +18,7 @@ __global__ void kernel_histo(value_t *in_ptr, std::size_t size, std::size_t *out
 	// Count the elements into the histogram copies in shared memory.
 	for(auto i = start; i < end; i += BLOCK_SIZE) {
 		auto value = in_ptr[i];
-		atomicAdd(&shm_ptr[my_copy_idx * NUM_VALUES + value], 1);
+		atomicAdd(&shm_ptr[value * NUM_COPIES + my_copy_idx], 1);
 	}
 
 	__syncthreads();
@@ -29,7 +29,7 @@ __global__ void kernel_histo(value_t *in_ptr, std::size_t size, std::size_t *out
 
 		for(std::size_t i = 0; i < NUM_COPIES; i++) {
 			auto collected_idx = (i + my_copy_idx) % NUM_COPIES;
-			collected += shm_ptr[collected_idx * NUM_VALUES + v];
+			collected += shm_ptr[v * NUM_COPIES + collected_idx];
 		}
 
 		atomicAdd(&out_ptr[v], collected);
