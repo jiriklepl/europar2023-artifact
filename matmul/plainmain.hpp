@@ -18,39 +18,8 @@
 
 using num_t = float;
 
-enum layout { ROW_MAJOR, COL_MAJOR };
-
-template<class Pointer, class Step, layout Layout>
-struct matrix_impl {
-	constexpr matrix_impl(Pointer data, Step step) noexcept
-		: data(data), step(step)
-	{ }
-
-	template<class Major, class Minor>
-	constexpr decltype(auto) operator() (Major major, Minor minor) const noexcept {
-		if constexpr (Layout == ROW_MAJOR)
-			return data[major * step + minor];
-		else
-			return data[minor * step + major];
-	}
-
-	Pointer data;
-	Step step;
-};
-
-template<class Pointer, class Step, layout Layout>
-using matrix = const matrix_impl<Pointer, Step, Layout>;
-
-template<layout Layout, class Pointer, class RowCount, class ColCount>
-constexpr auto make_matrix(Pointer data, RowCount row_count, ColCount col_count) noexcept {
-	if constexpr (Layout == ROW_MAJOR)
-		return matrix<Pointer, RowCount, Layout>(data, row_count);
-	else
-		return matrix<Pointer, ColCount, Layout>(data, col_count);
-}
-
-template<class ISize, class JSize, class KSize, class A, class B, class C>
-void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c);
+template<class ISize, class JSize, class KSize>
+void matmul(ISize i_size, JSize j_size, KSize k_size, num_t* cu_a, num_t* cu_b, num_t* cu_c);
 
 int main(int argc, char **argv) {
 #ifdef MATRIX_SIZE
@@ -80,35 +49,6 @@ int main(int argc, char **argv) {
 	auto k_size = size;
 #endif
 
-#ifdef A_ROW
-#define A_LAYOUT ROW_MAJOR
-#else
-#ifdef A_COL
-#define A_LAYOUT COL_MAJOR
-#else
-#error define A_ROW or A_COL
-#endif
-#endif
-
-#ifdef B_ROW
-#define B_LAYOUT ROW_MAJOR
-#else
-#ifdef B_COL
-#define B_LAYOUT COL_MAJOR
-#else
-#error define B_ROW or B_COL
-#endif
-#endif
-
-#ifdef C_ROW
-#define C_LAYOUT ROW_MAJOR
-#else
-#ifdef C_COL
-#define C_LAYOUT COL_MAJOR
-#else
-#error define C_ROW or C_COL
-#endif
-#endif
 
 	auto a_cnt = i_size * j_size;
 	auto b_cnt = j_size * k_size;
@@ -136,14 +76,10 @@ int main(int argc, char **argv) {
 	}
 	std::fclose(file);
 
-	auto a = make_matrix<A_LAYOUT>((const num_t *)data, i_size, j_size);
-	auto b = make_matrix<B_LAYOUT>((const num_t *)data + a_cnt, j_size, k_size);
-	auto c = make_matrix<C_LAYOUT>(data + a_cnt + b_cnt, i_size, k_size);
-
-	// matmul(i_size, j_size, k_size, a, b, c);
+	// matmul(i_size, j_size, k_size, data, data + a_cnt, data + a_cnt + b_cnt);
 
 	auto start = std::chrono::high_resolution_clock::now();
-	matmul(i_size, j_size, k_size, a, b, c);
+	matmul(i_size, j_size, k_size, data, data + a_cnt, data + a_cnt + b_cnt);
 	auto end = std::chrono::high_resolution_clock::now();
 
 	auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);

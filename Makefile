@@ -38,6 +38,7 @@ matmul: noarr-structures \
 	${BUILD_DIR}/matmul/nvcc/cu-basic/noarr \
 	${BUILD_DIR}/matmul/nvcc/cu-basic/noarr-bag \
 	${BUILD_DIR}/matmul/nvcc/cu-basic/policy \
+	${BUILD_DIR}/matmul/nvcc/cu-basic/plain \
 	${BUILD_DIR}/matmul/nvcc/cu-adv/noarr \
 	${BUILD_DIR}/matmul/nvcc/cu-adv/noarr-bag \
 	${BUILD_DIR}/matmul/nvcc/cu-adv/policy \
