@@ -1,9 +1,6 @@
 #define CPU
 #include "histomain.hpp"
 
-#include <span>
-#include <ranges>
-
 #include <noarr/structures_extended.hpp>
 #include <noarr/structures/extra/traverser.hpp>
 #include <noarr/structures/interop/traverser_iter.hpp>
@@ -18,8 +15,6 @@
 #include <noarr/structures/interop/tbb.hpp>
 #endif
 
-namespace {
-
 enum {
 	histo_loop,
 	histo_range,
@@ -27,8 +22,6 @@ enum {
 	histo_tbbreduce,
 	histo_undefined
 };
-
-}
 
 void histo(void *in_ptr, std::size_t size, void *out_ptr) {
 
@@ -44,7 +37,7 @@ if constexpr (HISTO_IMPL == histo_loop) {
 	}
 }
 
-if constexpr (HISTO_IMPL == histo_range) {
+else if constexpr (HISTO_IMPL == histo_range) {
 	using noarr::idx;
 
 	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), (char *)in_ptr);
@@ -56,7 +49,7 @@ if constexpr (HISTO_IMPL == histo_range) {
 	}
 }
 
-if constexpr (HISTO_IMPL == histo_foreach) {
+else if constexpr (HISTO_IMPL == histo_foreach) {
 	using noarr::idx;
 
 	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), (char *)in_ptr);
@@ -69,7 +62,7 @@ if constexpr (HISTO_IMPL == histo_foreach) {
 }
 
 #ifdef HISTO_HAVE_TBB
-if constexpr (HISTO_IMPL == histo_tbbreduce) {
+else if constexpr (HISTO_IMPL == histo_tbbreduce) {
 	using noarr::idx;
 
 	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), (char *)in_ptr);

@@ -3,14 +3,14 @@
 
 #include <noarr/structures_extended.hpp>
 #include <noarr/structures/extra/traverser.hpp>
-#include <noarr/structures/interop/bag.hpp>
 #include <noarr/structures/interop/cuda_traverser.cuh>
 
-template<class InTrav, class In, class Out>
-__global__ void kernel_histo(InTrav in_trav, In in, Out out) {
+template<class InTrav, class InStruct, class OutStruct>
+__global__ void kernel_histo(InTrav in_trav, InStruct in_struct, OutStruct out_struct, void *in_ptr, void *out_ptr) {
 	in_trav.for_each([&](auto state) {
-		auto value = in[state];
-		atomicAdd(&out[noarr::idx<'v'>(value)], 1);
+		auto value = in_struct | noarr::get_at(in_ptr, state);
+		auto &bin = out_struct | noarr::get_at<'v'>(out_ptr, value);
+		atomicAdd(&bin, 1);
 	});
 }
 
@@ -18,16 +18,13 @@ void histo(void *in_ptr, std::size_t size, void *out_ptr) {
 	auto in_struct = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
 	auto out_struct = noarr::scalar<std::size_t>() ^ noarr::array<'v', NUM_VALUES>();
 
-	auto in_blk_struct = in_struct
+	auto in_blk = in_struct
 		^ noarr::into_blocks<'i', 'y', 'z'>(noarr::lit<BLOCK_SIZE>)
 		^ noarr::into_blocks<'y', 'x', 'y'>(noarr::lit<ELEMS_PER_THREAD>);
 
-	auto in = noarr::make_bag(in_blk_struct, (char *)in_ptr);
-	auto out = noarr::make_bag(out_struct, (char *)out_ptr);
+	auto ct = noarr::cuda_threads<'x', 'z'>(noarr::traverser(in_blk));
 
-	auto ct = noarr::cuda_threads<'x', 'z'>(noarr::traverser(in));
-
-	kernel_histo<<<ct.grid_dim(), ct.block_dim()>>>(ct.inner(), in, out);
+	kernel_histo<<<ct.grid_dim(), ct.block_dim()>>>(ct.inner(), in_blk, out_struct, in_ptr, out_ptr);
 
 	CUCH(cudaGetLastError());
 	CUCH(cudaDeviceSynchronize());

@@ -16,8 +16,6 @@ __global__ void kernel_histo(InTrav in_trav, In in, ShmStruct shm_struct, Out ou
 	// A private copy will usually be shared by multiple threads (whenever NUM_COPIES < blockDim.x).
 	// For some actions, we would like each memory location to be assigned to only one thread.
 	// Let us split each copy further into "subsets", where each subset is owned by exactly one thread.
-	// Note that `shm_bag` uses `threadIdx%NUM_COPIES` as the index of copy.
-	// We can use the remaining bits, `threadIdx/NUM_COPIES`, as the index of subset within copy.
 	std::size_t my_copy_idx = shm_struct.current_stripe_index();
 	auto subset = noarr::cuda_step(shm_struct.current_stripe_cg());
 

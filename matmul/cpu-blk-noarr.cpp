@@ -56,7 +56,6 @@ void matmul(A orig_ta, B orig_tb, C orig_tc, char *pa, char *pb, char *pc) {
 
 	LOG("# reset c");
 	noarr::traverser(tc)
-		.order(i_blocks ^ k_blocks)
 		.for_each(kernel_reset(tc, pc));
 
 #ifndef BLOCK_ORDER

@@ -1,6 +1,8 @@
 #define CUDA
 #include "noarrmain.hpp"
 
+#include <noarr/structures/interop/bag.hpp>
+
 #ifndef BLOCK_SIZE
 #error define appropriate BLOCK_SIZE
 #endif

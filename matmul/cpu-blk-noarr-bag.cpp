@@ -2,6 +2,8 @@
 #define POLY
 #include "noarrmain.hpp"
 
+#include <noarr/structures/interop/bag.hpp>
+
 template<class C>
 constexpr auto kernel_reset(C c) {
 	return [=](auto state) {
@@ -53,7 +55,6 @@ void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc) {
 
 	LOG("# reset c");
 	noarr::traverser(c)
-		.order(i_blocks ^ k_blocks)
 		.for_each(kernel_reset(c));
 
 #ifndef BLOCK_ORDER

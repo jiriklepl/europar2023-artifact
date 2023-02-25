@@ -1,5 +1,5 @@
 #define CUDA
-#include "noarrmain.hpp"
+#include "../matmul/noarrmain.hpp"
 
 #ifndef BLOCK_SIZE
 #error define appropriate BLOCK_SIZE

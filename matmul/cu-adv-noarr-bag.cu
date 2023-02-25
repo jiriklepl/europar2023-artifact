@@ -1,6 +1,8 @@
 #define CUDA
 #include "noarrmain.hpp"
 
+#include <noarr/structures/interop/bag.hpp>
+
 template<class T, class A, class B, class C, class TD>
 __global__ void kernel_matmul(T trav, A a, B b, C c, TD td) {
 	extern __shared__ char pd[];

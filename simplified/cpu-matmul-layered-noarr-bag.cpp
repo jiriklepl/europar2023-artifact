@@ -1,5 +1,5 @@
 #define CPU
-#include "noarrmain.hpp"
+#include "../matmul/noarrmain.hpp"
 
 template<class A, class B, class C>
 void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc) {
@@ -7,8 +7,9 @@ void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc) {
 	auto b = noarr::make_bag(tb, pb);
 	auto c = noarr::make_bag(tc, pc);
 
-	auto into_blocks = noarr::into_blocks<'k', 'K', 'k'>(noarr::lit<16>)
-		^ noarr::into_blocks<'j', 'J', 'j'>(noarr::lit<16>);
+	auto into_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<16>)
+		^ noarr::into_blocks<'j', 'J', 'j'>(noarr::lit<16>)
+		^ noarr::into_blocks<'k', 'K', 'k'>(noarr::lit<16>);
 
 	noarr::traverser(c).for_each([=](auto state) {
 		c[state] = 0;
