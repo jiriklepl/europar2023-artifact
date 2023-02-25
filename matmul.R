@@ -16,10 +16,10 @@ data <- do.call("rbind", data)
 
 data <- data %>%
     mutate(
-        time = as.numeric(time) / 1e9,
-        kind = as.vector(str_match(bin, "[^/]*(?=/[^/]*$)")),
+        time = as.numeric(time) * 1e3,
+        algorithm = as.vector(str_match(bin, "[^/]*(?=/[^/]*$)")),
         compiler = as.vector(str_match(bin, "[^/]*(?=/[^/]*/[^/]*$)")),
-        subkind = as.vector(str_match(bin, "[^/]*$")))
+        implementation = as.vector(str_match(bin, "[^/]*$")))
 
 for (m in unique(data$machine)) {
     on_machine <- data %>% filter(machine == m)
@@ -29,13 +29,13 @@ for (m in unique(data$machine)) {
         for (s in unique(on_machine_compiler$size)) {
             local <- on_machine_compiler %>%
                 filter(size == s) %>%
-                group_by(bin, kind, size) %>%
-                reframe(subkind = unique(subkind), time) %>%
+                group_by(bin, algorithm, size) %>%
+                reframe(implementation = unique(implementation), time) %>%
                 mutate(time = time / mean(size ^ 3))
 
-            plot <- ggplot(local, aes(x = kind, y = time, fill = subkind)) +
+            plot <- ggplot(local, aes(x = algorithm, y = time, fill = implementation)) +
                 geom_boxplot(position = "dodge", outlier.shape = NA) +
-                ylab("runtime per N^3 [ns]") +
+                ylab("runtime per N^3 [ps]") +
                 ylim(0, max(local$time)) +
                 theme(legend.position = "bottom")
 

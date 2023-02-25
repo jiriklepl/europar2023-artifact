@@ -16,10 +16,10 @@ data <- do.call("rbind", data)
 
 data <- data %>%
     mutate(
-        time = as.numeric(time) / 1e9,
-        kind = as.vector(str_match(bin, "[^/]*(?=/[^/]*$)")),
+        time = as.numeric(time),
+        algorithm = as.vector(str_match(bin, "[^/]*(?=/[^/]*$)")),
         compiler = as.vector(str_match(bin, "[^/]*(?=/[^/]*/[^/]*$)")),
-        subkind = as.vector(str_match(bin, "[^/]*$")))
+        implementation = as.vector(str_match(bin, "[^/]*$")))
 
 for (m in unique(data$machine)) {
     on_machine <- data %>% filter(as.vector(machine == m))
@@ -27,15 +27,18 @@ for (m in unique(data$machine)) {
         local <- on_machine %>% filter(as.vector(compiler == c))
 
         local <- local %>%
-            group_by(bin, kind, size) %>%
-            reframe(time = mean(time), subkind = unique(subkind)) %>%
-            group_by(kind, size) %>%
-            mutate(relative.time = time / time[subkind == "plain"]) %>%
+            group_by(algorithm, size) %>%
+            reframe(time = time / median(time), implementation, bin) %>%
+            group_by(bin, algorithm, size) %>%
+            reframe(
+                relative.time = time,
+                implementation = unique(implementation)) %>%
             mutate(x = paste0(2, "^", log2(size)))
 
-        plot <- ggplot(local, aes(x = x, y = relative.time, fill = subkind)) +
-            geom_bar(stat = "identity", position = "dodge") +
-            facet_grid(. ~ kind) +
+        plot <- ggplot(local, aes(x = x, y = relative.time, fill = implementation)) +
+            geom_boxplot(position = "dodge") +
+            geom_hline(yintercept = 1) +
+            facet_grid(. ~ algorithm) +
             xlab("input text size") +
             ylab("relative runtime") +
             theme(
