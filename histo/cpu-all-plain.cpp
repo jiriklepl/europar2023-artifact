@@ -2,6 +2,7 @@
 #include "histomain.hpp"
 
 #include <algorithm>
+#include <execution>
 #include <span>
 
 #ifndef HISTO_IMPL
@@ -46,7 +47,7 @@ else if constexpr (HISTO_IMPL == histo_foreach) {
 	auto in = (value_t*) in_ptr;
 	auto out = (std::size_t*) out_ptr;
 
-	std::for_each(in, in + size, [out](value_t value) {
+	std::for_each_n(std::execution::unseq, in, size, [out](value_t value) {
 		out[value] += 1;
 	});
 }
@@ -65,13 +66,13 @@ else if constexpr (HISTO_IMPL == histo_tbbreduce) {
 				local = std::make_unique<std::size_t[]>(NUM_VALUES);
 
 				// Neutralizing, OutElem := 0
-				std::for_each(local.get(), local.get() + NUM_VALUES, [](std::size_t &value) {
+				std::for_each_n(std::execution::unseq, local.get(),  NUM_VALUES, [](std::size_t &value) {
 					value = 0;
 				});
 			}
 
 			// Accumulation, Out += InElem
-			std::for_each(in_ptr + sub_range.begin(), in_ptr + sub_range.end(), [&local](value_t value) {
+			std::for_each(std::execution::unseq, in_ptr + sub_range.begin(), in_ptr + sub_range.end(), [&local](value_t value) {
 				local[value] += 1;
 			});
 	});

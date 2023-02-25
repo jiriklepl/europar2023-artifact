@@ -1,9 +1,6 @@
 #define CPU
 #include "histomain.hpp"
 
-#include <span>
-#include <ranges>
-
 #include <noarr/structures_extended.hpp>
 #include <noarr/structures/extra/traverser.hpp>
 #include <noarr/structures/interop/traverser_iter.hpp>

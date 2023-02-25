@@ -5,7 +5,7 @@ __global__ void kernel_histo(value_t *in_ptr, std::size_t size, std::size_t *out
 	extern __shared__ std::size_t shm_ptr[];
 
 	auto start = blockIdx.x * ELEMS_PER_BLOCK + threadIdx.x;
-	auto end = (blockIdx.x + 1) * ELEMS_PER_BLOCK;
+	auto end = start + ELEMS_PER_BLOCK;
 	auto my_copy_idx = threadIdx.x % NUM_COPIES;
 
 	// Zero out shared memory. In this particular case, the access pattern happens
@@ -37,10 +37,11 @@ __global__ void kernel_histo(value_t *in_ptr, std::size_t size, std::size_t *out
 }
 
 void histo(void *in_ptr, std::size_t size, void *out_ptr) {
-	auto blocks = (size - 1) / ELEMS_PER_BLOCK + 1;
+	auto block_dim = BLOCK_SIZE;
+	auto grid_dim = (size - 1) / ELEMS_PER_BLOCK + 1;
 	auto shm_size = NUM_VALUES * NUM_COPIES * sizeof(std::size_t);
 
-	kernel_histo<<<blocks, BLOCK_SIZE, shm_size>>>((value_t *)in_ptr, size, (std::size_t *)out_ptr);
+	kernel_histo<<<grid_dim, block_dim, shm_size>>>((value_t *)in_ptr, size, (std::size_t *)out_ptr);
 
 	CUCH(cudaGetLastError());
 	CUCH(cudaDeviceSynchronize());
