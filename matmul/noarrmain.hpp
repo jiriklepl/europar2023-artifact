@@ -7,8 +7,6 @@
 
 #include <noarr/structures_extended.hpp>
 #include <noarr/structures/extra/traverser.hpp>
-#include <noarr/structures/interop/traverser_iter.hpp>
-#include <noarr/structures/interop/bag.hpp>
 
 #ifdef CUDA
 #include <noarr/structures/interop/cuda_traverser.cuh>

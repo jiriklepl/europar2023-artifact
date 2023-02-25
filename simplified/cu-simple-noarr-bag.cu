@@ -1,5 +1,5 @@
 #define CUDA
-#include "histomain.hpp"
+#include "../histo/histomain.hpp"
 
 #include <noarr/structures_extended.hpp>
 #include <noarr/structures/extra/traverser.hpp>

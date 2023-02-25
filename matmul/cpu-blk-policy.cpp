@@ -59,11 +59,9 @@ void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
 	auto body = kernel_matmul(J_STEP, a, b, c);
 
 	LOG("# reset c");
-	K_LOOP
-		for(std::size_t k = 0; k < K_STEP; k++)
-			I_LOOP
-				for(std::size_t i = 0; i < I_STEP; i++)
-					reset(I * I_STEP + i, K * K_STEP + k);
+	for(std::size_t k = 0; k < k_size; k++)
+			for(std::size_t i = 0; i < i_size; i++)
+				reset(i, k);
 
 	LOG("# multiply a and b, add the result to c");
 #ifndef BLOCK_ORDER

@@ -2,13 +2,13 @@
 
 library("tidyverse")
 
-files <- list.files(path = "out", pattern = "histo*")
+files <- list.files(path = "out/", pattern = "histo*")
 
 data <- lapply(
     files,
     function(x) {
         read.csv(
-            paste("out/", x, sep = ""),
+            paste0("out/", x),
             header = FALSE,
             col.names = c("bin", "input", "size", "machine", "date", "time"))
     })
@@ -16,24 +16,38 @@ data <- do.call("rbind", data)
 
 data <- data %>%
     mutate(
-        time = as.numeric(time) / 1e9,
-        kind = str_match(str_match(bin, "[^/]*/[^/]*/[^/]*$"), "^[^/]*/[^/]*"),
-        subkind = str_match(bin, "[^/]*$"))
+        time = as.numeric(time),
+        algorithm = as.vector(str_match(bin, "[^/]*(?=/[^/]*$)")),
+        compiler = as.vector(str_match(bin, "[^/]*(?=/[^/]*/[^/]*$)")),
+        implementation = as.vector(str_match(bin, "[^/]*$")))
 
-machines <- unique(data$machine)
+for (m in unique(data$machine)) {
+    on_machine <- data %>% filter(as.vector(machine == m))
+    for (c in unique(on_machine$compiler)) {
+        local <- on_machine %>% filter(as.vector(compiler == c))
 
-for (i in machines) {
-    local <- data %>%
-        filter(machine == i) %>%
-        group_by(bin, kind, size) %>%
-        summarize(time = mean(time), subkind = unique(subkind)) %>%
-        group_by(kind, size) %>%
-        mutate(relative.time = time / time[subkind == "plain"])
+        local <- local %>%
+            group_by(algorithm, size) %>%
+            reframe(time = time / median(time), implementation, bin) %>%
+            group_by(bin, algorithm, size) %>%
+            reframe(
+                relative.time = time,
+                implementation = unique(implementation)) %>%
+            mutate(x = paste0(2, "^", log2(size)))
 
-    local %>% ggplot(aes(x = log2(size), y = relative.time, fill = subkind)) +
-            geom_bar(stat = "identity", position = "dodge") +
-            facet_grid(. ~ kind) +
-            theme(legend.position = "bottom")
+        plot <- ggplot(local, aes(x = x, y = relative.time, fill = implementation)) +
+            geom_boxplot(position = "dodge") +
+            geom_hline(yintercept = 1) +
+            facet_grid(. ~ algorithm) +
+            xlab("input text size") +
+            ylab("relative runtime") +
+            theme(
+                axis.text.x = element_text(angle = 45, hjust = 1),
+                legend.position = "bottom")
 
-    ggsave(paste("histo-", i, "-plots.pdf", sep = ""))
+        if (!dir.exists("plots/histo/"))
+            dir.create("plots/histo/", recursive = TRUE)
+
+        ggsave(paste0("plots/histo/", m, "-", c, ".pdf"), plot)
+    }
 }
