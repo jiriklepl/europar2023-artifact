@@ -21,7 +21,6 @@ __global__ void kernel_matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b
 
 template<class ISize, class JSize, class KSize, class A, class B, class C>
 void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
-
 	kernel_matmul<<<{(uint)(i_size/BLOCK_SIZE), (uint)(k_size/BLOCK_SIZE)}, {(uint)BLOCK_SIZE, (uint)BLOCK_SIZE}>>>(i_size, j_size, k_size, a, b, c);
 
 	CUCH(cudaGetLastError());

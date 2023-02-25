@@ -1,6 +1,8 @@
 #define CPU
 #include "noarrmain.hpp"
 
+#include <noarr/structures/interop/bag.hpp>
+
 template<class A, class B, class C>
 void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc) {
 	auto a = noarr::make_bag(ta, pa);

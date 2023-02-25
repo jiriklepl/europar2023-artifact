@@ -37,7 +37,7 @@ if constexpr (HISTO_IMPL == histo_loop) {
 	}
 }
 
-if constexpr (HISTO_IMPL == histo_range) {
+else if constexpr (HISTO_IMPL == histo_range) {
 	using noarr::idx;
 
 	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), (char *)in_ptr);
@@ -49,7 +49,7 @@ if constexpr (HISTO_IMPL == histo_range) {
 	}
 }
 
-if constexpr (HISTO_IMPL == histo_foreach) {
+else if constexpr (HISTO_IMPL == histo_foreach) {
 	using noarr::idx;
 
 	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), (char *)in_ptr);
@@ -62,7 +62,7 @@ if constexpr (HISTO_IMPL == histo_foreach) {
 }
 
 #ifdef HISTO_HAVE_TBB
-if constexpr (HISTO_IMPL == histo_tbbreduce) {
+else if constexpr (HISTO_IMPL == histo_tbbreduce) {
 	using noarr::idx;
 
 	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), (char *)in_ptr);

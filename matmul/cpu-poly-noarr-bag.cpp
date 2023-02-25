@@ -2,6 +2,8 @@
 #define POLY
 #include "noarrmain.hpp"
 
+#include <noarr/structures/interop/bag.hpp>
+
 template<class C>
 constexpr auto kernel_reset(C c) {
 	return [=](auto state) {

@@ -5,8 +5,6 @@
 #include <noarr/structures/extra/traverser.hpp>
 #include <noarr/structures/interop/bag.hpp>
 #include <noarr/structures/interop/cuda_traverser.cuh>
-#include <noarr/structures/interop/cuda_striped.cuh>
-#include <noarr/structures/interop/cuda_step.cuh>
 
 template<class InTrav, class In, class Out>
 __global__ void kernel_histo(InTrav in_trav, In in, Out out) {
