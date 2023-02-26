@@ -23,14 +23,14 @@ __global__ void kernel_histo(InTrav in_trav, In in, ShmStruct shm_struct, Out ou
 
 	// Zero out shared memory. In this particular case, the access pattern happens
 	// to be the same as with the `for(i = threadIdx; i < ...; i += blockDim)` idiom.
-	noarr::traverser(shm_bag).order(subset).for_each([&](auto state) {
+	noarr::traverser(shm_bag).order(subset).for_each([=](auto state) {
 		shm_bag[state] = 0;
 	});
 
 	__syncthreads();
 
 	// Count the elements into the histogram copies in shared memory.
-	in_trav.for_each([&](auto state) {
+	in_trav.for_each([=](auto state) {
 		auto value = in[state];
 		atomicAdd(&shm_bag[noarr::idx<'v'>(value)], 1);
 	});

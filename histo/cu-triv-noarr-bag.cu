@@ -8,7 +8,7 @@
 
 template<class InTrav, class In, class Out>
 __global__ void kernel_histo(InTrav in_trav, In in, Out out) {
-	in_trav.for_each([&](auto state) {
+	in_trav.for_each([=](auto state) {
 		auto value = in[state];
 		atomicAdd(&out[noarr::idx<'v'>(value)], 1);
 	});

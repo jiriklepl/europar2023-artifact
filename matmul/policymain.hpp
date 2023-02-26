@@ -7,6 +7,7 @@
 
 #ifdef CUDA
 #define CUCH(status)  do { cudaError_t err = status; if (err != cudaSuccess) std::cerr << __FILE__ ":" << __LINE__ << ": error: " << cudaGetErrorString(err) << "\n\t" #status << std::endl, exit(err); } while (false)
+#else
 #endif
 
 #ifdef LOGGING
@@ -21,8 +22,8 @@ using num_t = float;
 enum layout { ROW_MAJOR, COL_MAJOR };
 
 template<class Pointer, class Step, layout Layout>
-struct matrix_impl {
-	constexpr matrix_impl(Pointer data, Step step) noexcept
+struct matrix {
+	constexpr matrix(Pointer data, Step step) noexcept
 		: data(data), step(step)
 	{ }
 
@@ -34,12 +35,9 @@ struct matrix_impl {
 			return data[minor * step + major];
 	}
 
-	Pointer data;
-	Step step;
+	const Pointer data;
+	const Step step;
 };
-
-template<class Pointer, class Step, layout Layout>
-using matrix = const matrix_impl<Pointer, Step, Layout>;
 
 template<layout Layout, class Pointer, class RowCount, class ColCount>
 constexpr auto make_matrix(Pointer data, RowCount row_count, ColCount col_count) noexcept {
