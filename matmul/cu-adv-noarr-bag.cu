@@ -8,26 +8,23 @@ __global__ void kernel_matmul(T trav, A a, B b, C c, TD td) {
 	extern __shared__ char pd[];
 	auto d = noarr::make_bag(td, pd);
 
-	trav.template for_dims<'k'>([=](auto inner) {
+	trav.template for_dims<'k'>([&](auto inner) {
 		d[inner.state()] = 0;
 	});
 
-	trav.template for_dims<'j', 'k'>([=](auto inner) {
-		auto ijk = inner.state();
-		num_t a_elem = a[ijk];
-		num_t b_elem = b[ijk];
-		d[ijk] += a_elem * b_elem;
+	trav.template for_dims<'j', 'k'>([&](auto inner) {
+		auto &&ijk = inner.state();
+		d[ijk] += a[ijk] * b[ijk];
 	});
 
-	trav.template for_dims<'k'>([=](auto inner) {
-		auto ik = inner.state();
-		num_t c_elem = d[ik];
-		c[ik] = c_elem;
+	trav.template for_dims<'k'>([&](auto inner) {
+		auto &&ik = inner.state();
+		c[ik] = d[ik];
 	});
 }
 
 template<class A, class B, class C>
-void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc) {
+void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 	auto i_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<1024>);
 	auto k_blocks = noarr::into_blocks<'k', 'K', 'k'>(noarr::lit<8>);
 

@@ -33,7 +33,7 @@ constexpr auto kernel_matmul(A a, B b, C c) {
 }
 
 template<class A, class B, class C>
-void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc) {
+void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 #ifdef BLOCK_I
 	auto i_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<BLOCK_SIZE>);
 #else

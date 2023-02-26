@@ -13,9 +13,7 @@ __global__ void kernel_matmul(ISize i_size, JSize j_size, KSize k_size, num_t* g
 	auto k = blockIdx.y * blockDim.y + threadIdx.y;
 
 	for (std::size_t j = 0; j < j_size; j++) {
-		num_t local_a = glm_a[j*i_size + i];
-		num_t local_b = glm_b[k*j_size + j];
-		result += local_a * local_b;
+		result += glm_a[j*i_size + i] * glm_b[k*j_size + j];
 	}
 
 	glm_c[k*i_size + i] = result;
@@ -23,8 +21,8 @@ __global__ void kernel_matmul(ISize i_size, JSize j_size, KSize k_size, num_t* g
 
 template<class ISize, class JSize, class KSize>
 void matmul(ISize i_size, JSize j_size, KSize k_size, num_t* cu_a, num_t* cu_b, num_t* cu_c) {
-	auto i_block_dim = uint((i_size - 1) / BLOCK_SIZE + 1);
-	auto k_block_dim = uint((k_size - 1) / BLOCK_SIZE + 1);
+	auto i_block_dim = uint(i_size / BLOCK_SIZE);
+	auto k_block_dim = uint(k_size / BLOCK_SIZE);
 
 	kernel_matmul<<<{i_block_dim, k_block_dim}, {(uint)BLOCK_SIZE, (uint)BLOCK_SIZE}>>>(i_size, j_size, k_size, cu_a, cu_b, cu_c);
 

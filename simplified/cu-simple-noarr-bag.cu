@@ -50,7 +50,7 @@ __global__ void kernel_histo(InTrav in_trav, In in, ShmStruct shm_struct, Out ou
 	});
 }
 
-void histo(void *in_ptr, std::size_t size, void *out_ptr) {
+void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 	auto in_struct = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
 	auto out_struct = noarr::scalar<std::size_t>() ^ noarr::array<'v', NUM_VALUES>();
 
@@ -59,8 +59,8 @@ void histo(void *in_ptr, std::size_t size, void *out_ptr) {
 		^ noarr::into_blocks<'y', 'x', 'y'>(noarr::lit<ELEMS_PER_THREAD>);
 	auto shm_struct = out_struct ^ noarr::cuda_striped<NUM_COPIES>();
 
-	auto in = noarr::make_bag(in_blk_struct, (char *)in_ptr);
-	auto out = noarr::make_bag(out_struct, (char *)out_ptr);
+	auto in = noarr::make_bag(in_blk_struct, in_ptr);
+	auto out = noarr::make_bag(out_struct, out_ptr);
 
 	auto ct = noarr::cuda_threads<'x', 'z'>(noarr::traverser(in));
 

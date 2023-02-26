@@ -13,9 +13,7 @@ __global__ void kernel_matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b
 	auto k = blockIdx.y * blockDim.y + threadIdx.y;
 
 	for (std::size_t j = 0; j < j_size; j++) {
-		num_t a_elem = a(j, i);
-		num_t b_elem = b(k, j);
-		result += a_elem * b_elem;
+		result += a(j, i) * b(k, j);
 	}
 
 	c(k, i) = result;

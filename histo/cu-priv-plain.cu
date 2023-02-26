@@ -36,9 +36,9 @@ __global__ void kernel_histo(value_t *in_ptr, std::size_t size, std::size_t *out
 	}
 }
 
-void histo(void *in_ptr, std::size_t size, void *out_ptr) {
+void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 	auto block_dim = BLOCK_SIZE;
-	auto grid_dim = (size - 1) / ELEMS_PER_BLOCK + 1;
+	auto grid_dim = size / ELEMS_PER_BLOCK;
 	auto shm_size = NUM_VALUES * NUM_COPIES * sizeof(std::size_t);
 
 	kernel_histo<<<grid_dim, block_dim, shm_size>>>((value_t *)in_ptr, size, (std::size_t *)out_ptr);

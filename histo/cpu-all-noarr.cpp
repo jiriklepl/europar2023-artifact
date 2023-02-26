@@ -22,7 +22,7 @@ enum {
 	histo_undefined
 };
 
-void histo(void *in_ptr, std::size_t size, void *out_ptr) {
+void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 
 if constexpr (HISTO_IMPL == histo_loop) {
 	using noarr::get_at;
