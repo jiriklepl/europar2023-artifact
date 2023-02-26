@@ -22,33 +22,24 @@ enum {
 	histo_undefined
 };
 
-void histo(void *in_ptr, std::size_t size, void *out_ptr) {
+void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 
 if constexpr (HISTO_IMPL == histo_loop) {
-	auto in = (value_t*) in_ptr;
-	auto out = (std::size_t*) out_ptr;
-
 	for(std::size_t i = 0; i < size; ++i) {
-		value_t value = in[i];
-		out[value] += 1;
+		value_t value = in_ptr[i];
+		out_ptr[value] += 1;
 	}
 }
 
 if constexpr (HISTO_IMPL == histo_range) {
-	auto in = (value_t*) in_ptr;
-	auto out = (std::size_t*) out_ptr;
-
-	for(value_t value : std::span(in, in + size)) {
-		out[value] += 1;
+	for(value_t value : std::span(in_ptr, in_ptr + size)) {
+		out_ptr[value] += 1;
 	}
 }
 
 else if constexpr (HISTO_IMPL == histo_foreach) {
-	auto in = (value_t*) in_ptr;
-	auto out = (std::size_t*) out_ptr;
-
-	std::for_each_n(std::execution::unseq, in, size, [out](value_t value) {
-		out[value] += 1;
+	std::for_each_n(std::execution::unseq, in_ptr, size, [out_ptr](value_t value) {
+		out_ptr[value] += 1;
 	});
 }
 
@@ -59,7 +50,7 @@ else if constexpr (HISTO_IMPL == histo_tbbreduce) {
 		// Input range.
 		tbb::blocked_range<std::size_t>(0, size),
 
-		[in_ptr=(value_t *)in_ptr, &out_ptrs](const auto &sub_range) {
+		[in_ptr, &out_ptrs](const auto &sub_range) {
 			auto &local = out_ptrs.local();
 
 			if (local == nullptr) {
@@ -72,7 +63,7 @@ else if constexpr (HISTO_IMPL == histo_tbbreduce) {
 			}
 
 			// Accumulation, Out += InElem
-			std::for_each(std::execution::unseq, in_ptr + sub_range.begin(), in_ptr + sub_range.end(), [&local](value_t value) {
+			std::for_each(std::execution::unseq, in_ptr + sub_range.begin(), in_ptr + sub_range.end(), [local=local.get()](value_t value) {
 				local[value] += 1;
 			});
 	});

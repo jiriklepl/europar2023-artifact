@@ -6,7 +6,7 @@
 #include <noarr/structures/interop/cuda_traverser.cuh>
 
 template<class InTrav, class InStruct, class OutStruct>
-__global__ void kernel_histo(InTrav in_trav, InStruct in_struct, OutStruct out_struct, void *in_ptr, void *out_ptr) {
+__global__ void kernel_histo(InTrav in_trav, InStruct in_struct, OutStruct out_struct, value_t *in_ptr, std::size_t *out_ptr) {
 	in_trav.for_each([=](auto state) {
 		auto value = in_struct | noarr::get_at(in_ptr, state);
 		auto &bin = out_struct | noarr::get_at<'v'>(out_ptr, value);
@@ -14,7 +14,7 @@ __global__ void kernel_histo(InTrav in_trav, InStruct in_struct, OutStruct out_s
 	});
 }
 
-void histo(void *in_ptr, std::size_t size, void *out_ptr) {
+void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 	auto in_struct = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
 	auto out_struct = noarr::scalar<std::size_t>() ^ noarr::array<'v', NUM_VALUES>();
 
