@@ -9,7 +9,7 @@ template<class T, class A, class B, class C>
 __global__ void kernel_matmul(T trav, A a, B b, C c) {
 	num_t result = 0;
 
-	trav.for_each([&](auto j) {
+	trav.for_each([=](auto j) {
 		result += a[j] * b[j];
 	});
 
