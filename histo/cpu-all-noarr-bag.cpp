@@ -23,13 +23,13 @@ enum {
 	histo_undefined
 };
 
-void histo(void *in_ptr, std::size_t size, void *out_ptr) {
+void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 
 if constexpr (HISTO_IMPL == histo_loop) {
 	using noarr::idx;
 
-	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), (char *)in_ptr);
-	auto out = noarr::make_bag(noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>(), (char *)out_ptr);
+	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), in_ptr);
+	auto out = noarr::make_bag(noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>(), out_ptr);
 
 	for(std::size_t i = 0; i < size; ++i) {
 		value_t value = in[idx<'i'>(i)];
@@ -40,8 +40,8 @@ if constexpr (HISTO_IMPL == histo_loop) {
 else if constexpr (HISTO_IMPL == histo_range) {
 	using noarr::idx;
 
-	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), (char *)in_ptr);
-	auto out = noarr::make_bag(noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>(), (char *)out_ptr);
+	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), in_ptr);
+	auto out = noarr::make_bag(noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>(), out_ptr);
 
 	for(auto elem : noarr::traverser(in)) {
 		value_t value = in[elem.state()];
@@ -52,8 +52,8 @@ else if constexpr (HISTO_IMPL == histo_range) {
 else if constexpr (HISTO_IMPL == histo_foreach) {
 	using noarr::idx;
 
-	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), (char *)in_ptr);
-	auto out = noarr::make_bag(noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>(), (char *)out_ptr);
+	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), in_ptr);
+	auto out = noarr::make_bag(noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>(), out_ptr);
 
 	noarr::traverser(in).for_each([in, out](auto in_state) {
 		value_t value = in[in_state];
@@ -65,8 +65,8 @@ else if constexpr (HISTO_IMPL == histo_foreach) {
 else if constexpr (HISTO_IMPL == histo_tbbreduce) {
 	using noarr::idx;
 
-	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), (char *)in_ptr);
-	auto out = noarr::make_bag(noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>(), (char *)out_ptr);
+	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), in_ptr);
+	auto out = noarr::make_bag(noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>(), out_ptr);
 
 	noarr::tbb_reduce_bag(
 		// Input traverser.

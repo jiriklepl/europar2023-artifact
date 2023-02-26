@@ -8,7 +8,7 @@
 #include <noarr/structures/interop/cuda_step.cuh>
 
 template<class InTrav, class InStruct, class ShmStruct, class OutStruct>
-__global__ void kernel_histo(InTrav in_trav, InStruct in_struct, ShmStruct shm_struct, OutStruct out_struct, void *in_ptr, void *out_ptr) {
+__global__ void kernel_histo(InTrav in_trav, InStruct in_struct, ShmStruct shm_struct, OutStruct out_struct, value_t *in_ptr, std::size_t *out_ptr) {
 	extern __shared__ char shm_ptr[];
 
 	// A private copy will usually be shared by multiple threads (whenever NUM_COPIES < blockDim.x).
@@ -48,7 +48,7 @@ __global__ void kernel_histo(InTrav in_trav, InStruct in_struct, ShmStruct shm_s
 	});
 }
 
-void histo(void *in_ptr, std::size_t size, void *out_ptr) {
+void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 	auto in = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
 	auto out = noarr::scalar<std::size_t>() ^ noarr::array<'v', NUM_VALUES>();
 

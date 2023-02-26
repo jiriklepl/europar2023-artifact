@@ -19,15 +19,12 @@ __global__ void kernel_matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b
 
 	for(std::size_t j = 0; j < j_size; j++) {
 		for(std::size_t k = 0; k < K_BLOCK_SIZE; k++) {
-			num_t a_elem = a(j, I + i);
-			num_t b_elem = b(K + k, j);
-			d(k, i) += a_elem * b_elem;
+			d(k, i) += a(j, I + i) * b(K + k, j);
 		}
 	}
 
 	for(std::size_t k = 0; k < K_BLOCK_SIZE; k++) {
-		num_t c_elem = d(k, i);
-		c(K + k, I + i) = c_elem;
+		c(K + k, I + i) = d(k, i);
 	}
 }
 

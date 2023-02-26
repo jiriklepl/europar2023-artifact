@@ -6,7 +6,7 @@
 #endif
 
 template<class T, class TA, class TB, class TC>
-__global__ void kernel_matmul(T trav, TA ta, TB tb, TC tc, void *pa, void *pb, void *pc) {
+__global__ void kernel_matmul(T trav, TA ta, TB tb, TC tc, num_t *pa, num_t *pb, num_t *pc) {
 	trav.template for_dims<'r', 's'>([=](auto trav) {
 		num_t result = 0;
 
@@ -21,7 +21,7 @@ __global__ void kernel_matmul(T trav, TA ta, TB tb, TC tc, void *pa, void *pb, v
 }
 
 template<class A, class B, class C>
-void matmul(A ta, B tb, C tc, char *pa, char *pb, char *pc) {
+void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 #ifdef DYNAMIC_BLOCKS
 	auto into_blocks = noarr::into_blocks_dynamic<'i', 'I', 'i', 'r'>(noarr::lit<BLOCK_SIZE>) ^ noarr::into_blocks_dynamic<'k', 'K', 'k', 's'>(noarr::lit<BLOCK_SIZE>);
 #else

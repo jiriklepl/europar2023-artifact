@@ -3,7 +3,7 @@
 #include "noarrmain.hpp"
 
 template<class TC>
-constexpr auto kernel_reset(TC tc, void *pc) {
+constexpr auto kernel_reset(TC tc, num_t *pc) {
 	return [=](auto state) {
 		LOG("push 0");
 		LOG("store c at i=" << noarr::get_index<'i'>(state) << " k=" << noarr::get_index<'k'>(state));
@@ -12,7 +12,7 @@ constexpr auto kernel_reset(TC tc, void *pc) {
 }
 
 template<class TA, class TB, class TC>
-constexpr auto kernel_matmul(TA ta, TB tb, TC tc, void *pa, void *pb, void *pc) {
+constexpr auto kernel_matmul(TA ta, TB tb, TC tc, num_t *pa, num_t *pb, num_t *pc) {
 	return [=](auto trav) {
 		LOG("load c at i=" << noarr::get_index<'i'>(trav.state()) << " k=" << noarr::get_index<'k'>(trav.state()));
 		num_t result = tc | noarr::get_at(pc, trav.state());
@@ -33,7 +33,7 @@ constexpr auto kernel_matmul(TA ta, TB tb, TC tc, void *pa, void *pb, void *pc) 
 }
 
 template<class A, class B, class C>
-void matmul(A orig_ta, B orig_tb, C orig_tc, char *pa, char *pb, char *pc) {
+void matmul(A orig_ta, B orig_tb, C orig_tc, num_t *pa, num_t *pb, num_t *pc) {
 #ifdef BLOCK_I
 	auto i_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<BLOCK_SIZE>);
 #else
