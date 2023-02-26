@@ -19,18 +19,21 @@ __global__ void kernel_matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b
 
 	for(std::size_t j = 0; j < j_size; j++) {
 		for(std::size_t k = 0; k < K_BLOCK_SIZE; k++) {
-			d(k, i) += a(j, I + i) * b(K + k, j);
+			num_t a_elem = a(j, I + i);
+			num_t b_elem = b(K + k, j);
+			d(k, i) += a_elem * b_elem;
 		}
 	}
 
 	for(std::size_t k = 0; k < K_BLOCK_SIZE; k++) {
-		c(K + k, I + i) = d(k, i);
+		num_t c_elem = d(k, i);
+		c(K + k, I + i) = c_elem;
 	}
 }
 
 template<class ISize, class JSize, class KSize, class A, class B, class C>
 void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
-	kernel_matmul<<<{(uint)(i_size/I_BLOCK_SIZE), (uint)(k_size/K_BLOCK_SIZE)}, (uint)I_BLOCK_SIZE, (uint)(I_BLOCK_SIZE * K_BLOCK_SIZE * sizeof(float))>>>(i_size, j_size, k_size, a, b, c);
+	kernel_matmul<<<{(uint)(i_size/I_BLOCK_SIZE), (uint)(k_size/K_BLOCK_SIZE)}, (uint)I_BLOCK_SIZE, (uint)(I_BLOCK_SIZE * K_BLOCK_SIZE * sizeof(num_t))>>>(i_size, j_size, k_size, a, b, c);
 	CUCH(cudaGetLastError());
 	CUCH(cudaDeviceSynchronize());
 }

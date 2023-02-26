@@ -7,7 +7,7 @@
 
 template<class InTrav, class InStruct, class OutStruct>
 __global__ void kernel_histo(InTrav in_trav, InStruct in_struct, OutStruct out_struct, void *in_ptr, void *out_ptr) {
-	in_trav.for_each([&](auto state) {
+	in_trav.for_each([=](auto state) {
 		auto value = in_struct | noarr::get_at(in_ptr, state);
 		auto &bin = out_struct | noarr::get_at<'v'>(out_ptr, value);
 		atomicAdd(&bin, 1);
