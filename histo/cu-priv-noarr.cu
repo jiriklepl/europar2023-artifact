@@ -64,9 +64,9 @@ void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 			<< (noarr::get_index<'C'>(cd) ? "border" : "body")
 			<< " of "
 			<< (noarr::get_index<'D'>(cd) ? "border" : "body")
-			<< ": len<x> = gridDim = "  << (in_blk ^ noarr::fix(cd) | noarr::get_length<'x'>())
-			<< ", len<y> = loopLen = "  << (in_blk ^ noarr::fix(cd) | noarr::get_length<'y'>())
-			<< ", len<z> = blockDim = " << (in_blk ^ noarr::fix(cd) | noarr::get_length<'z'>())
+			<< ": len<x> = gridDim = "  << (in_blk | noarr::get_length<'x'>(cd))
+			<< ", len<y> = loopLen = "  << (in_blk | noarr::get_length<'y'>(cd))
+			<< ", len<z> = blockDim = " << (in_blk | noarr::get_length<'z'>(cd))
 			<< std::endl;
 		std::cerr << (ct?"if(true)\t":"if(false)\t") << "kernel_histo<<<" << ct.grid_dim().x << ", " << ct.block_dim().x << ", " << (out_striped|noarr::get_size()) << ">>>(...);" <<  << std::endl;
 #endif
