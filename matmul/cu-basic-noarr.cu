@@ -7,15 +7,16 @@
 
 template<class T, class TA, class TB, class TC>
 __global__ void kernel_matmul(T trav, TA ta, TB tb, TC tc, num_t *pa, num_t *pb, num_t *pc) {
+	using noarr::get_at;
+
 	trav.template for_dims<'r', 's'>([=](auto trav) {
 		num_t result = 0;
 
-		trav.for_each([=, &result](auto ijk) {
-			auto at = noarr::getter(ijk);
-			result += (ta | at(pa)) * (tb | at(pb));
+		trav.template for_dims<'j'>([=, &result](auto ijk) {
+			result += (ta | get_at(pa, ijk.state())) * (tb | get_at(pb, ijk.state()));
 		});
 
-		tc | noarr::get_at(pc, trav.state()) = result;
+		tc | get_at(pc, trav.state()) = result;
 	});
 }
 
