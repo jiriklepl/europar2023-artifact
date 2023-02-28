@@ -27,8 +27,7 @@ void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 
 	auto cutrav = noarr::cuda_threads<'I', 'i', 'K', 'k'>(noarr::traverser(a, b, c).order(into_blocks));
 
-	kernel_matmul<<<cutrav.grid_dim(), cutrav.block_dim()>>>(cutrav.inner(), a, b, c);
-
+	cutrav.simple_run(kernel_matmul, 0, a, b, c);
 	CUCH(cudaGetLastError());
 	CUCH(cudaDeviceSynchronize());
 }

@@ -11,9 +11,8 @@ __global__ void kernel_matmul(T trav, TA ta, TB tb, TC tc, num_t *pa, num_t *pb,
 		num_t result = 0;
 
 		trav.for_each([=, &result](auto ijk) {
-			num_t a_elem = ta | noarr::get_at(pa, ijk);
-			num_t b_elem = tb | noarr::get_at(pb, ijk);
-			result += a_elem * b_elem;
+			auto at = noarr::getter(ijk);
+			result += (ta | at(pa)) * (tb | at(pb));
 		});
 
 		tc | noarr::get_at(pc, trav.state()) = result;
@@ -25,12 +24,12 @@ void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 #ifdef DYNAMIC_BLOCKS
 	auto into_blocks = noarr::into_blocks_dynamic<'i', 'I', 'i', 'r'>(noarr::lit<BLOCK_SIZE>) ^ noarr::into_blocks_dynamic<'k', 'K', 'k', 's'>(noarr::lit<BLOCK_SIZE>);
 #else
-	auto into_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<BLOCK_SIZE>) ^ noarr::into_blocks<'k', 'K', 'k'>(noarr::lit<BLOCK_SIZE>) ^ noarr::bcast<'r'>(noarr::lit<1>) ^ noarr::bcast<'s'>(noarr::lit<1>);
+	auto into_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<BLOCK_SIZE>) ^ noarr::into_blocks<'k', 'K', 'k'>(noarr::lit<BLOCK_SIZE>) ^ noarr::bcast<'r', 's'>(noarr::lit<1>, noarr::lit<1>);
 #endif
 
 	auto cutrav = noarr::cuda_threads<'I', 'i', 'K', 'k'>(noarr::traverser(ta, tb, tc).order(into_blocks));
-	kernel_matmul<<<cutrav.grid_dim(), cutrav.block_dim()>>>(cutrav.inner(), ta, tb, tc, pa, pb, pc);
 
+	cutrav.simple_run(kernel_matmul, 0, ta, tb, tc, pa, pb, pc);
 	CUCH(cudaGetLastError());
 	CUCH(cudaDeviceSynchronize());
 }
