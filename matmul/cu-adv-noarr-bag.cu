@@ -13,12 +13,12 @@ __global__ void kernel_matmul(T trav, A a, B b, C c, TD td) {
 	});
 
 	trav.template for_dims<'j', 'k'>([=](auto inner) {
-		auto &&ijk = inner.state();
+		auto ijk = inner.state();
 		d[ijk] += a[ijk] * b[ijk];
 	});
 
 	trav.template for_dims<'k'>([=](auto inner) {
-		auto &&ik = inner.state();
+		auto ik = inner.state();
 		c[ik] = d[ik];
 	});
 }
@@ -36,8 +36,8 @@ void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 	auto td = noarr::scalar<num_t>() ^ noarr::vectors_like<'k', 'i'>(trav.top_struct());
 
 	auto cutrav = noarr::cuda_threads<'I', 'i', 'K', '1'>(trav);
-	kernel_matmul<<<cutrav.grid_dim(), cutrav.block_dim(), td | noarr::get_size()>>>(cutrav.inner(), a, b, c, td);
 
+	cutrav.simple_run(kernel_matmul, td | noarr::get_size(), a, b, c, td);
 	CUCH(cudaGetLastError());
 	CUCH(cudaDeviceSynchronize());
 }

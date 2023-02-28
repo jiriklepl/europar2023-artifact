@@ -64,8 +64,7 @@ void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 
 	auto ct = noarr::cuda_threads<'x', 'z'>(noarr::traverser(in));
 
-	kernel_histo<<<ct.grid_dim(), ct.block_dim(), shm_struct | noarr::get_size()>>>(ct.inner(), in, shm_struct, out);
-
+	ct.simple_run(kernel_histo, shm_struct | noarr::get_size(), in, shm_struct, out);
 	CUCH(cudaGetLastError());
 	CUCH(cudaDeviceSynchronize());
 }

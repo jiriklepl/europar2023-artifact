@@ -113,12 +113,15 @@ int main(int argc, char **argv) {
 	std::size_t b_sz = tb | noarr::get_size();
 	std::size_t c_sz = tc | noarr::get_size();
 
-	num_t *data = nullptr;
+	num_t *data;
 
 #ifdef CUDA
 	CUCH(cudaMallocManaged(&data, a_sz + b_sz + c_sz));
 #else
-	data = new num_t[(a_sz + b_sz + c_sz)/sizeof(num_t)];
+	if (!(data = (num_t *)malloc(a_sz + b_sz + c_sz))) {
+		std::cerr << __FILE__ ":" << __LINE__ << ": error: failed to allocate memory" << std::endl;
+		exit(1);
+	}
 #endif
 
 	std::FILE *file = std::fopen(argv[1], "r");
@@ -128,7 +131,7 @@ int main(int argc, char **argv) {
 	}
 	std::fclose(file);
 
-	// matmul(ta, tb, tc, data, data + a_sz, data + a_sz + b_sz);
+	// matmul(ta, tb, tc, data, (data + a_sz / sizeof(num_t)), (data + (a_sz + b_sz) / sizeof(num_t)));
 
 	auto start = std::chrono::high_resolution_clock::now();
 	matmul(ta, tb, tc, data, (data + a_sz / sizeof(num_t)), (data + (a_sz + b_sz) / sizeof(num_t)));
@@ -142,7 +145,7 @@ int main(int argc, char **argv) {
 #ifdef CUDA
 	CUCH(cudaFree(data));
 #else
-	delete[] data;
+	free(data);
 #endif
 
 	return 0;
