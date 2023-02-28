@@ -71,7 +71,8 @@ void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 		std::cerr << (ct?"if(true)\t":"if(false)\t") << "kernel_histo<<<" << ct.grid_dim().x << ", " << ct.block_dim().x << ", " << (out_striped|noarr::get_size()) << ">>>(...);" <<  << std::endl;
 #endif
 		if(!ct) return;
-		kernel_histo<<<ct.grid_dim(), ct.block_dim(), out_striped | noarr::get_size()>>>(ct.inner(), in_blk, out_striped, out, in_ptr, out_ptr);
+
+		ct.simple_run(kernel_histo, out_striped | noarr::get_size(), in_blk, out_striped, out, in_ptr, out_ptr);
 		CUCH(cudaGetLastError());
 #ifdef NOARR_CUDA_HISTO_DEBUG
 		CUCH(cudaDeviceSynchronize());
