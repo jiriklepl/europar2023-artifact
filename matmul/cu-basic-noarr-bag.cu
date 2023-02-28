@@ -12,8 +12,8 @@ __global__ void kernel_matmul(T trav, A a, B b, C c) {
 	trav.template for_dims<'r', 's'>([=](auto trav) {
 		num_t result = 0;
 
-		trav.for_each([=, &result](auto ijk) {
-			result += a[ijk] * b[ijk];
+		trav.template for_dims<'j'>([=, &result](auto inner.state) {
+			result += a[inner.state()] * b[inner.state()];
 		});
 
 		c[trav.state()] = result;
