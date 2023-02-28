@@ -13,7 +13,7 @@ __global__ void kernel_matmul(T trav, TA ta, TB tb, TC tc, num_t *pa, num_t *pb,
 		num_t result = 0;
 
 		trav.template for_dims<'j'>([=, &result](auto ijk) {
-			result += (ta | get_at(pa, ijk)) * (tb | get_at(pb, ijk));
+			result += (ta | get_at(pa, ijk.state())) * (tb | get_at(pb, ijk.state()));
 		});
 
 		tc | get_at(pc, trav.state()) = result;
