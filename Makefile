@@ -9,7 +9,7 @@ INCLUDE_OPTION := -I noarr-structures/include
 CXX_OPTIONS := ${INCLUDE_OPTION} -std=c++20 -Ofast -flto -Wall -Wextra -pedantic -DNDEBUG -march=native -mtune=native
 CUDA_OPTIONS := ${INCLUDE_OPTION} -std=c++17 -O3 -dlto --compiler-options -Ofast,-march=native,-mtune=native -DNDEBUG --use_fast_math --expt-relaxed-constexpr
 
-.PHONY: all clean matmul histo kmeans generate generate-small
+.PHONY: all clean matmul histo kmeans generate generate-small plots matmul-plots histo-plots
 
 all: matmul histo kmeans
 
@@ -198,6 +198,14 @@ generate-small: ${BUILD_DIR}/matmul/matrices_64 \
 	${BUILD_DIR}/matmul/matrices_1024 \
 
 kmeans: noarr-structures
+
+plots: matmul-plots histo-plots
+
+matmul-plots: matmul.R
+	Rscript $<
+
+histo-plots: histo.R
+	Rscript $<
 
 clean:
 	rm -rf ${BUILD_DIR}
