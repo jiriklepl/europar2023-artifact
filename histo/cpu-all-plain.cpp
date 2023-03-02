@@ -22,7 +22,7 @@ enum {
 	histo_undefined
 };
 
-void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
+void run_histogram(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 
 if constexpr (HISTO_IMPL == histo_loop) {
 	for(std::size_t i = 0; i < size; ++i) {

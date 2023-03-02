@@ -2,7 +2,7 @@
 #include "../matmul/noarrmain.hpp"
 
 template<class A, class B, class C>
-void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
+void run_matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 	auto a = noarr::make_bag(ta, pa);
 	auto b = noarr::make_bag(tb, pb);
 	auto c = noarr::make_bag(tc, pc);

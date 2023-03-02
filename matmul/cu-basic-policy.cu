@@ -6,7 +6,7 @@
 #endif
 
 template<class ISize, class JSize, class KSize, class A, class B, class C>
-__global__ void kernel_matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
+__global__ void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
 	num_t result = 0;
 
 	auto i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -20,8 +20,8 @@ __global__ void kernel_matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b
 }
 
 template<class ISize, class JSize, class KSize, class A, class B, class C>
-void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
-	kernel_matmul<<<{(uint)(i_size/BLOCK_SIZE), (uint)(j_size/BLOCK_SIZE)}, {(uint)BLOCK_SIZE, (uint)BLOCK_SIZE}>>>(i_size, j_size, k_size, a, b, c);
+void run_matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
+	matmul<<<{(uint)(i_size/BLOCK_SIZE), (uint)(j_size/BLOCK_SIZE)}, {(uint)BLOCK_SIZE, (uint)BLOCK_SIZE}>>>(i_size, j_size, k_size, a, b, c);
 
 	CUCH(cudaGetLastError());
 	CUCH(cudaDeviceSynchronize());

@@ -5,7 +5,7 @@
 #include <noarr/structures/interop/bag.hpp>
 
 template<class C>
-constexpr auto kernel_reset(C c) {
+constexpr auto reset(C c) {
 	return [=](auto state) {
 		LOG("push 0");
 		LOG("store c at i=" << noarr::get_index<'i'>(state) << " j=" << noarr::get_index<'j'>(state));
@@ -14,7 +14,7 @@ constexpr auto kernel_reset(C c) {
 }
 
 template<class A, class B, class C>
-constexpr auto kernel_matmul(A a, B b, C c) {
+constexpr auto matmul(A a, B b, C c) {
 	return [=](auto trav) {
 		LOG("load c at i=" << noarr::get_index<'i'>(trav.state()) << " j=" << noarr::get_index<'j'>(trav.state()));
 		num_t result = c[trav.state()];
@@ -33,7 +33,7 @@ constexpr auto kernel_matmul(A a, B b, C c) {
 }
 
 template<class A, class B, class C>
-void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
+void run_matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 #ifdef BLOCK_I
 	auto i_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<BLOCK_SIZE>);
 #else
@@ -55,7 +55,7 @@ void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 
 	LOG("# reset c");
 	noarr::traverser(c)
-		.for_each(kernel_reset(c));
+		.for_each(reset(c));
 
 #ifndef BLOCK_ORDER
 #error BLOCK_ORDER has to satisfy: 0 <= BLOCK_ORDER < 6
@@ -71,9 +71,9 @@ void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 	auto trav = noarr::traverser(a, b, c)
 		.order(i_blocks ^ j_blocks ^ k_blocks);
 
-	// trav.template for_dims<'I', J', 'K', 'i', 'j'>(kernel_matmul(a, b, c));
+	// trav.template for_dims<'I', J', 'K', 'i', 'j'>(matmul(a, b, c));
 	// modified for the experiments:
 	[=]<char ...Blocks, char ...Dims>(std::integer_sequence<char, Blocks...>, std::integer_sequence<char, Dims...>){
-		trav.template for_dims<Blocks..., Dims...>(kernel_matmul(a, b, c));
+		trav.template for_dims<Blocks..., Dims...>(matmul(a, b, c));
 	}(swap_pack<1, 1 + (BLOCK_ORDER / 3)>(swap_pack<0, BLOCK_ORDER % 3>(std::integer_sequence<char, 'I', 'J', 'K'>())), swap_pack<0, DIM_ORDER>(std::integer_sequence<char, 'i', 'j'>()));
 }

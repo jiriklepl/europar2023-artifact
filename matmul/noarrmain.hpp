@@ -49,7 +49,7 @@ constexpr auto swap_pack(std::integer_sequence<C, Idxs...>) {
 #endif
 
 template<class A, class B, class C>
-extern void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc);
+extern void run_matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc);
 
 int main(int argc, char **argv) {
 #ifdef MATRIX_SIZE
@@ -131,10 +131,10 @@ int main(int argc, char **argv) {
 	}
 	std::fclose(file);
 
-	// matmul(ta, tb, tc, data, (data + a_sz / sizeof(num_t)), (data + (a_sz + b_sz) / sizeof(num_t)));
+	// run_matmul(ta, tb, tc, data, (data + a_sz / sizeof(num_t)), (data + (a_sz + b_sz) / sizeof(num_t)));
 
 	auto start = std::chrono::high_resolution_clock::now();
-	matmul(ta, tb, tc, data, (data + a_sz / sizeof(num_t)), (data + (a_sz + b_sz) / sizeof(num_t)));
+	run_matmul(ta, tb, tc, data, (data + a_sz / sizeof(num_t)), (data + (a_sz + b_sz) / sizeof(num_t)));
 	auto end = std::chrono::high_resolution_clock::now();
 
 	auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);

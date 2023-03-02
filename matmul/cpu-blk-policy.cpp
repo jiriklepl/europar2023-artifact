@@ -3,7 +3,7 @@
 #include "policymain.hpp"
 
 template<class C>
-constexpr auto kernel_reset(C c) {
+constexpr auto reset(C c) {
 	return [=](auto i, auto j) {
 		LOG("push 0");
 		LOG("store c at i=" << i << " j=" << j);
@@ -12,7 +12,7 @@ constexpr auto kernel_reset(C c) {
 }
 
 template<class KStep, class A, class B, class C>
-constexpr auto kernel_matmul(KStep k_step, A a, B b, C c) {
+constexpr auto matmul(KStep k_step, A a, B b, C c) {
 	return [=](auto i, auto j, auto K) {
 		LOG("load c at i=" << i << " j=" << j);
 		num_t result = c(j, i);
@@ -31,7 +31,7 @@ constexpr auto kernel_matmul(KStep k_step, A a, B b, C c) {
 }
 
 template<class ISize, class JSize, class KSize, class A, class B, class C>
-void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
+void run_matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
 #ifdef BLOCK_I
 #define I_LOOP for(std::size_t I = 0; I < i_size / BLOCK_SIZE; I++)
 #define I_STEP ((std::size_t)BLOCK_SIZE)
@@ -55,13 +55,13 @@ void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
 #define K_LOOP if constexpr(const std::size_t K = 0; true)
 #define K_STEP k_size
 #endif
-	auto reset = kernel_reset(c);
-	auto body = kernel_matmul(K_STEP, a, b, c);
+	auto init = reset(c);
+	auto body = matmul(K_STEP, a, b, c);
 
 	LOG("# reset c");
 	for(std::size_t j = 0; j < j_size; j++)
 			for(std::size_t i = 0; i < i_size; i++)
-				reset(i, j);
+				init(i, j);
 
 	LOG("# multiply a and b, add the result to c");
 #ifndef BLOCK_ORDER

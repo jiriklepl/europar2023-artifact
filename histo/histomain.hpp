@@ -27,7 +27,7 @@ namespace {
 
 #endif
 
-void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr);
+void run_histogram(value_t *in_ptr, std::size_t size, std::size_t *out_ptr);
 
 int main(int argc, char **argv) {
 	if(argc != 3) {
@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 	std::memset(counts, 0, NUM_VALUES * sizeof(std::size_t));
 
 	auto start = std::chrono::high_resolution_clock::now();
-	histo((value_t *)data, size, counts);
+	run_histogram((value_t *)data, size, counts);
 	auto end = std::chrono::high_resolution_clock::now();
 
 	auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);

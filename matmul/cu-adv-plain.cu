@@ -5,7 +5,7 @@ static constexpr uint I_BLOCK_SIZE = 1024;
 static constexpr uint J_BLOCK_SIZE = 8;
 
 template<class ISize, class JSize, class KSize>
-__global__ void kernel_matmul(ISize i_size, JSize j_size, KSize k_size, num_t* glm_a, num_t* glm_b, num_t* glm_c) {
+__global__ void matmul(ISize i_size, JSize j_size, KSize k_size, num_t* glm_a, num_t* glm_b, num_t* glm_c) {
 	extern __shared__ num_t shm_c[];
 
 	auto I = blockIdx.x * I_BLOCK_SIZE;
@@ -31,8 +31,8 @@ __global__ void kernel_matmul(ISize i_size, JSize j_size, KSize k_size, num_t* g
 }
 
 template<class ISize, class JSize, class KSize>
-void matmul(ISize i_size, JSize j_size, KSize k_size, num_t* cu_a, num_t* cu_b, num_t* cu_c) {
-	kernel_matmul<<<{(uint)i_size/I_BLOCK_SIZE, (uint)j_size/J_BLOCK_SIZE}, (uint)I_BLOCK_SIZE, (uint)(J_BLOCK_SIZE * I_BLOCK_SIZE * sizeof(num_t))>>>(i_size, j_size, k_size, cu_a, cu_b, cu_c);
+void run_matmul(ISize i_size, JSize j_size, KSize k_size, num_t* pa, num_t* pb, num_t* pc) {
+	matmul<<<{(uint)i_size/I_BLOCK_SIZE, (uint)j_size/J_BLOCK_SIZE}, (uint)I_BLOCK_SIZE, (uint)(J_BLOCK_SIZE * I_BLOCK_SIZE * sizeof(num_t))>>>(i_size, j_size, k_size, pa, pb, pc);
 	CUCH(cudaGetLastError());
 	CUCH(cudaDeviceSynchronize());
 }

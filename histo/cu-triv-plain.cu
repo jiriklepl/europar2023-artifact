@@ -2,7 +2,7 @@
 #include "histomain.hpp"
 
 template<class Value, class Bin>
-__global__ void kernel_histo(Value *in_ptr, Bin *out_ptr) {
+__global__ void histogram(Value *in_ptr, Bin *out_ptr) {
 	auto start = blockIdx.x * ELEMS_PER_BLOCK + threadIdx.x;
 	auto end = start + ELEMS_PER_BLOCK;
 
@@ -12,11 +12,11 @@ __global__ void kernel_histo(Value *in_ptr, Bin *out_ptr) {
 	}
 }
 
-void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
+void run_histogram(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 	auto block_dim = BLOCK_SIZE;
 	auto grid_dim = size / ELEMS_PER_BLOCK;
 
-	kernel_histo<<<grid_dim, block_dim>>>((value_t *)in_ptr, (std::size_t *)out_ptr);
+	histogram<<<grid_dim, block_dim>>>((value_t *)in_ptr, (std::size_t *)out_ptr);
 
 	CUCH(cudaGetLastError());
 	CUCH(cudaDeviceSynchronize());

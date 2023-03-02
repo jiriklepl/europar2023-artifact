@@ -2,7 +2,7 @@
 #include "noarrmain.hpp"
 
 template<class T, class TA, class TB, class TC, class TD>
-__global__ void kernel_matmul(T trav, TA ta, TB tb, TC tc, TD td, num_t *pa, num_t *pb, num_t *pc) {
+__global__ void matmul(T trav, TA ta, TB tb, TC tc, TD td, num_t *pa, num_t *pb, num_t *pc) {
 	extern __shared__ char pd[];
 
 	trav.template for_dims<'j'>([=](auto inner) {
@@ -21,7 +21,7 @@ __global__ void kernel_matmul(T trav, TA ta, TB tb, TC tc, TD td, num_t *pa, num
 }
 
 template<class A, class B, class C>
-void matmul(A orig_ta, B orig_tb, C orig_tc, num_t *pa, num_t *pb, num_t *pc) {
+void run_matmul(A orig_ta, B orig_tb, C orig_tc, num_t *pa, num_t *pb, num_t *pc) {
 	auto i_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<1024>);
 	auto j_blocks = noarr::into_blocks<'j', 'J', 'j'>(noarr::lit<8>);
 
@@ -34,7 +34,7 @@ void matmul(A orig_ta, B orig_tb, C orig_tc, num_t *pa, num_t *pb, num_t *pc) {
 
 	auto cutrav = noarr::cuda_threads<'I', 'i', 'J', '1'>(trav);
 
-	cutrav.simple_run(kernel_matmul, td | noarr::get_size(), ta, tb, tc, td, pa, pb, pc);
+	cutrav.simple_run(matmul, td | noarr::get_size(), ta, tb, tc, td, pa, pb, pc);
 	CUCH(cudaGetLastError());
 	CUCH(cudaDeviceSynchronize());
 }

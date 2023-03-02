@@ -2,21 +2,21 @@
 #include "noarrmain.hpp"
 
 template<class T, class C>
-__global__ void kernel_bzero(T trav, C c) {
+__global__ void reset(T trav, C c) {
 	trav.for_each([=](auto state) {
 		c[state] = 0;
 	});
 }
 
 template<class T, class A, class B, class C>
-__global__ void kernel_matmul(T trav, A a, B b, C c) {
+__global__ void matmul(T trav, A a, B b, C c) {
 	trav.for_each([=](auto state) {
 		c[state] += a[state] * b[state];
 	});
 }
 
 template<class A, class B, class C>
-void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
+void run_matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 	auto a = noarr::make_bag(ta, pa);
 	auto b = noarr::make_bag(tb, pb);
 	auto c = noarr::make_bag(tc, pc);
@@ -31,7 +31,7 @@ void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 			noarr::traverser(c).order(into_blocks)
 			);
 
-		kernel_bzero<<<trav.grid_dim(), trav.block_dim()>>>(trav.inner(), c);
+		reset<<<trav.grid_dim(), trav.block_dim()>>>(trav.inner(), c);
 		CUCH(cudaGetLastError());
 	}
 
@@ -41,7 +41,7 @@ void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 				.order(into_blocks)
 			);
 
-		kernel_matmul<<<trav.grid_dim(), trav.block_dim()>>>(trav.inner(), a, b, c);
+		matmul<<<trav.grid_dim(), trav.block_dim()>>>(trav.inner(), a, b, c);
 		CUCH(cudaGetLastError());
 	}
 

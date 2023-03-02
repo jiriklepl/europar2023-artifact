@@ -19,7 +19,7 @@
 using num_t = float;
 
 template<class ISize, class JSize, class KSize>
-void matmul(ISize i_size, JSize j_size, KSize k_size, num_t* cu_a, num_t* cu_b, num_t* cu_c);
+void run_matmul(ISize i_size, JSize j_size, KSize k_size, num_t* pa, num_t* pb, num_t* pc);
 
 int main(int argc, char **argv) {
 #ifdef MATRIX_SIZE
@@ -76,10 +76,10 @@ int main(int argc, char **argv) {
 	}
 	std::fclose(file);
 
-	// matmul(i_size, j_size, k_size, data, data + a_cnt, data + a_cnt + b_cnt);
+	// run_matmul(i_size, j_size, k_size, data, data + a_cnt, data + a_cnt + b_cnt);
 
 	auto start = std::chrono::high_resolution_clock::now();
-	matmul(i_size, j_size, k_size, data, data + a_cnt, data + a_cnt + b_cnt);
+	run_matmul(i_size, j_size, k_size, data, data + a_cnt, data + a_cnt + b_cnt);
 	auto end = std::chrono::high_resolution_clock::now();
 
 	auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);

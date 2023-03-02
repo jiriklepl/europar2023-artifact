@@ -9,7 +9,7 @@
 #include <noarr/structures/interop/cuda_step.cuh>
 
 template<class InTrav, class In, class ShmStruct, class Out>
-__global__ void kernel_histo(InTrav in_trav, In in, ShmStruct shm_struct, Out out) {
+__global__ void histogram(InTrav in_trav, In in, ShmStruct shm_struct, Out out) {
 	extern __shared__ char shm_ptr[];
 	auto shm_bag = make_bag(shm_struct, shm_ptr);
 
@@ -48,7 +48,7 @@ __global__ void kernel_histo(InTrav in_trav, In in, ShmStruct shm_struct, Out ou
 	});
 }
 
-void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
+void run_histogram(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 	auto in_struct = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
 	auto out_struct = noarr::scalar<std::size_t>() ^ noarr::array<'v', NUM_VALUES>();
 
@@ -71,11 +71,11 @@ void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 			<< ", len<y> = loopLen = "  << (in_blk | noarr::get_length<'y'>(cd))
 			<< ", len<z> = blockDim = " << (in_blk | noarr::get_length<'z'>(cd))
 			<< std::endl;
-		std::cerr << (ct?"if(true)\t":"if(false)\t") << "kernel_histo<<<" << ct.grid_dim().x << ", " << ct.block_dim().x << ", " << (out_striped|noarr::get_size()) << ">>>(...);" <<  << std::endl;
+		std::cerr << (ct?"if(true)\t":"if(false)\t") << "histogram<<<" << ct.grid_dim().x << ", " << ct.block_dim().x << ", " << (out_striped|noarr::get_size()) << ">>>(...);" <<  << std::endl;
 #endif
 		if(!ct) return;
 
-		ct.simple_run(kernel_histo, shm_struct | noarr::get_size(), in, shm_struct, out);
+		ct.simple_run(histogram, shm_struct | noarr::get_size(), in, shm_struct, out);
 		CUCH(cudaGetLastError());
 #ifdef NOARR_CUDA_HISTO_DEBUG
 		CUCH(cudaDeviceSynchronize());

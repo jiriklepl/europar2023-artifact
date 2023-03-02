@@ -4,7 +4,7 @@
 #include <noarr/structures/interop/bag.hpp>
 
 template<class T, class A, class B, class C, class TD>
-__global__ void kernel_matmul(T trav, A a, B b, C c, TD td) {
+__global__ void matmul(T trav, A a, B b, C c, TD td) {
 	extern __shared__ char pd[];
 	auto d = noarr::make_bag(td, pd);
 
@@ -24,7 +24,7 @@ __global__ void kernel_matmul(T trav, A a, B b, C c, TD td) {
 }
 
 template<class A, class B, class C>
-void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
+void run_matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 	auto i_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<1024>);
 	auto j_blocks = noarr::into_blocks<'j', 'J', 'j'>(noarr::lit<8>);
 
@@ -37,7 +37,7 @@ void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 
 	auto cutrav = noarr::cuda_threads<'I', 'i', 'J', '1'>(trav);
 
-	cutrav.simple_run(kernel_matmul, td | noarr::get_size(), a, b, c, td);
+	cutrav.simple_run(matmul, td | noarr::get_size(), a, b, c, td);
 	CUCH(cudaGetLastError());
 	CUCH(cudaDeviceSynchronize());
 }

@@ -2,7 +2,7 @@
 #include "policymain.hpp"
 
 template<class ISize, class JSize, class KSize, class A, class B, class C>
-void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
+void run_matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
 	LOG("# reset c");
 	for(std::size_t j = 0; j < j_size; j++)
 		for(std::size_t i = 0; i < i_size; i++) {

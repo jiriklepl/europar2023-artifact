@@ -8,7 +8,7 @@
 #include <noarr/structures/interop/cuda_step.cuh>
 
 template<class InTrav, class InStruct, class ShmStruct, class OutStruct>
-__global__ void kernel_histo(InTrav in_trav, InStruct in_struct, ShmStruct shm_struct, OutStruct out_struct, value_t *in_ptr, std::size_t *out_ptr) {
+__global__ void histogram(InTrav in_trav, InStruct in_struct, ShmStruct shm_struct, OutStruct out_struct, value_t *in_ptr, std::size_t *out_ptr) {
 	extern __shared__ char shm_ptr[];
 
 	// A private copy will usually be shared by multiple threads (whenever NUM_COPIES < blockDim.x).
@@ -48,7 +48,7 @@ __global__ void kernel_histo(InTrav in_trav, InStruct in_struct, ShmStruct shm_s
 	});
 }
 
-void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
+void run_histogram(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 	auto in = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
 	auto out = noarr::scalar<std::size_t>() ^ noarr::array<'v', NUM_VALUES>();
 
@@ -68,11 +68,11 @@ void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 			<< ", len<y> = loopLen = "  << (in_blk | noarr::get_length<'y'>(cd))
 			<< ", len<z> = blockDim = " << (in_blk | noarr::get_length<'z'>(cd))
 			<< std::endl;
-		std::cerr << (ct?"if(true)\t":"if(false)\t") << "kernel_histo<<<" << ct.grid_dim().x << ", " << ct.block_dim().x << ", " << (out_striped|noarr::get_size()) << ">>>(...);" <<  << std::endl;
+		std::cerr << (ct?"if(true)\t":"if(false)\t") << "histogram<<<" << ct.grid_dim().x << ", " << ct.block_dim().x << ", " << (out_striped|noarr::get_size()) << ">>>(...);" <<  << std::endl;
 #endif
 		if(!ct) return;
 
-		ct.simple_run(kernel_histo, out_striped | noarr::get_size(), in_blk, out_striped, out, in_ptr, out_ptr);
+		ct.simple_run(histogram, out_striped | noarr::get_size(), in_blk, out_striped, out, in_ptr, out_ptr);
 		CUCH(cudaGetLastError());
 #ifdef NOARR_CUDA_HISTO_DEBUG
 		CUCH(cudaDeviceSynchronize());

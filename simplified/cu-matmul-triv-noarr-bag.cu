@@ -6,7 +6,7 @@
 #endif
 
 template<class T, class A, class B, class C>
-__global__ void kernel_matmul(T trav, A a, B b, C c) {
+__global__ void matmul(T trav, A a, B b, C c) {
 	num_t result = 0;
 
 	trav.for_each([=](auto j) {
@@ -17,7 +17,7 @@ __global__ void kernel_matmul(T trav, A a, B b, C c) {
 }
 
 template<class A, class B, class C>
-void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
+void run_matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 	auto a = noarr::make_bag(ta, pa);
 	auto b = noarr::make_bag(tb, pb);
 	auto c = noarr::make_bag(tc, pc);
@@ -27,7 +27,7 @@ void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 
 	auto cutrav = noarr::cuda_threads<'I', 'i', 'J', 'j'>(noarr::traverser(a, b, c).order(into_blocks));
 
-	cutrav.simple_run(kernel_matmul, 0, a, b, c);
+	cutrav.simple_run(matmul, 0, a, b, c);
 	CUCH(cudaGetLastError());
 	CUCH(cudaDeviceSynchronize());
 }

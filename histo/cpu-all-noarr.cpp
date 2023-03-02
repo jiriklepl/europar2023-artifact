@@ -22,7 +22,7 @@ enum {
 	histo_undefined
 };
 
-void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
+void run_histogram(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 
 if constexpr (HISTO_IMPL == histo_loop) {
 	auto in = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);

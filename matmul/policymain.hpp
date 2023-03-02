@@ -48,7 +48,7 @@ constexpr auto make_matrix(Pointer data, RowCount row_count, ColCount col_count)
 }
 
 template<class ISize, class JSize, class KSize, class A, class B, class C>
-void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c);
+void run_matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c);
 
 int main(int argc, char **argv) {
 #ifdef MATRIX_SIZE
@@ -138,10 +138,10 @@ int main(int argc, char **argv) {
 	auto b = make_matrix<B_LAYOUT>((const num_t *)data + a_cnt, k_size, j_size);
 	auto c = make_matrix<C_LAYOUT>(data + a_cnt + b_cnt, i_size, j_size);
 
-	// matmul(i_size, j_size, k_size, a, b, c);
+	// run_matmul(i_size, j_size, k_size, a, b, c);
 
 	auto start = std::chrono::high_resolution_clock::now();
-	matmul(i_size, j_size, k_size, a, b, c);
+	run_matmul(i_size, j_size, k_size, a, b, c);
 	auto end = std::chrono::high_resolution_clock::now();
 
 	auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);

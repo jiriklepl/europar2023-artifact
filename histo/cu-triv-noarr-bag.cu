@@ -7,14 +7,14 @@
 #include <noarr/structures/interop/cuda_traverser.cuh>
 
 template<class InTrav, class In, class Out>
-__global__ void kernel_histo(InTrav in_trav, In in, Out out) {
+__global__ void histogram(InTrav in_trav, In in, Out out) {
 	in_trav.for_each([=](auto state) {
 		auto value = in[state];
 		atomicAdd(&out[noarr::idx<'v'>(value)], 1);
 	});
 }
 
-void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
+void run_histogram(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 	auto in_struct = noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size);
 	auto out_struct = noarr::scalar<std::size_t>() ^ noarr::array<'v', NUM_VALUES>();
 
@@ -27,7 +27,7 @@ void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 
 	auto ct = noarr::cuda_threads<'x', 'z'>(noarr::traverser(in));
 
-	ct.simple_run(kernel_histo, 0, in, out);
+	ct.simple_run(histogram, 0, in, out);
 	CUCH(cudaGetLastError());
 	CUCH(cudaDeviceSynchronize());
 }

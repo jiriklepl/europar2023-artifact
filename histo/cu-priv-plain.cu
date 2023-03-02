@@ -1,7 +1,7 @@
 #define CUDA
 #include "histomain.hpp"
 
-__global__ void kernel_histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
+__global__ void histogram(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 	extern __shared__ std::size_t shm_ptr[];
 
 	auto start = blockIdx.x * ELEMS_PER_BLOCK + threadIdx.x;
@@ -36,12 +36,12 @@ __global__ void kernel_histo(value_t *in_ptr, std::size_t size, std::size_t *out
 	}
 }
 
-void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
+void run_histogram(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 	auto block_dim = BLOCK_SIZE;
 	auto grid_dim = size / ELEMS_PER_BLOCK;
 	auto shm_size = NUM_VALUES * NUM_COPIES * sizeof(std::size_t);
 
-	kernel_histo<<<grid_dim, block_dim, shm_size>>>((value_t *)in_ptr, size, (std::size_t *)out_ptr);
+	histogram<<<grid_dim, block_dim, shm_size>>>((value_t *)in_ptr, size, (std::size_t *)out_ptr);
 
 	CUCH(cudaGetLastError());
 	CUCH(cudaDeviceSynchronize());
