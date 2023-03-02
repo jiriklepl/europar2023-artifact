@@ -9,7 +9,7 @@ INCLUDE_OPTION := -I noarr-structures/include
 CXX_OPTIONS := ${INCLUDE_OPTION} -std=c++20 -Ofast -flto -Wall -Wextra -pedantic -DNDEBUG -march=native -mtune=native
 CUDA_OPTIONS := ${INCLUDE_OPTION} -std=c++17 -O3 -dlto --compiler-options -Ofast,-march=native,-mtune=native -DNDEBUG --use_fast_math --expt-relaxed-constexpr
 
-.PHONY: all clean matmul histo kmeans generate generate-small plots matmul-plots histo-plots
+.PHONY: all clean matmul histo kmeans generate generate-small generate-kmeans plots matmul-plots histo-plots
 
 all: matmul histo kmeans
 
@@ -149,41 +149,26 @@ ${BUILD_DIR}/histo/nvcc/cu-triv/%: histo/cu-triv-%.cu noarr-structures histo/his
 	@mkdir -p $(@D)
 	${NVCC} -o $@ ${CUDA_OPTIONS} $<
 
-${BUILD_DIR}/matmul/matrices_64: matmul/gen-matrices.py
-	@mkdir -p $(@D)
-	matmul/gen-matrices.py ${BUILD_DIR}/matmul/matrices_64 64
+kmeans: \
+	${BUILD_DIR}/kmeans/g++/cpu-kmeans/noarr \
+	${BUILD_DIR}/kmeans/g++/cpu-kmeans/noarr-bag \
+	${BUILD_DIR}/kmeans/g++/cpu-kmeans/plain \
+	${BUILD_DIR}/kmeans/clang++/cpu-kmeans/noarr \
+	${BUILD_DIR}/kmeans/clang++/cpu-kmeans/noarr-bag \
+	${BUILD_DIR}/kmeans/clang++/cpu-kmeans/plain \
+	${BUILD_DIR}/kmeans/python/cpu-kmeans/sklearn
 
-${BUILD_DIR}/matmul/matrices_128: matmul/gen-matrices.py
+${BUILD_DIR}/kmeans/g++/cpu-kmeans/%: kmeans/cpu-kmeans-%.cpp noarr-structures
 	@mkdir -p $(@D)
-	matmul/gen-matrices.py ${BUILD_DIR}/matmul/matrices_128 128
+	${GCC} -o $@ ${CXX_OPTIONS} $<
 
-${BUILD_DIR}/matmul/matrices_256: matmul/gen-matrices.py
+${BUILD_DIR}/kmeans/clang++/cpu-kmeans/%: kmeans/cpu-kmeans-%.cpp noarr-structures
 	@mkdir -p $(@D)
-	matmul/gen-matrices.py ${BUILD_DIR}/matmul/matrices_256 256
+	${CLANG} -o $@ ${CXX_OPTIONS} $<
 
-${BUILD_DIR}/matmul/matrices_512: matmul/gen-matrices.py
+${BUILD_DIR}/kmeans/python/cpu-kmeans/sklearn: kmeans/kmeans-triv.py
 	@mkdir -p $(@D)
-	matmul/gen-matrices.py ${BUILD_DIR}/matmul/matrices_512 512
-
-${BUILD_DIR}/matmul/matrices_1024: matmul/gen-matrices.py
-	@mkdir -p $(@D)
-	matmul/gen-matrices.py ${BUILD_DIR}/matmul/matrices_1024 1024
-
-${BUILD_DIR}/matmul/matrices_2048: matmul/gen-matrices.py
-	@mkdir -p $(@D)
-	matmul/gen-matrices.py ${BUILD_DIR}/matmul/matrices_2048 2048
-
-${BUILD_DIR}/matmul/matrices_4096: matmul/gen-matrices.py
-	@mkdir -p $(@D)
-	matmul/gen-matrices.py ${BUILD_DIR}/matmul/matrices_4096 4096
-
-${BUILD_DIR}/matmul/matrices_8192: matmul/gen-matrices.py
-	@mkdir -p $(@D)
-	matmul/gen-matrices.py ${BUILD_DIR}/matmul/matrices_8192 8192
-
-${BUILD_DIR}/histo/text: histo/gen-text.sh
-	@mkdir -p $(@D)
-	histo/gen-text.sh ${BUILD_DIR}/histo/text 2G
+	cp -p "$<" "$@"
 
 generate: ${BUILD_DIR}/matmul/matrices_1024 \
 	${BUILD_DIR}/matmul/matrices_2048 \
@@ -197,7 +182,72 @@ generate-small: ${BUILD_DIR}/matmul/matrices_64 \
 	${BUILD_DIR}/matmul/matrices_512 \
 	${BUILD_DIR}/matmul/matrices_1024 \
 
-kmeans: noarr-structures
+${BUILD_DIR}/matmul/matrices_64: matmul/gen-matrices.py
+	@mkdir -p $(@D)
+	matmul/gen-matrices.py $@ 64
+
+${BUILD_DIR}/matmul/matrices_128: matmul/gen-matrices.py
+	@mkdir -p $(@D)
+	matmul/gen-matrices.py $@ 128
+
+${BUILD_DIR}/matmul/matrices_256: matmul/gen-matrices.py
+	@mkdir -p $(@D)
+	matmul/gen-matrices.py $@ 256
+
+${BUILD_DIR}/matmul/matrices_512: matmul/gen-matrices.py
+	@mkdir -p $(@D)
+	matmul/gen-matrices.py $@ 512
+
+${BUILD_DIR}/matmul/matrices_1024: matmul/gen-matrices.py
+	@mkdir -p $(@D)
+	matmul/gen-matrices.py $@ 1024
+
+${BUILD_DIR}/matmul/matrices_2048: matmul/gen-matrices.py
+	@mkdir -p $(@D)
+	matmul/gen-matrices.py $@ 2048
+
+${BUILD_DIR}/matmul/matrices_4096: matmul/gen-matrices.py
+	@mkdir -p $(@D)
+	matmul/gen-matrices.py $@ 4096
+
+${BUILD_DIR}/matmul/matrices_8192: matmul/gen-matrices.py
+	@mkdir -p $(@D)
+	matmul/gen-matrices.py $@ 8192
+
+${BUILD_DIR}/histo/text: histo/gen-text.sh
+	@mkdir -p $(@D)
+	histo/gen-text.sh ${BUILD_DIR}/histo/text 2G
+
+generate-kmeans: ${BUILD_DIR}/kmeans/kmeans_7_4_2000 \
+	${BUILD_DIR}/kmeans/kmeans_7_6_2000 \
+	${BUILD_DIR}/kmeans/kmeans_10_3_2000 \
+	${BUILD_DIR}/kmeans/kmeans_7_4_20000 \
+	${BUILD_DIR}/kmeans/kmeans_7_6_20000 \
+	${BUILD_DIR}/kmeans/kmeans_10_3_20000
+
+${BUILD_DIR}/kmeans/kmeans_7_4_2000: kmeans/kmeans-gen.py
+	@mkdir -p $(@D)
+	kmeans/kmeans-gen.py -n 1000 -r -d ' ' 7 4 > $@
+
+${BUILD_DIR}/kmeans/kmeans_7_6_2000: kmeans/kmeans-gen.py
+	@mkdir -p $(@D)
+	kmeans/kmeans-gen.py -n 1000 -r -d ' ' 11 6 > $@
+
+${BUILD_DIR}/kmeans/kmeans_10_3_2000: kmeans/kmeans-gen.py
+	@mkdir -p $(@D)
+	kmeans/kmeans-gen.py -n 1000 -r -d ' ' 10 3 > $@
+
+${BUILD_DIR}/kmeans/kmeans_7_4_20000: kmeans/kmeans-gen.py
+	@mkdir -p $(@D)
+	kmeans/kmeans-gen.py -n 10000 -r -d ' ' 7 4 > $@
+
+${BUILD_DIR}/kmeans/kmeans_7_6_20000: kmeans/kmeans-gen.py
+	@mkdir -p $(@D)
+	kmeans/kmeans-gen.py -n 10000 -r -d ' ' 11 6 > $@
+
+${BUILD_DIR}/kmeans/kmeans_10_3_20000: kmeans/kmeans-gen.py
+	@mkdir -p $(@D)
+	kmeans/kmeans-gen.py -n 10000 -r -d ' ' 10 3 > $@
 
 plots: matmul-plots histo-plots
 
