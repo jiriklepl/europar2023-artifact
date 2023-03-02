@@ -8,8 +8,8 @@ void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 	auto c = noarr::make_bag(tc, pc);
 
 	auto into_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<16>)
-		^ noarr::into_blocks<'j', 'J', 'j'>(noarr::lit<16>)
-		^ noarr::into_blocks<'k', 'K', 'k'>(noarr::lit<16>);
+		^ noarr::into_blocks<'k', 'K', 'k'>(noarr::lit<16>)
+		^ noarr::into_blocks<'j', 'J', 'j'>(noarr::lit<16>);
 
 	noarr::traverser(c).for_each([=](auto state) {
 		c[state] = 0;
@@ -17,7 +17,7 @@ void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 
 	noarr::traverser(a, b, c)
 		.order(into_blocks)
-		.template for_dims<'K', 'J', 'k', 'i'>([=](auto inner) {
+		.template for_dims<'I', 'J', 'K', 'j', 'i'>([=](auto inner) {
 		auto result = c[inner.state()];
 
 		inner.for_each([=, &result](auto state){
