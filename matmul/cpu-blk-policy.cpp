@@ -4,29 +4,29 @@
 
 template<class C>
 constexpr auto kernel_reset(C c) {
-	return [=](auto i, auto k) {
+	return [=](auto i, auto j) {
 		LOG("push 0");
-		LOG("store c at i=" << i << " k=" << k);
-		c(k, i) = 0;
+		LOG("store c at i=" << i << " j=" << j);
+		c(j, i) = 0;
 	};
 }
 
-template<class JStep, class A, class B, class C>
-constexpr auto kernel_matmul(JStep j_step, A a, B b, C c) {
-	return [=](auto i, auto J, auto k) {
-		LOG("load c at i=" << i << " k=" << k);
-		num_t result = c(k, i);
+template<class KStep, class A, class B, class C>
+constexpr auto kernel_matmul(KStep k_step, A a, B b, C c) {
+	return [=](auto i, auto j, auto K) {
+		LOG("load c at i=" << i << " j=" << j);
+		num_t result = c(j, i);
 
-		for (std::size_t j = 0; j < j_step; j++) {
-			LOG("load a at i=" << i << " j=" << J + j);
-			LOG("load b at j=" << J + j << " k=" << k);
+		for (std::size_t k = 0; k < k_step; k++) {
+			LOG("load a at i=" << i << " k=" << K + k);
+			LOG("load b at k=" << K + k << " j=" << j);
 			LOG("multiply");
 			LOG("add");
-			result += a(J + j, i) * b(k, J + j);
+			result += a(K + k, i) * b(j, K + k);
 		}
 
-		LOG("store c at i=" << i << " k=" << k);
-		c(k, i) = result;
+		LOG("store c at i=" << i << " j=" << j);
+		c(j, i) = result;
 	};
 }
 
@@ -56,12 +56,12 @@ void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
 #define K_STEP k_size
 #endif
 	auto reset = kernel_reset(c);
-	auto body = kernel_matmul(J_STEP, a, b, c);
+	auto body = kernel_matmul(K_STEP, a, b, c);
 
 	LOG("# reset c");
-	for(std::size_t k = 0; k < k_size; k++)
+	for(std::size_t j = 0; j < j_size; j++)
 			for(std::size_t i = 0; i < i_size; i++)
-				reset(i, k);
+				reset(i, j);
 
 	LOG("# multiply a and b, add the result to c");
 #ifndef BLOCK_ORDER
@@ -86,13 +86,13 @@ void matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b, C c) {
 #error DIM_ORDER has to satisfy: 0 <= DIM_ORDER < 2
 #elif DIM_ORDER == 0
 		for(std::size_t i = 0; i < I_STEP; i++)
-			for(std::size_t k = 0; k < K_STEP; k++)
+			for(std::size_t j = 0; j < J_STEP; j++)
 #elif DIM_ORDER == 1
-		for(std::size_t k = 0; k < K_STEP; k++)
+		for(std::size_t j = 0; j < J_STEP; j++)
 			for(std::size_t i = 0; i < I_STEP; i++)
 #else
 #error DIM_ORDER has to satisfy: 0 <= DIM_ORDER < 2
 #endif
 
-				body(I * I_STEP + i, J * J_STEP, K * K_STEP + k);
+				body(I * I_STEP + i, J * J_STEP + j, K * K_STEP);
 }

@@ -26,45 +26,37 @@ enum {
 void histo(value_t *in_ptr, std::size_t size, std::size_t *out_ptr) {
 
 if constexpr (HISTO_IMPL == histo_loop) {
-	using noarr::idx;
-
 	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), in_ptr);
 	auto out = noarr::make_bag(noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>(), out_ptr);
 
 	for(std::size_t i = 0; i < size; ++i) {
-		value_t value = in[idx<'i'>(i)];
-		out[idx<'v'>(value)] += 1;
+		value_t value = in[noarr::idx<'i'>(i)];
+		out[noarr::idx<'v'>(value)] += 1;
 	}
 }
 
 else if constexpr (HISTO_IMPL == histo_range) {
-	using noarr::idx;
-
 	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), in_ptr);
 	auto out = noarr::make_bag(noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>(), out_ptr);
 
 	for(auto elem : noarr::traverser(in)) {
 		value_t value = in[elem.state()];
-		out[idx<'v'>(value)] += 1;
+		out[noarr::idx<'v'>(value)] += 1;
 	}
 }
 
 else if constexpr (HISTO_IMPL == histo_foreach) {
-	using noarr::idx;
-
 	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), in_ptr);
 	auto out = noarr::make_bag(noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>(), out_ptr);
 
 	noarr::traverser(in).for_each([in, out](auto in_state) {
 		value_t value = in[in_state];
-		out[idx<'v'>(value)] += 1;
+		out[noarr::idx<'v'>(value)] += 1;
 	});
 }
 
 #ifdef HISTO_HAVE_TBB
 else if constexpr (HISTO_IMPL == histo_tbbreduce) {
-	using noarr::idx;
-
 	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), in_ptr);
 	auto out = noarr::make_bag(noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>(), out_ptr);
 
@@ -80,7 +72,7 @@ else if constexpr (HISTO_IMPL == histo_tbbreduce) {
 		// Accumulation function, Out += InElem
 		[in](auto in_state, auto &out_left) {
 			value_t value = in[in_state];
-			out_left[idx<'v'>(value)] += 1;
+			out_left[noarr::idx<'v'>(value)] += 1;
 		},
 
 		// Joining function, OutElem += OutElem

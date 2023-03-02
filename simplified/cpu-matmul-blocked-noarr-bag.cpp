@@ -8,8 +8,8 @@ void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 	auto c = noarr::make_bag(tc, pc);
 
 	auto into_blocks = noarr::strip_mine<'i', 'I', 'i'>(noarr::lit<16>)
-		^ noarr::strip_mine<'j', 'J', 'j'>(noarr::lit<16>)
-		^ noarr::strip_mine<'k', 'K', 'k'>(noarr::lit<16>);
+		^ noarr::strip_mine<'k', 'K', 'k'>(noarr::lit<16>)
+		^ noarr::strip_mine<'j', 'J', 'j'>(noarr::lit<16>);
 
 	noarr::traverser(c).for_each([=](auto state) {
 		c[state] = 0;

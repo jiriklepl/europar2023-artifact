@@ -8,7 +8,7 @@ template<class C>
 constexpr auto kernel_reset(C c) {
 	return [=](auto state) {
 		LOG("push 0");
-		LOG("store c at i=" << noarr::get_index<'i'>(state) << " k=" << noarr::get_index<'k'>(state));
+		LOG("store c at i=" << noarr::get_index<'i'>(state) << " j=" << noarr::get_index<'j'>(state));
 		c[state] = 0;
 	};
 }
@@ -16,18 +16,18 @@ constexpr auto kernel_reset(C c) {
 template<class A, class B, class C>
 constexpr auto kernel_matmul(A a, B b, C c) {
 	return [=](auto trav) {
-		LOG("load c at i=" << noarr::get_index<'i'>(trav.state()) << " k=" << noarr::get_index<'k'>(trav.state()));
+		LOG("load c at i=" << noarr::get_index<'i'>(trav.state()) << " j=" << noarr::get_index<'j'>(trav.state()));
 		num_t result = c[trav.state()];
 
-		trav.for_each([=, &result](auto ijk) {
-			LOG("load a at i=" << noarr::get_index<'i'>(ijk) << " j=" << noarr::get_index<'j'>(ijk));
-			LOG("load b at j=" << noarr::get_index<'j'>(ijk) << " k=" << noarr::get_index<'k'>(ijk));
+		trav.for_each([=, &result](auto state) {
+			LOG("load a at i=" << noarr::get_index<'i'>(state) << " k=" << noarr::get_index<'k'>(state));
+			LOG("load b at k=" << noarr::get_index<'k'>(state) << " j=" << noarr::get_index<'j'>(state));
 			LOG("multiply");
 			LOG("add");
-			result += a[ijk] * b[ijk];
+			result += a[state] * b[state];
 		});
 
-		LOG("store c at i=" << noarr::get_index<'i'>(trav.state()) << " k=" << noarr::get_index<'k'>(trav.state()));
+		LOG("store c at i=" << noarr::get_index<'i'>(trav.state()) << " j=" << noarr::get_index<'j'>(trav.state()));
 		c[trav.state()] = result;
 	};
 }
@@ -75,5 +75,5 @@ void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 	// modified for the experiments:
 	[=]<char ...Blocks, char ...Dims>(std::integer_sequence<char, Blocks...>, std::integer_sequence<char, Dims...>){
 		trav.template for_dims<Blocks..., Dims...>(kernel_matmul(a, b, c));
-	}(swap_pack<1, 1 + (BLOCK_ORDER / 3)>(swap_pack<0, BLOCK_ORDER % 3>(std::integer_sequence<char, 'I', 'J', 'K'>())), swap_pack<0, DIM_ORDER>(std::integer_sequence<char, 'i', 'k'>()));
+	}(swap_pack<1, 1 + (BLOCK_ORDER / 3)>(swap_pack<0, BLOCK_ORDER % 3>(std::integer_sequence<char, 'I', 'J', 'K'>())), swap_pack<0, DIM_ORDER>(std::integer_sequence<char, 'i', 'j'>()));
 }

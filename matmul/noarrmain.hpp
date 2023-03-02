@@ -80,30 +80,30 @@ int main(int argc, char **argv) {
 #endif
 
 #ifdef A_ROW
-	auto ta = noarr::scalar<num_t>() ^ i_st ^ j_st;
+	auto ta = noarr::scalar<num_t>() ^ i_st ^ k_st;
 #else
 #ifdef A_COL
-	auto ta = noarr::scalar<num_t>() ^ j_st ^ i_st;
+	auto ta = noarr::scalar<num_t>() ^ k_st ^ i_st;
 #else
 #error define A_ROW or A_COL
 #endif
 #endif
 
 #ifdef B_ROW
-	auto tb = noarr::scalar<num_t>() ^ j_st ^ k_st;
+	auto tb = noarr::scalar<num_t>() ^ k_st ^ j_st;
 #else
 #ifdef B_COL
-	auto tb = noarr::scalar<num_t>() ^ k_st ^ j_st;
+	auto tb = noarr::scalar<num_t>() ^ j_st ^ k_st;
 #else
 #error define B_ROW or B_COL
 #endif
 #endif
 
 #ifdef C_ROW
-	auto tc = noarr::scalar<num_t>() ^ i_st ^ k_st;
+	auto tc = noarr::scalar<num_t>() ^ i_st ^ j_st;
 #else
 #ifdef C_COL
-	auto tc = noarr::scalar<num_t>() ^ k_st ^ i_st;
+	auto tc = noarr::scalar<num_t>() ^ j_st ^ i_st;
 #else
 #error define C_ROW or C_COL
 #endif
