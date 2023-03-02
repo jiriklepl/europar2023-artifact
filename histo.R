@@ -45,7 +45,7 @@ for (m in unique(data$machine)) {
             ggplot(
                 local,
                 aes(x = x, y = relative.time, fill = version)) +
-            geom_boxplot(position = "dodge", outlier.shape = NA) +
+            geom_boxplot(position = "dodge2", outlier.shape = NA) +
             geom_hline(yintercept = 1) +
             facet_grid(. ~ implementation) +
             xlab("input text size") +
@@ -54,7 +54,7 @@ for (m in unique(data$machine)) {
                 axis.text.x = element_text(angle = 45, hjust = 1),
                 legend.position = "bottom")
 
-        dist <- .1
+        dist <- .15
 
         plot <- plot + coord_cartesian(ylim = c(1 - dist, 1 + dist))
 

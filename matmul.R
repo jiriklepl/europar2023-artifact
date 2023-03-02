@@ -36,8 +36,11 @@ for (m in unique(data$machine)) {
             plot <-
                 ggplot(
                     local,
-                    aes(x = implementation, y = time, fill = version)) +
-                geom_boxplot(position = "dodge", outlier.shape = NA) +
+                    aes(x = implementation, y = time)) +
+                geom_boxplot(
+                    position = "dodge2",
+                    outlier.shape = NA,
+                    aes(fill = version, color = version)) +
                 ylab("runtime per N^3 [ps]") +
                 theme(legend.position = "bottom")
 
