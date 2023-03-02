@@ -41,6 +41,7 @@ for (m in unique(data$machine)) {
                     position = "dodge2",
                     outlier.shape = NA,
                     aes(fill = version, color = version)) +
+                scale_color_hue(l = 50) +
                 ylab("runtime per N^3 [ps]") +
                 theme(legend.position = "bottom")
 
