@@ -1,6 +1,8 @@
 #!/usr/bin/env Rscript
 
-library("tidyverse")
+library("ggplot2")
+library("dplyr")
+library("stringr")
 
 files <- list.files(path = "out/", pattern = "histo*")
 

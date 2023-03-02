@@ -4,7 +4,7 @@ library("ggplot2")
 library("dplyr")
 library("stringr")
 
-files <- list.files(path = "out/", pattern = "matmul*")
+files <- list.files(path = "out/", pattern = "kmeans*")
 
 data <- lapply(
     files,
@@ -18,22 +18,25 @@ data <- do.call("rbind", data)
 
 data <- data %>%
     mutate(
-        time = as.numeric(time) * 1e3,
+        time = as.numeric(time) / 1e6,
         implementation = as.vector(str_match(bin, "[^/]*(?=/[^/]*$)")),
         compiler = as.vector(str_match(bin, "[^/]*(?=/[^/]*/[^/]*$)")),
+        input = as.vector(str_match(input, "[^/]*$")),
         version = as.vector(str_match(bin, "[^/]*$")))
 
 for (m in unique(data$machine)) {
     on_machine <- data %>% filter(machine == m)
     for (c in unique(on_machine$compiler)) {
-        on_machine_compiler <- on_machine %>% filter(compiler == c)
+        if (c == "python")
+            next
 
-        for (s in unique(on_machine_compiler$size)) {
+        on_machine_compiler <- on_machine %>% filter((compiler == c) | (compiler == "python"))
+        for (i in unique(on_machine_compiler$input)) {
             local <- on_machine_compiler %>%
-                filter(size == s) %>%
-                group_by(bin, implementation, size) %>%
+                filter(input == i) %>%
+                group_by(bin, implementation, input) %>%
                 reframe(version = unique(version), time) %>%
-                mutate(time = time / mean(size ^ 3))
+                mutate(time = time)
 
             plot <-
                 ggplot(
@@ -42,9 +45,8 @@ for (m in unique(data$machine)) {
                 geom_boxplot(
                     position = "dodge2",
                     outlier.shape = NA,
-                    aes(fill = version, color = version)) +
-                scale_color_hue(l = 50) +
-                ylab("runtime per N^3 [ps]") +
+                    aes(fill = version)) +
+                ylab("runtime [ms]") +
                 theme(legend.position = "bottom")
 
             lims <- boxplot.stats(local$time)$stats[c(1, 5)]
@@ -52,11 +54,11 @@ for (m in unique(data$machine)) {
 
             plot <- plot + coord_cartesian(ylim = lims)
 
-            if (!dir.exists("plots/matmul/"))
-                dir.create("plots/matmul/", recursive = TRUE)
+            if (!dir.exists("plots/kmeans/"))
+                dir.create("plots/kmeans/", recursive = TRUE)
 
             ggsave(
-                paste0("plots/matmul/", m, "-", c, "-", s, ".pdf"),
+                paste0("plots/kmeans/", m, "-", c, "-", i, ".pdf"),
                 plot,
                 width = 4,
                 height = 3)
