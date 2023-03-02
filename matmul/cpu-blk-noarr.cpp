@@ -72,7 +72,7 @@ void matmul(A orig_ta, B orig_tb, C orig_tc, num_t *pa, num_t *pb, num_t *pc) {
 	auto trav = noarr::traverser(ta, tb, tc)
 		.order(i_blocks ^ j_blocks ^ k_blocks);
 
-	// trav.template for_dims<'I', J', 'K', 'i', 'k'>(kernel_matmul(a, b, c));
+	// trav.template for_dims<'I', J', 'K', 'i', 'j'>(kernel_matmul(a, b, c));
 	// modified for the experiments:
 	[=]<char ...Blocks, char ...Dims>(std::integer_sequence<char, Blocks...>, std::integer_sequence<char, Dims...>){
 		trav.template for_dims<Blocks..., Dims...>(kernel_matmul(ta, tb, tc, pa, pb, pc));

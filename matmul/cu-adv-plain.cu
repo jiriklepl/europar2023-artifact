@@ -16,7 +16,7 @@ __global__ void kernel_matmul(ISize i_size, JSize j_size, KSize k_size, num_t* g
 		shm_c[i*J_BLOCK_SIZE + j] = 0;
 	}
 
-	for(std::size_t k = 0; k < j_size; k++) {
+	for(std::size_t k = 0; k < k_size; k++) {
 		for(std::size_t j = 0; j < J_BLOCK_SIZE; j++) {
 			num_t local_a = glm_a[k*i_size + (I+i)];
 			num_t local_b = glm_b[(J+j)*k_size + k];

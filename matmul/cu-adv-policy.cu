@@ -17,7 +17,7 @@ __global__ void kernel_matmul(ISize i_size, JSize j_size, KSize k_size, A a, B b
 		d(i, j) = 0;
 	}
 
-	for(std::size_t k = 0; k < j_size; k++) {
+	for(std::size_t k = 0; k < k_size; k++) {
 		for(std::size_t j = 0; j < J_BLOCK_SIZE; j++) {
 			d(i, j) += a(k, I + i) * b(J + j, k);
 		}
