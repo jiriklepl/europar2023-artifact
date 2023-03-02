@@ -40,7 +40,7 @@ if __name__=="__main__":
 
     centroids = np.random.uniform(low=-args.max, high=args.max, size=(args.clusters, args.dimensions))
 
-    cluster_size = np.min(scipy.spatial.distance.pdist(centroids)) / 2.5
+    cluster_size = np.min(scipy.spatial.distance.pdist(centroids)) / 3
 
     distances = np.random.uniform(low=0, high=1, size=args.points) ** (1 / args.dimensions)
     thetas = np.random.normal(size=(args.points, args.dimensions))
