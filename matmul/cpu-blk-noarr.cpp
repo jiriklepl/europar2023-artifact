@@ -6,7 +6,7 @@ template<class TC>
 constexpr auto kernel_reset(TC tc, num_t *pc) {
 	return [=](auto state) {
 		LOG("push 0");
-		LOG("store c at i=" << noarr::get_index<'i'>(state) << " k=" << noarr::get_index<'k'>(state));
+		LOG("store c at i=" << noarr::get_index<'i'>(state) << " j=" << noarr::get_index<'j'>(state));
 		tc | noarr::get_at(pc, state) = 0;
 	};
 }
@@ -14,20 +14,20 @@ constexpr auto kernel_reset(TC tc, num_t *pc) {
 template<class TA, class TB, class TC>
 constexpr auto kernel_matmul(TA ta, TB tb, TC tc, num_t *pa, num_t *pb, num_t *pc) {
 	return [=](auto trav) {
-		LOG("load c at i=" << noarr::get_index<'i'>(trav.state()) << " k=" << noarr::get_index<'k'>(trav.state()));
+		LOG("load c at i=" << noarr::get_index<'i'>(trav.state()) << " j=" << noarr::get_index<'j'>(trav.state()));
 		num_t result = tc | noarr::get_at(pc, trav.state());
 
-		trav.for_each([=, &result](auto ijk) {
-			LOG("load a at i=" << noarr::get_index<'i'>(ijk) << " j=" << noarr::get_index<'j'>(ijk));
-			LOG("load b at j=" << noarr::get_index<'j'>(ijk) << " k=" << noarr::get_index<'k'>(ijk));
+		trav.for_each([=, &result](auto state) {
+			LOG("load a at i=" << noarr::get_index<'i'>(state) << " k=" << noarr::get_index<'k'>(state));
+			LOG("load b at k=" << noarr::get_index<'k'>(state) << " j=" << noarr::get_index<'j'>(state));
 			LOG("multiply");
 			LOG("add");
-			num_t a_elem = ta | noarr::get_at(pa, ijk);
-			num_t b_elem = tb | noarr::get_at(pb, ijk);
+			num_t a_elem = ta | noarr::get_at(pa, state);
+			num_t b_elem = tb | noarr::get_at(pb, state);
 			result += a_elem * b_elem;
 		});
 
-		LOG("store c at i=" << noarr::get_index<'i'>(trav.state()) << " k=" << noarr::get_index<'k'>(trav.state()));
+		LOG("store c at i=" << noarr::get_index<'i'>(trav.state()) << " j=" << noarr::get_index<'j'>(trav.state()));
 		tc | noarr::get_at(pc, trav.state()) = result;
 	};
 }
@@ -76,5 +76,5 @@ void matmul(A orig_ta, B orig_tb, C orig_tc, num_t *pa, num_t *pb, num_t *pc) {
 	// modified for the experiments:
 	[=]<char ...Blocks, char ...Dims>(std::integer_sequence<char, Blocks...>, std::integer_sequence<char, Dims...>){
 		trav.template for_dims<Blocks..., Dims...>(kernel_matmul(ta, tb, tc, pa, pb, pc));
-	}(swap_pack<1, 1 + (BLOCK_ORDER / 3)>(swap_pack<0, BLOCK_ORDER % 3>(std::integer_sequence<char, 'I', 'J', 'K'>())), swap_pack<0, DIM_ORDER>(std::integer_sequence<char, 'i', 'k'>()));
+	}(swap_pack<1, 1 + (BLOCK_ORDER / 3)>(swap_pack<0, BLOCK_ORDER % 3>(std::integer_sequence<char, 'I', 'J', 'K'>())), swap_pack<0, DIM_ORDER>(std::integer_sequence<char, 'i', 'j'>()));
 }

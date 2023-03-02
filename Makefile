@@ -9,7 +9,7 @@ INCLUDE_OPTION := -I noarr-structures/include
 CXX_OPTIONS := ${INCLUDE_OPTION} -std=c++20 -Ofast -flto -Wall -Wextra -pedantic -DNDEBUG -march=native -mtune=native
 CUDA_OPTIONS := ${INCLUDE_OPTION} -std=c++17 -O3 -dlto --compiler-options -Ofast,-march=native,-mtune=native -DNDEBUG --use_fast_math --expt-relaxed-constexpr
 
-.PHONY: all clean matmul histo kmeans generate generate-small
+.PHONY: all clean matmul histo kmeans generate generate-small plots matmul-plots histo-plots
 
 all: matmul histo kmeans
 
@@ -23,18 +23,18 @@ matmul: \
 	${BUILD_DIR}/matmul/clang++/cpu-triv/noarr \
 	${BUILD_DIR}/matmul/clang++/cpu-triv/noarr-bag \
 	${BUILD_DIR}/matmul/clang++/cpu-triv/policy \
-	${BUILD_DIR}/matmul/g++/cpu-blk_ik/noarr \
-	${BUILD_DIR}/matmul/g++/cpu-blk_ik/noarr-bag \
-	${BUILD_DIR}/matmul/g++/cpu-blk_ik/policy \
-	${BUILD_DIR}/matmul/clang++/cpu-blk_ik/noarr \
-	${BUILD_DIR}/matmul/clang++/cpu-blk_ik/noarr-bag \
-	${BUILD_DIR}/matmul/clang++/cpu-blk_ik/policy \
-	${BUILD_DIR}/matmul/g++/cpu-blk_ki/noarr \
-	${BUILD_DIR}/matmul/g++/cpu-blk_ki/noarr-bag \
-	${BUILD_DIR}/matmul/g++/cpu-blk_ki/policy \
-	${BUILD_DIR}/matmul/clang++/cpu-blk_ki/noarr \
-	${BUILD_DIR}/matmul/clang++/cpu-blk_ki/noarr-bag \
-	${BUILD_DIR}/matmul/clang++/cpu-blk_ki/policy \
+	${BUILD_DIR}/matmul/g++/cpu-blk_ij/noarr \
+	${BUILD_DIR}/matmul/g++/cpu-blk_ij/noarr-bag \
+	${BUILD_DIR}/matmul/g++/cpu-blk_ij/policy \
+	${BUILD_DIR}/matmul/clang++/cpu-blk_ij/noarr \
+	${BUILD_DIR}/matmul/clang++/cpu-blk_ij/noarr-bag \
+	${BUILD_DIR}/matmul/clang++/cpu-blk_ij/policy \
+	${BUILD_DIR}/matmul/g++/cpu-blk_ji/noarr \
+	${BUILD_DIR}/matmul/g++/cpu-blk_ji/noarr-bag \
+	${BUILD_DIR}/matmul/g++/cpu-blk_ji/policy \
+	${BUILD_DIR}/matmul/clang++/cpu-blk_ji/noarr \
+	${BUILD_DIR}/matmul/clang++/cpu-blk_ji/noarr-bag \
+	${BUILD_DIR}/matmul/clang++/cpu-blk_ji/policy \
 	${BUILD_DIR}/matmul/nvcc/cu-basic/noarr \
 	${BUILD_DIR}/matmul/nvcc/cu-basic/noarr-bag \
 	${BUILD_DIR}/matmul/nvcc/cu-basic/policy \
@@ -52,19 +52,19 @@ ${BUILD_DIR}/matmul/clang++/cpu-triv/%: matmul/cpu-triv-%.cpp noarr-structures m
 	@mkdir -p $(@D)
 	${CLANG} -o $@ ${CXX_OPTIONS} $< -DA_ROW -DB_ROW -DC_ROW
 
-${BUILD_DIR}/matmul/g++/cpu-blk_ik/%: matmul/cpu-blk-%.cpp noarr-structures matmul/noarrmain.hpp matmul/policymain.hpp
+${BUILD_DIR}/matmul/g++/cpu-blk_ij/%: matmul/cpu-blk-%.cpp noarr-structures matmul/noarrmain.hpp matmul/policymain.hpp
 	@mkdir -p $(@D)
 	${GCC} -o $@ ${CXX_OPTIONS} $< -DA_ROW -DB_ROW -DC_ROW -DBLOCK_I -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=0 -DDIM_ORDER=0
 
-${BUILD_DIR}/matmul/clang++/cpu-blk_ik/%: matmul/cpu-blk-%.cpp noarr-structures matmul/noarrmain.hpp matmul/policymain.hpp
+${BUILD_DIR}/matmul/clang++/cpu-blk_ij/%: matmul/cpu-blk-%.cpp noarr-structures matmul/noarrmain.hpp matmul/policymain.hpp
 	@mkdir -p $(@D)
 	${CLANG} -o $@ ${CXX_OPTIONS} $< -DA_ROW -DB_ROW -DC_ROW -DBLOCK_I -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=0 -DDIM_ORDER=0
 
-${BUILD_DIR}/matmul/g++/cpu-blk_ki/%: matmul/cpu-blk-%.cpp noarr-structures matmul/noarrmain.hpp matmul/policymain.hpp
+${BUILD_DIR}/matmul/g++/cpu-blk_ji/%: matmul/cpu-blk-%.cpp noarr-structures matmul/noarrmain.hpp matmul/policymain.hpp
 	@mkdir -p $(@D)
 	${GCC} -o $@ ${CXX_OPTIONS} $< -DA_ROW -DB_ROW -DC_ROW -DBLOCK_I -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=0 -DDIM_ORDER=1
 
-${BUILD_DIR}/matmul/clang++/cpu-blk_ki/%: matmul/cpu-blk-%.cpp noarr-structures matmul/noarrmain.hpp matmul/policymain.hpp
+${BUILD_DIR}/matmul/clang++/cpu-blk_ji/%: matmul/cpu-blk-%.cpp noarr-structures matmul/noarrmain.hpp matmul/policymain.hpp
 	@mkdir -p $(@D)
 	${CLANG} -o $@ ${CXX_OPTIONS} $< -DA_ROW -DB_ROW -DC_ROW -DBLOCK_I -DBLOCK_J -DBLOCK_K -DBLOCK_SIZE=16 -DBLOCK_ORDER=0 -DDIM_ORDER=1
 
@@ -191,6 +191,14 @@ generate-small: ${BUILD_DIR}/matmul/matrices_64 \
 	${BUILD_DIR}/matmul/matrices_1024 \
 
 kmeans: noarr-structures
+
+plots: matmul-plots histo-plots
+
+matmul-plots: matmul.R
+	Rscript $<
+
+histo-plots: histo.R
+	Rscript $<
 
 clean:
 	rm -rf ${BUILD_DIR}

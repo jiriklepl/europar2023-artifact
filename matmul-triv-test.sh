@@ -4,7 +4,7 @@ mkdir -p "tests/matmul/clang++"
 mkdir -p "tests/matmul/g++"
 
 INCLUDE_OPTION="-Inoarr-structures/include"
-CXX_OPTIONS="$INCLUDE_OPTION -std=c++20 -Ofast -flto -Wall -Wextra -pedantic -march=native -mtune=native"
+CXX_OPTIONS="$INCLUDE_OPTION -std=c++20 -Ofast -Werror -flto -Wall -Wextra -pedantic -march=native -mtune=native"
 
 echo "running compilation:" 1>&2
 

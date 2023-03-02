@@ -23,9 +23,9 @@ void matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 	auto c = noarr::make_bag(tc, pc);
 
 	auto into_blocks = noarr::into_blocks<'i', 'I', 'i'>(noarr::lit<BLOCK_SIZE>)
-		^ noarr::into_blocks<'k', 'K', 'k'>(noarr::lit<BLOCK_SIZE>);
+		^ noarr::into_blocks<'j', 'J', 'j'>(noarr::lit<BLOCK_SIZE>);
 
-	auto cutrav = noarr::cuda_threads<'I', 'i', 'K', 'k'>(noarr::traverser(a, b, c).order(into_blocks));
+	auto cutrav = noarr::cuda_threads<'I', 'i', 'J', 'j'>(noarr::traverser(a, b, c).order(into_blocks));
 
 	cutrav.simple_run(kernel_matmul, 0, a, b, c);
 	CUCH(cudaGetLastError());

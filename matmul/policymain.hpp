@@ -108,9 +108,9 @@ int main(int argc, char **argv) {
 #endif
 #endif
 
-	auto a_cnt = i_size * j_size;
-	auto b_cnt = j_size * k_size;
-	auto c_cnt = i_size * k_size;
+	auto a_cnt = i_size * k_size;
+	auto b_cnt = k_size * j_size;
+	auto c_cnt = i_size * j_size;
 
 	std::size_t a_sz = a_cnt * sizeof(num_t);
 	std::size_t b_sz = b_cnt * sizeof(num_t);
@@ -134,9 +134,9 @@ int main(int argc, char **argv) {
 	}
 	std::fclose(file);
 
-	auto a = make_matrix<A_LAYOUT>((const num_t *)data, i_size, j_size);
-	auto b = make_matrix<B_LAYOUT>((const num_t *)data + a_cnt, j_size, k_size);
-	auto c = make_matrix<C_LAYOUT>(data + a_cnt + b_cnt, i_size, k_size);
+	auto a = make_matrix<A_LAYOUT>((const num_t *)data, i_size, k_size);
+	auto b = make_matrix<B_LAYOUT>((const num_t *)data + a_cnt, k_size, j_size);
+	auto c = make_matrix<C_LAYOUT>(data + a_cnt + b_cnt, i_size, j_size);
 
 	// matmul(i_size, j_size, k_size, a, b, c);
 
