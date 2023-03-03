@@ -54,7 +54,7 @@ for (m in unique(data$machine)) {
             scale_x_discrete(labels=c(expression(2^19), expression(2^21), expression(2^23), expression(2^25), expression(2^27), expression(2^29))) +
             theme(legend.position = "bottom")
 
-        dist <- .15
+        dist <- .10
 
         plot <- plot + coord_cartesian(ylim = c(1 - dist, 1 + dist))
 
