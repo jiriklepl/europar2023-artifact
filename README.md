@@ -1,6 +1,6 @@
 # Artifact Submission: Noarr Traversers
 
-This is a replication package containing code and experimental results related to a *Euro-Par 2023* paper titled: *Pure C++ Approach to Optimized Parallel~Traversal of Regular Data~Structures*
+This is a replication package containing code and experimental results related to a *Euro-Par 2023* paper titled: *Pure C++ Approach to Optimized Parallel Traversal of Regular Data Structures*
 
 The [Overview](#overview) section gives a summary of all relevant source files, test input generators, and test scripts. The [Build](#build) section then goes through the build requirements and build instructions for the experimental implementations; and, finally, the [Experiments](#experiments) section provides the specifics about experiment methodology and data visualization.
 
