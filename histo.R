@@ -4,8 +4,6 @@ library("ggplot2")
 library("dplyr")
 library("stringr")
 
-e=function(x)expression(x)
-
 files <- list.files(path = "out/", pattern = "histo*")
 
 data <- lapply(
@@ -42,13 +40,12 @@ for (m in unique(data$machine)) {
             reframe(
                 relative.time = time,
                 version = unique(version),
-                ) %>%
-            mutate(x = paste0(2, "^", log2(size)))
+                )
 
         plot <-
             ggplot(
                 local,
-                aes(x = x, y = relative.time, fill = version)) +
+                aes(x = factor(size), y = relative.time, fill = version)) +
             geom_boxplot(position = "dodge2", outlier.shape = NA) +
             geom_hline(yintercept = 1) +
             facet_grid(. ~ implementation) +
