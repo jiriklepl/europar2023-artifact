@@ -10,7 +10,7 @@ For a better look at the Noarr library itself, see [https://github.com/ParaCoToU
 
 ## Overview
 
-The artifact has the following file structure.
+The artifact has the files relevant to performing the experiment.
 
 - [Makefile](Makefille): Contains build instructions for all the experimental implementations and their inputs
 
