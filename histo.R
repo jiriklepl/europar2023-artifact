@@ -4,6 +4,8 @@ library("ggplot2")
 library("dplyr")
 library("stringr")
 
+e=function(x)expression(x)
+
 files <- list.files(path = "out/", pattern = "histo*")
 
 data <- lapply(
@@ -52,9 +54,8 @@ for (m in unique(data$machine)) {
             facet_grid(. ~ implementation) +
             xlab("input text size") +
             ylab("relative runtime") +
-            theme(
-                axis.text.x = element_text(angle = 45, hjust = 1),
-                legend.position = "bottom")
+            scale_x_discrete(labels=c(expression(2^19), expression(2^21), expression(2^23), expression(2^25), expression(2^27), expression(2^29))) +
+            theme(legend.position = "bottom")
 
         dist <- .15
 
