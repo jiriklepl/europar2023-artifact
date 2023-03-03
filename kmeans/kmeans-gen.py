@@ -38,14 +38,28 @@ if __name__=="__main__":
     if args.seed is not None:
         np.random.seed(args.seed)
 
-    centroids = np.random.uniform(low=-args.max, high=args.max, size=(args.clusters, args.dimensions))
+    tries = 1000
 
-    cluster_size = np.min(scipy.spatial.distance.pdist(centroids)) / 3
+    best_centroids = None
+    best_size = -np.infty
+
+    centroid_distances = None
+    for _ in range(tries):
+        centroids = np.random.uniform(low=-args.max, high=args.max, size=(args.clusters, args.dimensions))
+
+        centroid_distances = scipy.spatial.distance.pdist(centroids, out=centroid_distances)
+        cluster_size = np.min(centroid_distances) / 3
+
+        if cluster_size > best_size:
+            best_centroids = centroids.copy()
+            best_size = cluster_size
+
+    centroids, cluster_size = best_centroids, best_size
 
     distances = np.random.uniform(low=0, high=1, size=args.points) ** (1 / args.dimensions)
     thetas = np.random.normal(size=(args.points, args.dimensions))
-    thetas = thetas * (cluster_size * distances / np.maximum(np.sqrt(np.sum(thetas ** 2, axis=-1)), 1e-15)).reshape((thetas.shape[0], 1))
-    clusters = np.random.randint(low=0, high=args.clusters, size=args.points)
+    thetas = thetas * (cluster_size * distances / np.sqrt(np.sum(thetas ** 2, axis=-1))).reshape((thetas.shape[0], 1))
+    clusters = np.array(list(range(args.points))) % args.clusters
 
     points = centroids[clusters] + thetas
 

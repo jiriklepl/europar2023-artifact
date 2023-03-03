@@ -227,27 +227,27 @@ generate-kmeans: ${BUILD_DIR}/kmeans/kmeans_7_4_2000 \
 
 ${BUILD_DIR}/kmeans/kmeans_7_4_2000: kmeans/kmeans-gen.py
 	@mkdir -p $(@D)
-	kmeans/kmeans-gen.py -n 1000 -r -d ' ' 7 4 > $@
+	kmeans/kmeans-gen.py -n 1000 -s 2023 -r -d ' ' 7 4 > $@
 
 ${BUILD_DIR}/kmeans/kmeans_7_6_2000: kmeans/kmeans-gen.py
 	@mkdir -p $(@D)
-	kmeans/kmeans-gen.py -n 1000 -r -d ' ' 11 6 > $@
+	kmeans/kmeans-gen.py -n 1000 -s 2023 -r -d ' ' 11 6 > $@
 
 ${BUILD_DIR}/kmeans/kmeans_10_3_2000: kmeans/kmeans-gen.py
 	@mkdir -p $(@D)
-	kmeans/kmeans-gen.py -n 1000 -r -d ' ' 10 3 > $@
+	kmeans/kmeans-gen.py -n 1000 -s 2023 -r -d ' ' 10 3 > $@
 
 ${BUILD_DIR}/kmeans/kmeans_7_4_20000: kmeans/kmeans-gen.py
 	@mkdir -p $(@D)
-	kmeans/kmeans-gen.py -n 10000 -r -d ' ' 7 4 > $@
+	kmeans/kmeans-gen.py -n 10000 -s 2023 -r -d ' ' 7 4 > $@
 
 ${BUILD_DIR}/kmeans/kmeans_7_6_20000: kmeans/kmeans-gen.py
 	@mkdir -p $(@D)
-	kmeans/kmeans-gen.py -n 10000 -r -d ' ' 11 6 > $@
+	kmeans/kmeans-gen.py -n 10000 -s 2023 -r -d ' ' 11 6 > $@
 
 ${BUILD_DIR}/kmeans/kmeans_10_3_20000: kmeans/kmeans-gen.py
 	@mkdir -p $(@D)
-	kmeans/kmeans-gen.py -n 10000 -r -d ' ' 10 3 > $@
+	kmeans/kmeans-gen.py -n 10000 -s 2023 -r -d ' ' 10 3 > $@
 
 plots: matmul-plots histo-plots
 

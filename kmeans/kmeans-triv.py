@@ -23,7 +23,7 @@ if __name__=="__main__":
 
 	data = np.array(pd.read_csv(sys.stdin, header=None, delimiter=' '))
 
-	kmeans = sklearn.cluster.KMeans(n_clusters=args.clusters, init=data[0:args.clusters], n_init=1, max_iter=10, tol=0.)
+	kmeans = sklearn.cluster.KMeans(n_clusters=args.clusters, init=data[0:args.clusters], n_init=1, max_iter=10, tol=0., copy_x=False)
 
 	start = time.time_ns()
 	kmeans.fit(data)
