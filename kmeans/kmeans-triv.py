@@ -9,8 +9,7 @@ import time
 
 parser = argparse.ArgumentParser(
 	prog='kmeans-triv',
-	description='Generate nontrivial test data with unique solution for the k-means algorithm',
-	epilog='output: csv list of points which should be clustered',
+	description='Performs kmeans algorithm with a trivial configuration (see the code)',
 	add_help=True,
 	formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
