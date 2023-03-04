@@ -16,7 +16,7 @@ void run_matmul(A ta, B tb, C tc, num_t *pa, num_t *pb, num_t *pc) {
 		c[state] = 0;
 	});
 
-	// PAPER: 3.1 Second example (LOGs serve as comment)
+	// PAPER: 3.1 Second example (LOGs serve as comments)
 	LOG("# multiply a and b, add the result to c");
 	noarr::traverser(a, b, c).for_each([=](auto state) {
 		LOG("load a at i=" << noarr::get_index<'i'>(state) << " k=" << noarr::get_index<'k'>(state));
