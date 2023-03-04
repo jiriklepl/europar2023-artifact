@@ -18,7 +18,7 @@ data <- do.call("rbind", data)
 
 data <- data %>%
     filter(size >= 2 ** 19) %>%
-    filter(size < 2 ** 31) %>%
+    filter(size < 2 ** 29) %>%
     mutate(
         time = as.numeric(time),
         implementation = as.vector(str_match(bin, "[^/]*(?=/[^/]*$)")),
@@ -54,9 +54,7 @@ for (m in unique(data$machine)) {
             scale_x_discrete(labels=c(expression(2^19), expression(2^21), expression(2^23), expression(2^25), expression(2^27), expression(2^29))) +
             theme(legend.position = "bottom")
 
-        dist <- .10
-
-        plot <- plot + coord_cartesian(ylim = c(1 - dist, 1 + dist))
+        plot <- plot + coord_cartesian(ylim = c(1 - .15, 1 + .10))
 
         if (!dir.exists("plots/histo/"))
             dir.create("plots/histo/", recursive = TRUE)
