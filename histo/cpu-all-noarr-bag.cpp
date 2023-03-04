@@ -49,6 +49,7 @@ else if constexpr (HISTO_IMPL == histo_foreach) {
 	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), in_ptr);
 	auto out = noarr::make_bag(noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>(), out_ptr);
 
+	// PAPER 3.2 First example
 	noarr::traverser(in).for_each([in, out](auto in_state) {
 		value_t value = in[in_state];
 		out[noarr::idx<'v'>(value)] += 1;
@@ -60,6 +61,7 @@ else if constexpr (HISTO_IMPL == histo_tbbreduce) {
 	auto in = noarr::make_bag(noarr::scalar<value_t>() ^ noarr::sized_vector<'i'>(size), in_ptr);
 	auto out = noarr::make_bag(noarr::scalar<std::size_t>() ^ noarr::array<'v', 256>(), out_ptr);
 
+	// PAPER 3.2 Second example
 	noarr::tbb_reduce_bag(
 		// Input traverser.
 		noarr::traverser(in),

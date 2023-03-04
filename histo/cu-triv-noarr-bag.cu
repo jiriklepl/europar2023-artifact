@@ -6,6 +6,7 @@
 #include <noarr/structures/interop/bag.hpp>
 #include <noarr/structures/interop/cuda_traverser.cuh>
 
+// PAPER: 4.1 First example
 template<class InTrav, class In, class Out>
 __global__ void histogram(InTrav in_trav, In in, Out out) {
 	in_trav.for_each([=](auto state) {

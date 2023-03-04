@@ -2,6 +2,34 @@
 
 This is a replication package containing code and experimental results related to a *Euro-Par 2023* paper titled: *Pure C++ Approach to Optimized Parallel Traversal of Regular Data Structures*
 
+The running code examples in the paper are lifted from the experimental implementations involved in the measurements (see the [Overview](#overview) section). The following list maps the examples to the  corresponding files:
+
+- Section 3.1 (Introducing syntax for traversers)
+
+  - First example: [./simplified/cpu-matmul-blocked-noarr-bag.cpp:10](./simplified/cpu-matmul-blocked-noarr-bag.cpp#L10-L11) - simplified from [matmul/cpu-blk-noarr-bag.cpp](./matmul/cpu-blk-noarr-bag.cpp)
+  - Second example: [matmul/cpu-triv-noarr-bag.cpp:19](./matmul/cpu-triv-noarr-bag.cpp#L19-L28)
+  - Third example: [simplified/cpu-matmul-blocked-noarr-bag.cpp:13](./simplified/cpu-matmul-blocked-noarr-bag.cpp#L13-L19) - simplified from [matmul/cpu-blk-noarr-bag.cpp](./matmul/cpu-blk-noarr-bag.cpp)
+  - Fourth example: [simplified/cpu-matmul-layered-noarr-bag.cpp:17](./simplified/cpu-matmul-layered-noarr-bag.cpp#L17-L28) - simplified from [matmul/cpu-blk-noarr-bag.cpp](./matmul/cpu-blk-noarr-bag.cpp)
+
+- Section 3.2 (Parallel execution)
+
+  - First example: [histo/cpu-all-noarr-bag.cpp:52](./histo/cpu-all-noarr-bag.cpp#L52-L56)
+  - Second example: [histo/cpu-all-noarr-bag.cpp:64](./histo/cpu-all-noarr-bag.cpp#L64-L87)
+
+- Section 4.1 (CUDA traverser)
+
+  - First example: [histo/cu-triv-noarr-bag.cu:9](./histo/cu-triv-noarr-bag.cu#L9-L16)
+  - Second example: [simplified/cu-simple-noarr-bag.cu:62](./simplified/cu-simple-noarr-bag.cu#L62-L67)
+
+- Section 4.2 (Shared memory privatization)
+
+  - First example: [simplified/cu-simple-noarr-bag.cu:11](./simplified/cu-simple-noarr-bag.cu#L11-L56), mainly [lines 35 - 38](./simplified/cu-simple-noarr-bag.cu#L35-L38)
+  - Second example: [simplified/cu-simple-noarr-bag.cu:69](./simplified/cu-simple-noarr-bag.cu#L69-L75)
+  - Third example: [simplified/cu-simple-noarr-bag.cu:17](./simplified/cu-simple-noarr-bag.cu#L17-L30)
+  - Fourth example: [simplified/cu-simple-noarr-bag.cu:42](./simplified/cu-simple-noarr-bag.cu#L42-L55)
+
+  All simplified from [histo/cu-priv-noarr-bag.cu](./histo/cu-priv-noarr-bag.cu)
+
 The [Overview](#overview) section gives a summary of all relevant source files, test input generators, and test scripts. The [Build](#build) section then goes through the build requirements and build instructions for the experimental implementations; and, finally, the [Experiments](#experiments) section provides the specifics about experiment methodology and data visualization.
 
 The last section, [Bonus](#bonus) then showcases some implementations that should show the viability of our approach in algorithms outside linear algebra; and they also present more advanced uses of the Noarr library.
@@ -10,17 +38,17 @@ For a better look at the Noarr library itself, see [https://github.com/ParaCoToU
 
 ## Overview
 
-The artifact has the files relevant to performing the experiment.
+The following files are relevant when performing the experiments.
 
 - [Makefile](./Makefile): Contains build instructions for all the experimental implementations and their inputs
 
-  - [Build](#build) section of te artifact specifies its use
+  - The [Build](#build) section of the artifact specifies its use
 
 - [matmul](./matmul): The directory containing all matrix multiplication implementations used in the measurements.
 
   - Files beginning with either `cu-`, or `cpu-`: The implementations of the matrix multiplication algorithm, each file contains just the part that defines and executes the execution.
 
-  Each such implementation has up to 4 versions (distinguished by the last word before the file extension; for each implementation, two of these are written using our propossed Noarr abstraction - with Noarr bags or without; others serve as the pure-C++ baseline) - each group of corresponding different versions is programmed to perform the exact same sequence of memory instructions (before any compiler optimizations).
+  Each such implementation has up to 4 versions (distinguished by the last word before the file extension; for each implementation, two of these are written using our proposed Noarr abstraction - with Noarr bags or without; others serve as the pure-C++ baseline) - each group of corresponding different versions is programmed to perform the exact same sequence of memory instructions (before any compiler optimizations).
 
   The sources `cpu-blk-*.cpp` and `cpu-triv-*.cpp` use the `LOG` macro (defined in a corresponding `*main.hpp` file) for debugging purposes. The macro uses also serve as comments explaining the algorithm (the preprocessor ignores the macro argument unless `LOGGING` is defined).
 
@@ -32,7 +60,7 @@ The artifact has the files relevant to performing the experiment.
 
   - Files beginning with either `cu-`, or `cpu-`: The implementations of the histogram algorithm, each file contains just the part that defines and executes the execution.
 
-  Each such implementation has 3 versions (distinguished by the last word before the file extension; for each implementation, two of these are written using our propossed Noarr abstraction - with Noarr bags or without; others serve as the pure-C++ baseline) - each group of corresponding different versions is programmed to perform the exact same sequence of memory instructions (before any compiler optimizations).
+  Each such implementation has 3 versions (distinguished by the last word before the file extension; for each implementation, two of these are written using our proposed Noarr abstraction - with Noarr bags or without; others serve as the pure-C++ baseline) - each group of corresponding different versions is programmed to perform the exact same sequence of memory instructions (before any compiler optimizations).
 
   - [histomain.cpp](./histo/histomain.hpp): Header file that defines memory management, IO, and time measurement.
 
@@ -65,9 +93,9 @@ For generating the input files, *Python* is required along with the following *P
 
 ### Build instructions
 
-`make all` builds all matrix multiplication, histogram and kmeans examples. All compilation should proceed with no warnings if all the requirements are met.
+`make all` builds all matrix multiplication, histogram and k-means examples. All compilation should proceed with no warnings if all the requirements are met.
 
-- replace `all` with `matmul`, `histo` or `kmeans`, to build the implementations of only one algorithm.
+- replace `all` with `matmul`, `histo` or `kmeans`, to build the implementations of only one algorithm (also applies to the following commands).
 
 `make all CLANG=@: GCC=@:` builds all matrix multiplication and histogram CUDA examples.
 
@@ -97,13 +125,13 @@ This section contains what didn't fit the paper but might be still interesting t
 
 Noarr is not viable just in simple computation kernels performing work on some regular structures. The implementation of this algorithm showcases some of the more advanced uses of the library, including a simple data (de)serialization example.
 
-- [kmeans](./kmeans) contains three versions of an implementation of the kmeans algorithm (two Noarr versions and one in pure C++). One Noarr version uses Noarr bags and the other one does not. The names follow the naming scheme of the other two algorithms.
+- [kmeans](./kmeans) contains three versions of an implementation of the k-means algorithm (two Noarr versions and one in pure C++). One Noarr version uses Noarr bags and the other one does not. The names follow the naming scheme of the other two algorithms.
 
   - [kmeans-gen.py](./kmeans/kmeans-gen.py): A Python script that generates data that are very likely to be clustered deterministically into the expected number of clusters. It also attempts to choose inputs that make the process more resistant to numeric errors caused by floating-point arithmetics.
 
-  `make generate-kmeans` uses this script to generate few test inputs (it uses a pre-specified seed to promote replicability).
+  `make generate-kmeans` uses this script to generate a few test inputs (it uses a pre-specified seed to promote replicability).
 
-The kmeans experiments can be performed by the following process:
+The k-means experiments can be performed by the following process:
 
 ```sh
 make kmeans
@@ -112,7 +140,7 @@ make generate-kmeans
 ./kmeans-validate.sh && ./kmens-measure.sh
 ```
 
-This experiment also includes comparison against the `sklearn` kmeans algorithm configured to perform the same job. It is included mainly to provide the correct output.
+This experiment also includes a comparison against the `sklearn` k-means algorithm configured to perform the same job. It is included mainly to provide the correct output.
 
 ### Stencil
 

@@ -25,14 +25,14 @@ __global__ void histogram(value_t *in_ptr, std::size_t size, std::size_t *out_pt
 
 	// Reduce the bins in shared memory into global memory.
 	for(auto v = threadIdx.x; v < NUM_VALUES; v += BLOCK_SIZE) {
-		std::size_t collected = 0;
+		std::size_t sum = 0;
 
 		for(std::size_t i = 0; i < NUM_COPIES; i++) {
 			auto collected_idx = (i + my_copy_idx) % NUM_COPIES;
-			collected += shm_ptr[v * NUM_COPIES + collected_idx];
+			sum += shm_ptr[v * NUM_COPIES + collected_idx];
 		}
 
-		atomicAdd(&out_ptr[v], collected);
+		atomicAdd(&out_ptr[v], sum);
 	}
 }
 

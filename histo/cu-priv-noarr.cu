@@ -36,15 +36,15 @@ __global__ void histogram(InTrav in_trav, InStruct in_struct, ShmStruct shm_stru
 
 	// Reduce the bins in shared memory into global memory.
 	noarr::traverser(out_struct).order(noarr::cuda_step_block()).for_each([=](auto state) {
-		std::size_t collected = 0;
+		std::size_t sum = 0;
 
 		for(std::size_t i = 0; i < shm_struct.num_stripes(); i++) {
 			auto shm_state = state.template with<noarr::cuda_stripe_index>((i + my_copy_idx) % shm_struct.num_stripes());
-			collected += shm_struct | noarr::get_at(shm_ptr, shm_state);
+			sum += shm_struct | noarr::get_at(shm_ptr, shm_state);
 		}
 
 		auto &bin = out_struct | noarr::get_at(out_ptr, state);
-		atomicAdd(&bin, collected);
+		atomicAdd(&bin, sum);
 	});
 }
 
