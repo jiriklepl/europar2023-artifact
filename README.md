@@ -107,9 +107,15 @@ For generating the input files, *Python* is required along with the following *P
 
 ## Experiments
 
-The git branches `gpulab` and `parlab`, each, contain the `./run_job.sh` used to perform the experiments on a particular machine in a Slurm-managed cluster -- measuring GPU implementations and CPU implementations, respectively.
+The git branches `gpulab` and `parlab`, each, contain the `./run_job.sh` used to perform the experiments on a particular machine in a Slurm-managed cluster -- measuring GPU implementations and CPU implementations, respectively. The measurements consist of runtimes per one whole computation with any execution overhead included (but without the input preparation, and output); for each (input file, input configuration) combination, the measurements consist of 10 repetitions of a single batch consisting of a random shuffle of the different implementation versions. This whole process is performed for the histogram and matrix multiplication algorithms separately, in alteration, for another 10 times. In total, for each different input configuration, one version of the given algorithm implementation was measured 100 times - which was sufficient enough to get consistent results.
 
-Both branches also contain `results.tar.gz` with experimental results stored in the CSV format. These were collected into [all-results.tar.gz](./all-results.tar.gz) for convenience.
+- `gpulab` results were collected on a Linux machine equipped with Tesla V100 PCIe 16GB, Driver Version: 525.85.12, and CUDA Version: 12.0
+
+- `parlab` results were collected on a Linux machine equipped with Intel(R) Xeon(R) Gold 6130 CPU, and g++ (GCC) 12.2.0
+
+  - apart from the `TBB` histogram example, all CPU implementations were run in a single thread - as we were primarily interested in any possible abstraction overheads; with the TBB-reduction overhead measured separately as a part of the `TBB` examples.
+
+Both git branches also contain `results.tar.gz` with experimental results stored in the CSV format. These were collected into [all-results.tar.gz](./all-results.tar.gz) for convenience.
 
 ### Visualization
 
