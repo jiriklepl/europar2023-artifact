@@ -32,7 +32,7 @@ The running code examples in the paper are lifted from the experimental implemen
 
 For the experimental side of the work: the [Overview](#overview) section gives a summary of all relevant source files, test input generators, and test scripts; the [Build](#build) section then goes through the build requirements and build instructions for the experimental implementations; and, finally, the [Experiments](#experiments) section provides the specifics about experiment methodology and data visualization.
 
-The last section, [Bonus](#bonus) presents more advanced uses of the Noarr library and showcases some implementations that should show the viability of our approach in algorithms outside linear algebra.
+The last section, [Bonus](#bonus), presents more advanced uses of the Noarr library and showcases some implementations that should show the viability of our approach in algorithms outside linear algebra.
 
 For a better look at the Noarr library itself, see [https://github.com/ParaCoToUl/noarr-structures/](https://github.com/ParaCoToUl/noarr-structures/) (the main repository for the library) or [https://link.springer.com/chapter/10.1007/978-3-031-22677-9_27](https://link.springer.com/chapter/10.1007/978-3-031-22677-9_27) (the paper associated with the initial proposal of the Noarr abstraction).
 
@@ -46,7 +46,7 @@ The following files are relevant when performing the experiments.
 
 - [matmul](./matmul): The directory containing all matrix multiplication implementations used in the measurements.
 
-  - Files beginning with either `cu-`, or `cpu-`: The implementations of the matrix multiplication algorithm, each file contains just the part that defines and executes the execution.
+  - Files beginning with either `cu-`, or `cpu-`: The implementations of the matrix multiplication algorithm, each file contains just the part that defines and executes the computation.
 
     Each such implementation has up to 4 versions (distinguished by the last word before the file extension; for each implementation, two of these are written using our proposed Noarr abstraction - with Noarr bags or without; others serve as the pure-C++ baseline) - each group of corresponding different versions is programmed to perform the exact same sequence of memory instructions (before any compiler optimizations).
 
@@ -58,7 +58,7 @@ The following files are relevant when performing the experiments.
 
 - [histo](./histo): The directory containing all histogram implementations used in the measurements.
 
-  - Files beginning with either `cu-`, or `cpu-`: The implementations of the histogram algorithm, each file contains just the part that defines and executes the execution.
+  - Files beginning with either `cu-`, or `cpu-`: The implementations of the histogram algorithm, each file contains just the part that defines and executes the computation.
 
     Each such implementation has 3 versions (distinguished by the last word before the file extension; for each implementation, two of these are written using our proposed Noarr abstraction - with Noarr bags or without; others serve as the pure-C++ baseline) - each group of corresponding different versions is programmed to perform the exact same sequence of memory instructions (before any compiler optimizations).
 
@@ -78,7 +78,7 @@ This section is dedicated to build requirements and build instructions.
 
 ### Requirements
 
-All CPU implementations require a C++20-compliant compiler and all CUDA implementations require a C++17-compliant version of the *nvcc* compiler. The compilers are also expected to support all options specified in [Makefile](./Makefile), but `-O3` should be sufficient to get close-enough results.
+All CPU implementations require a C++20-compliant compiler (we use C++20 only for better convenience of setup; the Noarr library itself is both C++17-compliant and C++20-compliant), and all CUDA implementations require a C++17-compliant version of the *nvcc* compiler. The compilers are also expected to support all options specified in [Makefile](./Makefile), but `-O3` should be sufficient to get close-enough results.
 
 Apart from the [noarr-structutres](https://github.com/ParaCoToUl/noarr-structures.git) library, the implementations themselves have no external dependencies other than *TBB* (but that is limited to just 2 implementations; use [NoTBB/Makefile](./NoTBB/Makefile) to skip the TBB implementations).
 
@@ -103,11 +103,11 @@ For generating the input files, *Python* is required along with the following *P
 
 `make generate` generates matrix multiplication input files with sizes ranging from `2**10` to `2**13`; and the random text for the histogram algorithm.
 
-`make generate-small` generates matrix multiplication input files with sizes ranging from `2**6` to `2**10`
+`make generate-small` generates matrix multiplication input files with sizes ranging from `2**6` to `2**10`.
 
 ## Experiments
 
-The git branches `gpulab` and `parlab`, each, contain the `./run_job.sh` used to perform the experiments on a particular machine in a Slurm-managed cluster -- measuring GPU implementations and CPU implementations, respectively. The measurements consist of runtimes per one whole computation with any execution overhead included (but without the input preparation, and output); for each (input file, input configuration) combination, the measurements consist of 10 repetitions of a single batch consisting of a random shuffle of the different implementation versions. This whole process is performed for the histogram and matrix multiplication algorithms separately, in alteration, for another 10 times. In total, for each different input configuration, one version of the given algorithm implementation was measured 100 times - which was sufficient enough to get consistent results.
+The git branches `gpulab` and `parlab`, each, contain the `./run_job.sh` used to perform the experiments on a particular machine in a Slurm-managed cluster - measuring GPU implementations and CPU implementations, respectively. The measurements consist of runtimes per one whole computation with any execution overhead included (but without the input preparation, and output); for each input configuration, the measurements consist of 10 repetitions of a single batch consisting of a random shuffle of the different implementation versions. This whole process is performed for the histogram and matrix multiplication algorithms separately, in alteration, for another 10 times. In total, for each different input configuration, each version of a given algorithm implementation was measured 100 times - which was sufficient enough to get consistent results.
 
 - `gpulab` results were collected on a Linux machine equipped with Tesla V100 PCIe 16GB, Driver Version: 525.85.12, and CUDA Version: 12.0
 
@@ -125,47 +125,47 @@ The measured data are visualized using plots generated by [matmul.R](./matmul.R)
 
 ## Bonus
 
-This section contains some thing that didn't fit within the paper (due to the length limits, or ongoing development).
+This section collects topics that did not fit within the paper (due to the length limits, or ongoing development).
 
 ### Advanced Traversals
 
-The traversals performed by the Noarr traversers can be transformed by applying the `.order()` method with an argument that specifies the desired transformation, these transformations include (the list is non-exhaustive; the Noarr library also defines many shortcuts for various transformation combinations):
+The traversals performed by the Noarr traversers can be transformed by applying the `.order()` method with an argument that specifies the desired transformation, these transformations include: (the list is non-exhaustive; the Noarr library also defines many shortcuts for various transformation combinations)
 
-  - `into_blocks<OldDim, NewMajorDim, NewMinorDim>(block_size)` - Separates the specified dimension into blocks according to the given block size; each index from the original index space is then uniquely associated with a major index(block index) and a minor index. The dimension does not have to be contiguous. However, the transformation always assumes the dimension length is divisible by the block size; otherwise, some of the data are associated with indices outside the accessible index space.
+  - `into_blocks<OldDim, NewMajorDim, NewMinorDim>(block_size)` - Separates the specified dimension into blocks according to the given block size; each index from the original index space is then uniquely associated with a major index(block index) and a minor index. The dimension does not have to be contiguous. However, the transformation always assumes the dimension length is divisible by the block size; otherwise, some of the data are associated with indices outside the accessible index space and thus cannot be traversed.
 
     For the cases where the original dimension length is not guaranteed to be divisible by the block size, the Noarr library defines:
 
-      - `into_blocks_static<OldDim, NewIsBorderDim, NewMajorDim, NewMinorDim>(block_size)` - The `NewIsBorderDim` the top-most dimension of the three. It has the length of `2`; and, if it is given the index `0`, the rest of `into_blocks_static` behaves just like `into_blocks`; if it is, instead, set to `1` (corresponding to the *border* consisting of the remaining data that do not form a full block), the length of the major dimension is set to `1` (there is only one block), and the length of the minor dimension is set to the division remainder (modulo) after dividing the original dimension length by the block size.
+      - `into_blocks_static<OldDim, NewIsBorderDim, NewMajorDim, NewMinorDim>(block_size)` - The `NewIsBorderDim` the top-most dimension of the three. It has a length of `2`; and, if it is given the index `0`, the rest of `into_blocks_static` behaves just like `into_blocks`; if it is, instead, given the index `1` (corresponding to the *border* consisting of the remaining data that do not form a full block), the length of the major dimension is set to `1` (there is only one block), and the length of the minor dimension is set to the division remainder (modulo) after dividing the original dimension length by the block size.
 
-      - `into_blocks_dynamic<OldDim, NewMajorDim, NewMinorDim, NewDimIsPresent>(block_size)` - The specified dimension is divided into blocks according to the given blocks size using round-up division. This means that each index within the original index space is uniquely associated with some major index (block index) and some minor index and it is always accessible within the new index space (contrasting the simple `into_blocks`). Without the *is-present* dimension, this would allow for accessing items outside the original index space - for such items (we can recognize them by `oldLength <= majorIdx * block_size + minorIdx` being `true`), the is-present dimension length is `0`; otherwise, it is `1`. This behavior of the is-present dimension means that traversing over the legal items behaves as expected, while the traversal over the items outside the original index space traverses `0` items.
+      - `into_blocks_dynamic<OldDim, NewMajorDim, NewMinorDim, NewDimIsPresent>(block_size)` - The specified dimension is divided into blocks according to the given blocks size using round-up division. This means that each index within the original index space is uniquely associated with some major index (block index) and some minor index and it is always accessible within the new index space (contrasting the simple `into_blocks`). Without the *is-present* dimension, this would allow for accessing items outside the original index space - for such items (we can recognize them by `oldLength <= majorIdx * block_size + minorIdx` being `true`), the is-present dimension length is `0`; otherwise, it is `1`. This behavior of the is-present dimension ensures that traversing over the legal items behaves as expected, while the traversal over the items outside the original index space traverses `0` items.
 
-        This essentially emulates a pattern commonly found on parallel platforms (such as CUDA), where we map each thread to an element of an array (for simplicity; but we can generalize) and then each thread starts its work by checking whether its corresponding index falls within the bounds of the array. For this case, we might use `into_blocks_dynamic<ArrayDim, GridDim, BlockDim, DimIsPresent>` and then use `auto ct = cuda_threads<GridDim,BlockDim>(transformed_traverser)` to by the appropriate dimensions, the traversal performed by the `ct.inner()` inner traverser then transparently and checks the array bound as if we used the `if (outside) return;` pattern manually.
-
-  - `sized_vector<Dim>(size)` - Adds a new dimension to the traversal. This has limited usefulness to traversal transformations, but it is the most basic transformation for memory layouts.
+        This essentially emulates a pattern commonly found in algorithms for massively parallelized platforms (such as CUDA), where we map each thread to an element of an array (we assume an array for simplicity - but we can generalize) and then each thread starts its work by checking whether its corresponding index falls within the bounds of the array. For this case, we might use `into_blocks_dynamic<ArrayDim, GridDim, BlockDim, DimIsPresent>` and then use `auto ct = cuda_threads<GridDim, BlockDim>(transformed_traverser)` to bind the appropriate dimensions, the traversal performed by the `ct.inner()` inner traverser then transparently checks the array bound as if we used the `if (x >= array_length) return;` pattern manually.
 
     - there is also a symmetrical transformation called `merge_blocks`
 
-  - `fix<Dim>(value)`, `fix<Dims...>(values...)`, `fix(state)` - Specifies a traversal through a certain row, column, block, etc.
+  - `sized_vector<Dim>(size)` - Adds a new dimension to the traversal. This has limited usefulness to traversal transformations, but it is the most basic transformation for memory layouts.
+
+  - `fix<Dim>(value)`, `fix<Dims...>(values...)`, `fix(state)` - Limits the traversal to a certain row, column, block, etc.
 
   - `bcast<Dim>(length)` - Creates a dimension that just consumes an index from a certain range of values. The result is not affected by any particular index from the given range.
 
-    - Typically used as a placeholder: e.g. when binding dimensions via `cuda_threads`, or when adding blocking to some implementation configurations, we can use `bcast` for others to preserve the same API.
+    - Typically used as a placeholder: e.g. when binding dimensions via `cuda_threads`; or when adding blocking to some implementation configurations, we can use `bcast` in other configurations to preserve the same API.
 
-  - `rename<OldDim, NewDim>` - Renames a dimension of a structure, especially useful to specify that we want two (or more) structures to be traversed in parallel along some axes (in such cases, we would typically apply the rename directly to the given structure(s)).
+  - `rename<OldDim, NewDim>` - Renames a dimension of a structure. This is especially useful when we want to specify that two (or more) structures are to be traversed in parallel along some axes (in such cases, we would typically apply the rename directly to the given structure(s)).
 
-  - `shift<Dim>(offset)` - Makes the index provided for the specified dimension mapped to another, shifted by the given offset; also shortens the length of the traversal through the dimension accordingly so all shifted indices are within the original range.
+  - `shift<Dim>(offset)` - Makes the index provided for the specified dimension mapped to another that is shifted by the given offset; also shortens the length of the traversal through the dimension accordingly so all shifted indices are within the original range.
 
-  - `slice<Dim>(offset, length)` - This is a generalization of `shift`, which also explicitly restricts the length of the specified dimension. This is useful whenever we require a traversal through a contiguous subset of indices. An example of a typical use case is a stencil.
+  - `slice<Dim>(offset, length)` - This is a generalization of `shift` that also explicitly restricts the length of the specified dimension. This is useful whenever we require a traversal through a contiguous subset of indices. An example of a typical use case is a [stencil](#stencil).
 
-It is noteworthy that the same transformations can be applied to memory layouts and traversals alike. It is also possible to provide more, user-defined, transformations.
+It is noteworthy that the same transformations can be applied to memory layouts and traversals alike. The transformations are programmed so they accept and propagate type-literal arguments to enable further optimizations. It is also possible to provide more, user-defined, transformations as needed.
 
 ### Kmeans
 
 Noarr is not viable just in simple computation kernels performing work on some regular structures. The implementation of this algorithm showcases some of the more advanced uses of the library, including a simple data (de)serialization example.
 
-- [kmeans](./kmeans) contains three versions of an implementation of the k-means algorithm (two Noarr versions and one in pure C++). One Noarr version uses Noarr bags and the other one does not. The names follow the naming scheme of the other two algorithms.
+- [kmeans](./kmeans) contains three versions of an implementation of the k-means algorithm (two Noarr versions and one in pure C++). One Noarr version uses Noarr bags and the other one does not. The names follow the naming scheme of the previously mentioned two algorithms.
 
-  - [kmeans-gen.py](./kmeans/kmeans-gen.py): A Python script that generates data that are very likely to be clustered deterministically into the expected number of clusters. It also attempts to choose inputs that make the process more resistant to numeric errors caused by floating-point arithmetics.
+  - [kmeans-gen.py](./kmeans/kmeans-gen.py): A Python script that generates data that are very likely to be clustered deterministically into the expected number of clusters. It also attempts, using a simple heuristic, to generate such data that the process is maximally resistant to numeric errors caused by floating-point arithmetics.
 
     `make generate-kmeans` uses this script to generate a few test inputs (it uses a pre-specified seed to promote replicability).
 
@@ -178,11 +178,11 @@ make generate-kmeans
 ./kmeans-validate.sh && ./kmens-measure.sh
 ```
 
-This experiment also includes a comparison against the `sklearn` k-means algorithm configured to perform the same job. It is included mainly to provide the correct output.
+This experiment also includes a comparison against the `sklearn` k-means algorithm configured to perform the same job. It is included mainly to provide the correct output for validation.
 
 ### Stencil
 
-This algorithm does not have an experiment associated with it as the required abstractions are not yet fully optimized, but it is included to showcase the flexibility of the presented abstractions.
+This algorithm does not have an experiment associated with it as the used abstractions are not yet fully optimized, but it is included to showcase the flexibility of the presented abstractions.
 
 - [stencil](./stencil): This directory, as usual, contains three versions of a simple implementation of a blur stencil (performing flat blur with a specified neighborhood radius); two versions that use the Noarr abstraction (one with Noarr bags and the other without), one that is written in pure C++.
 
